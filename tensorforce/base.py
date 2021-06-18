@@ -114,7 +114,6 @@ class FORCEModel(keras.Model):
             return self.force_layer(x, **kwargs)[0] 
 
     def train_step(self, data):
-        # This is a standard keras method; see the Keras documentation for how this is used
         x, y = data
         for i in range(x.shape[1]):
           z, _, h, _ = self(x[:,i:i+1,:], training=True)
