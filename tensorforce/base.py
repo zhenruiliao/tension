@@ -288,6 +288,21 @@ class FORCEModel(keras.Model):
                                     initializer=keras.initializers.constant(identity_3d), 
                                     trainable=True)
 
+        self.__output_kernel_idx__ = None
+        self.__recurrent_kernel_idx__ = None
+        for idx in range(len(self.trainable_variables)):
+          trainable_name = self.trainable_variables[idx].name
+              
+          if 'output_kernel' in trainable_name:
+            self.__output_kernel_idx__ = idx
+          elif 'P_output' in trainable_name:
+            self.__P_output_idx__ = idx
+          elif 'P_GG' in trainable_name:
+            self.__P_GG_idx__ = idx
+          elif 'recurrent_kernel' in trainable_name:
+            self.__recurrent_kernel_idx__ = idx
+
+
     def call(self, x, training=False,   **kwargs):
 
         if training:
@@ -310,8 +325,8 @@ class FORCEModel(keras.Model):
         if self.run_eagerly:
           self.hidden_activation = []
                 
-        output_kernel_idx = None
-        recurrent_kernel_idx = None
+        # self.__output_kernel_idx__ = None
+        # self.__recurrent_kernel_idx__ = None
 
         for i in range(x.shape[1]):
           z, _, h, _ = self(x[:,i:i+1,:], training=True)
@@ -320,34 +335,42 @@ class FORCEModel(keras.Model):
             z = z[:,0,:]
          
           trainable_vars = self.trainable_variables
-          for idx in range(len(trainable_vars)):
-            trainable_name = trainable_vars[idx].name
-              
-            if 'output_kernel' in trainable_name:
-              output_kernel_idx = idx
-            elif 'P_output' in trainable_name:
-              P_output_idx = idx
-            elif 'P_GG' in trainable_name:
-              P_GG_idx = idx
-            elif 'recurrent_kernel' in trainable_name:
-              recurrent_kernel_idx = idx
 
-          if output_kernel_idx is not None:
+          # for idx in range(len(trainable_vars)):
+          #   trainable_name = trainable_vars[idx].name
+              
+          #   if 'output_kernel' in trainable_name:
+          #     self.__output_kernel_idx__ = idx
+          #   elif 'P_output' in trainable_name:
+          #     self.__P_output_idx__ = idx
+          #   elif 'P_GG' in trainable_name:
+          #     self.__P_GG_idx__ = idx
+          #   elif 'recurrent_kernel' in trainable_name:
+          #     self.__recurrent_kernel_idx__ = idx
+
+          if self.__output_kernel_idx__ is not None:
+            # assert 'output_kernel' in trainable_vars[self.__output_kernel_idx__].name
+            # assert 'P_output' in trainable_vars[self.__P_output_idx__].name
+
             # Compute pseudogradients
             dP = self.__pseudogradient_P(h)
             # Update weights
-            self.optimizer.apply_gradients(zip([dP], [trainable_vars[P_output_idx]]))
+            self.optimizer.apply_gradients(zip([dP], [trainable_vars[self.__P_output_idx__]]))
 
             dwO = self.__pseudogradient_wO(h, z, y[:,i,:])
-            self.optimizer.apply_gradients(zip([dwO], [trainable_vars[output_kernel_idx]]))
+            self.optimizer.apply_gradients(zip([dwO], [trainable_vars[self.__output_kernel_idx__]]))
           
-          if recurrent_kernel_idx is not None:
+          if self.__recurrent_kernel_idx__ is not None:
+
+            # assert 'recurrent_kernel' in trainable_vars[self.__recurrent_kernel_idx__].name
+            # assert 'P_GG' in trainable_vars[self.__P_GG_idx__].name
+
             # Compute pseudogradients
             dP_GG = self.__pseudogradient_P_Gx(self.P_GG, h)
             # Update weights
-            self.optimizer.apply_gradients(zip([dP_GG], [trainable_vars[P_GG_idx]]))
+            self.optimizer.apply_gradients(zip([dP_GG], [trainable_vars[self.__P_GG_idx__]]))
             dwR = self.__pseudogradient_wR(h, z, y[:,i,:])
-            self.optimizer.apply_gradients(zip([dwR], [trainable_vars[recurrent_kernel_idx]]))
+            self.optimizer.apply_gradients(zip([dwR], [trainable_vars[self.__recurrent_kernel_idx__]]))
           
         # Update metrics (includes the metric that tracks the loss)
           self.compiled_metrics.update_state(y[:,i,:], z)
@@ -373,7 +396,7 @@ class FORCEModel(keras.Model):
         k = backend.dot(self.P_output, tf.transpose(h))
         hPht = backend.dot(h, k)
         c = 1./(1.+hPht)
-        assert c.shape == (1,1)
+      #  assert c.shape == (1,1)
         hP = backend.dot(h, self.P_output)
         dP = backend.dot(c*k, hP)
         
@@ -395,7 +418,7 @@ class FORCEModel(keras.Model):
 
     def __pseudogradient_wR(self, h, z, y):
         e = z - y 
-        assert e.shape == (1,1)
+   #     assert e.shape == (1,1)
         Ph = backend.dot(self.P_GG, tf.transpose(h))[:,:,0]
 
         dwR = Ph*e ### only valid for 1-d output
