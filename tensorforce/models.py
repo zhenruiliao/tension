@@ -110,6 +110,23 @@ class TargetGeneratingNetwork(EchoStateNetwork):
         super().__init__(**kwargs)  
         self._hint_dim = hint_dim
 
+# #####
+
+#     def initialize_feedback_kernel(self, feedback_kernel = None):
+#         if feedback_kernel is None:
+#             initializer = keras.initializers.RandomUniform(minval=-1., 
+#                                                           maxval= 1., 
+#                                                           seed=self.seed_gen.uniform([1], 
+#                                                                                  minval=None, 
+#                                                                                  dtype=tf.dtypes.int64)[0])
+#             feedback_kernel = initializer(shape = (self.output_size, self.units))
+
+#         self.feedback_kernel = self.add_weight(shape=(self.output_size, self.units),
+#                                                 initializer=keras.initializers.constant(feedback_kernel),
+#                                                 trainable = self._feedback_kernel_trainable,
+#                                                 name='feedback_kernel')
+# #####
+
     def build(self, input_shape):
         input_shape = input_shape[:-1] + (input_shape[-1]-self.output_size-self._hint_dim,)
         super().build(input_shape)
@@ -117,12 +134,17 @@ class TargetGeneratingNetwork(EchoStateNetwork):
         if self._hint_dim > 0:
            self.hint_kernel = self.add_weight(shape=(self._hint_dim, self.units),
                                               initializer=keras.initializers.RandomNormal(mean=0., 
-                                              stddev= 1/self._hint_dim**0.5, 
-                                              seed=self.seed_gen.uniform([1], 
-                                                                                 minval=None, 
-                                                                                 dtype=tf.dtypes.int64)[0]),
-          trainable=False,
-          name='hint_kernel')
+                                                                                          stddev= 1/self._hint_dim**0.5, 
+                                                                                          seed=self.seed_gen.uniform([1], 
+                                                                                                                    minval=None, 
+                                                                                                                    dtype=tf.dtypes.int64)[0]),
+                                              # initializer=keras.initializers.RandomUniform(minval=-1, 
+                                              #                                             maxval= 1, 
+                                              #                                             seed=self.seed_gen.uniform([1], 
+                                              #                                                                       minval=None, 
+                                              #                                                                       dtype=tf.dtypes.int64)[0]),
+                                              trainable=False,
+                                              name='hint_kernel')
 
     @classmethod
     def from_weights(cls, weights, **kwargs):
@@ -324,3 +346,90 @@ class fullFORCEModel(FORCEModel):
         dwR_task = backend.dot(backend.dot(P_task, tf.transpose(h_task)), e)
 
         return dwR_task #tf.transpose(dwR_task)
+    
+class optimizedFORCEModel(FORCEModel):
+
+    def initialize_P(self):
+
+        self.P_output = self.add_weight(name='P_output', shape=(self.units, self.units), 
+                                        initializer=keras.initializers.Identity(gain=self.alpha_P), 
+                                        trainable=True)
+
+        if self.original_force_layer.recurrent_kernel.trainable:
+
+            bool_mask = self.original_force_layer.recurrent_nontrainable_boolean_mask
+
+            if bool_mask is None or tf.math.count_nonzero(bool_mask) == 0:
+          #    print('bool mask None or count is 0')
+              self.P_GG = self.add_weight(name='P_GG', shape=(self.units, self.units), 
+                                          initializer=keras.initializers.Identity(gain=self.alpha_P), 
+                                          trainable=True)
+              
+              
+            else:
+              print('bool mask count is NOT zero')
+              identity_3d = np.zeros((self.units, self.units, self.units))
+              idx = np.arange(self.units)
+
+  #################### 
+
+              identity_3d[:, idx, idx] = self.alpha_P 
+
+              I,J = np.nonzero(tf.transpose(bool_mask).numpy()==True)
+              identity_3d[I,:,J]=0
+              identity_3d[I,J,:]=0
+
+  #################### 
+  # # new 
+  #          #  print('new')
+  #             identity_3d[idx, idx, :] = self.alpha_P 
+  #             J,I = np.nonzero(self.original_force_layer.recurrent_kernel.numpy()==0)
+  #             identity_3d[J,:,I]=0
+  #             identity_3d[:,J,I]=0
+
+  #################### 
+
+              self.P_GG = self.add_weight(name='P_GG', shape=(self.units, self.units, self.units), 
+                                          initializer=keras.initializers.constant(identity_3d), 
+                                          trainable=True)
+              
+    def pseudogradient_wR(self, P_Gx, h, z, y):
+        e = z - y 
+        assert e.shape == (1,1), 'Output must only have 1 dimension'
+
+        if len(P_Gx.shape) == 2:
+           # print('wR len')
+            dwR_inter = backend.dot(P_Gx, tf.transpose(h))*e
+            return dwR_inter*tf.ones((P_Gx.shape))
+        else:
+            Ph = backend.dot(P_Gx, tf.transpose(h))[:,:,0]
+            dwR = Ph*e ### only valid for 1-d output
+            return tf.transpose(dwR) 
+
+    def pseudogradient_P_Gx(self, P_Gx, h):
+
+        if len(P_Gx.shape) == 2:
+            #print('PGx len')
+            return self.pseudogradient_P(P_Gx,h)
+
+        Ph = backend.dot(P_Gx, tf.transpose(h))[:,:,0]
+        hPh = tf.expand_dims(backend.dot(Ph, tf.transpose(h)),axis = 2)
+        dP_Gx = tf.expand_dims(Ph, axis = 2) * tf.expand_dims(Ph, axis = 1)/(1+hPh)
+        return dP_Gx
+    
+    
+class testFORCEcall(FORCEModel):
+    def call(self, x, training=False,   **kwargs):
+
+        if training:
+            return self.force_layer_call(x, training, **kwargs)
+        else:
+            initialization = all(v is None for v in self.force_layer.states)
+            if not initialization:
+              original_state = [tf.identity(state) for state in self.force_layer.states]
+            output = self.force_layer_call(x, training, **kwargs)[0]
+
+            if not initialization:
+              for i, state in enumerate(self.force_layer.states):
+                  state.assign(original_state[i], read_value = False)
+            return output
