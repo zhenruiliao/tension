@@ -43,6 +43,12 @@ class FORCELayer(keras.layers.AbstractRNNCell):
                                                           seed=self.seed_gen.uniform([1], 
                                                                                     minval=None, 
                                                                                     dtype=tf.dtypes.int64)[0])
+            # initializer = keras.initializers.RandomUniform(minval=-1, 
+            #                                                maxval=1,
+            #                                                seed=self.seed_gen.uniform([1], 
+            #                                                                          minval=None, 
+            #                                                                          dtype=tf.dtypes.int64)[0])
+            
             input_kernel = initializer(shape = (input_shape, self.units))
          
         self.input_kernel = self.add_weight(shape=(input_shape, self.units),
