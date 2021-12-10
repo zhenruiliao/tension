@@ -417,19 +417,3 @@ class optimizedFORCEModel(FORCEModel):
         dP_Gx = tf.expand_dims(Ph, axis = 2) * tf.expand_dims(Ph, axis = 1)/(1+hPh)
         return dP_Gx
     
-    
-class testFORCEcall(FORCEModel):
-    def call(self, x, training=False,   **kwargs):
-
-        if training:
-            return self.force_layer_call(x, training, **kwargs)
-        else:
-            initialization = all(v is None for v in self.force_layer.states)
-            if not initialization:
-              original_state = [tf.identity(state) for state in self.force_layer.states]
-            output = self.force_layer_call(x, training, **kwargs)[0]
-
-            if not initialization:
-              for i, state in enumerate(self.force_layer.states):
-                  state.assign(original_state[i], read_value = False)
-            return output

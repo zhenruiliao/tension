@@ -204,20 +204,19 @@ class FORCEModel(keras.Model):
             self._P_GG_idx = idx
           elif 'recurrent_kernel' in trainable_name:
             self._recurrent_kernel_idx = idx
-
+            
     def call(self, x, training=False,   **kwargs):
-
         if training:
             return self.force_layer_call(x, training, **kwargs)
         else:
             initialization = all(v is None for v in self.force_layer.states)
-            
             if not initialization:
-              original_state = [i.numpy() for i in self.force_layer.states]
+              original_state = [tf.identity(state) for state in self.force_layer.states]
             output = self.force_layer_call(x, training, **kwargs)[0]
 
             if not initialization:
-              self.force_layer.reset_states(states = original_state)
+              for i, state in enumerate(self.force_layer.states):
+                  state.assign(original_state[i], read_value = False)
             return output
 
     def force_layer_call(self, x, training, **kwargs):
