@@ -5,6 +5,10 @@ from tensorflow.keras import backend, activations
 
 
 class FORCELayer(keras.layers.AbstractRNNCell):
+	""" Base class for FORCE layers
+	
+
+	"""
     def __init__(self, units, output_size, activation, seed = None, g = 1.5, 
                  input_kernel_trainable = False, recurrent_kernel_trainable = False, 
                  output_kernel_trainable = True, feedback_kernel_trainable = False, p_recurr = 1, **kwargs):
