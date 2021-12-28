@@ -5,15 +5,15 @@ from tensorflow.keras import backend, activations
 from .base import FORCELayer
 
 class EchoStateNetwork(FORCELayer):
-""" Implements the feedback echo state network
+    """ Implements the feedback echo state network
 
-    Args:
-        dtdivtau: (float) dt divided by network dynamic time scale
-        hscale: (float) A scaling factor for randomly initializing the initial network 
-                    activities 
-        initial_a: (array) An optional 1 x self.units tensor or numpy array specifying
-                    the initial network activities 
-"""
+        Args:
+           dtdivtau: (float) dt divided by network dynamic time scale
+           hscale: (float) A scaling factor for randomly initializing the initial network 
+                        activities 
+           initial_a: (array) An optional 1 x self.units tensor or numpy array specifying
+                        the initial network activities 
+    """
     def __init__(self, dtdivtau, hscale = 0.25, initial_a = None, **kwargs):
         self.dtdivtau = dtdivtau 
         self.hscale = hscale
@@ -55,9 +55,9 @@ class EchoStateNetwork(FORCELayer):
     
     
 class NoFeedbackESN(EchoStateNetwork):
-""" Implements the no feedback echo state network
+    """ Implements the no feedback echo state network
 
-"""
+    """
     def __init__(self, recurrent_kernel_trainable  = True, **kwargs):
         super().__init__(recurrent_kernel_trainable = recurrent_kernel_trainable, **kwargs)
 
@@ -194,18 +194,17 @@ class TargetGeneratingNetwork(EchoStateNetwork):
     
     
 class fullFORCEModel(FORCEModel):
-""" Implements full FORCE learning by DePasquale et al. Subclassed from FORCEModel. 
+    """ Implements full FORCE learning by DePasquale et al. Subclassed from FORCEModel. 
 
-    Target dimension must be 1. 
+        Target dimension must be 1. 
     
-    During training, input to the model should be of shape (1, timesteps, input dimensions + hint dimensions).
-    During inference, input to the model should be of shape (1, timesteps, input dimensions).
+        During training, input to the model should be of shape (1, timesteps, input dimensions + hint dimensions).
+        During inference, input to the model should be of shape (1, timesteps, input dimensions).
 
-    Args:
-        hint_dim: (int) Dimension of the hint input
-        target_output_kernel_trainable: (boolean) If True, train the target output kernel 
-
-"""
+        Args:
+            hint_dim: (int) Dimension of the hint input
+            target_output_kernel_trainable: (boolean) If True, train the target output kernel 
+    """
     def __init__(self, hint_dim, target_output_kernel_trainable = True, **kwargs):
         super().__init__(**kwargs)
         
@@ -353,14 +352,13 @@ class fullFORCEModel(FORCEModel):
         return dwR_task 
     
 class optimizedFORCEModel(FORCEModel):
-""" Optimized version of FORCE model per Sussillo and Abbott if all recurrent weights in the
-    network is trainable. 
+    """ Optimized version of FORCE model per Sussillo and Abbott if all recurrent weights in the
+        network is trainable. 
      
-    Input to the model should be of shape (1, timesteps, input dimensions). 
+        Input to the model should be of shape (1, timesteps, input dimensions). 
 
-    If the recurrent kernel is to be trained, then the target must be one dimensional. 
-
-"""
+        If the recurrent kernel is to be trained, then the target must be one dimensional. 
+    """
     def initialize_P(self):
 
         self.P_output = self.add_weight(name='P_output', shape=(self.units, self.units), 
@@ -397,13 +395,13 @@ class optimizedFORCEModel(FORCEModel):
         e = z - y 
         assert e.shape == (1,1), 'Output must only have 1 dimension'
 
+        # if P is 2D, use optimized update rule
         if len(P_Gx.shape) == 2:
-           # print('wR len')
             dwR_inter = backend.dot(P_Gx, tf.transpose(h))*e
             return dwR_inter*tf.ones((P_Gx.shape))
         else:
             Ph = backend.dot(P_Gx, tf.transpose(h))[:,:,0]
-            dwR = Ph*e ### only valid for 1-d output
+            dwR = Ph*e ### only valid for 1-d output 
             return tf.transpose(dwR) 
 
     def pseudogradient_P_Gx(self, P_Gx, h):

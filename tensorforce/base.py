@@ -5,21 +5,21 @@ from tensorflow.keras import backend, activations
 
 
 class FORCELayer(keras.layers.AbstractRNNCell):
-""" Base class for FORCE layers
+    """ Base class for FORCE layers
 
-	Args:
-		units: (int) Number of recurrent units.
-		output_size: (int) Dimension of the target. 
-		activation: (str) Activation function. 
-		seed: (int) Seed for random weight initialization.
-		g: (int) Factor that scales the strengths of the recurrent connections within the network.
-		input_kernel_trainable: (bool) If True, train the input kernel. 
-		recurrent_kernel_trainable: (bool) If True, train the recurrent kernel.
-		output_kernel_trainable: (bool) If True, train the output kernel.
-		p_recurr: (float) Density of the recurrent kernel, larger values means denser (more non-zero) 
-						  connections. Must be in [0,1). 
+        Args:
+            units: (int) Number of recurrent units.
+            output_size: (int) Dimension of the target. 
+            activation: (str) Activation function. 
+            seed: (int) Seed for random weight initialization.
+            g: (int) Factor that scales the strengths of the recurrent connections within the network.
+            input_kernel_trainable: (bool) If True, train the input kernel. 
+            recurrent_kernel_trainable: (bool) If True, train the recurrent kernel.
+            output_kernel_trainable: (bool) If True, train the output kernel.
+            p_recurr: (float) Density of the recurrent kernel, larger values means denser (more non-zero) 
+                              connections. Must be in [0,1). 
+    """
 
-"""
     def __init__(self, units, output_size, activation, seed = None, g = 1.5, 
                  input_kernel_trainable = False, recurrent_kernel_trainable = False, 
                  output_kernel_trainable = True, feedback_kernel_trainable = False, p_recurr = 1, **kwargs):
@@ -52,13 +52,13 @@ class FORCELayer(keras.layers.AbstractRNNCell):
         return self._output_size
 
     def initialize_input_kernel(self, input_dim, input_kernel = None):
-    	"""
-		Args:
-			input_dim: (int) Dimension of input
-			input_kernel: (2D array) Tensor or numpy array containing the pre-initialized kernel. 
-							If none, the kernel will be randomly initialized. 
+        """
+        Args:
+            input_dim: (int) Dimension of input
+            input_kernel: (2D array) Tensor or numpy array containing the pre-initialized kernel. 
+                            If none, the kernel will be randomly initialized. 
 
-    	"""
+        """
         if input_kernel is None:
             initializer = keras.initializers.RandomNormal(mean=0., 
                                                           stddev= 1/input_dim**0.5, 
@@ -74,12 +74,12 @@ class FORCELayer(keras.layers.AbstractRNNCell):
                                             name='input_kernel')
         
     def initialize_recurrent_kernel(self, recurrent_kernel = None):
-    	"""
-		Args:
-			recurrent_kernel: (2D array) Tensor or numpy array containing the pre-initialized kernel. 
-								If none, the kernel will be randomly initialized. 
+        """
+        Args:
+            recurrent_kernel: (2D array) Tensor or numpy array containing the pre-initialized kernel. 
+                                If none, the kernel will be randomly initialized. 
 
-    	"""
+        """
 
         if recurrent_kernel is None:        
             initializer = keras.initializers.RandomNormal(mean=0., 
@@ -98,11 +98,10 @@ class FORCELayer(keras.layers.AbstractRNNCell):
     
     def initialize_feedback_kernel(self, feedback_kernel = None):
         """
-		Args:
-			feedback_kernel: (2D array) Tensor or numpy array containing the pre-initialized kernel. 
-								If none, the kernel will be randomly initialized. 
-
-    	"""
+        Args:
+            feedback_kernel: (2D array) Tensor or numpy array containing the pre-initialized kernel. 
+                                If none, the kernel will be randomly initialized. 
+        """
 
         if feedback_kernel is None:
             initializer = keras.initializers.RandomNormal(mean=0., 
@@ -119,12 +118,12 @@ class FORCELayer(keras.layers.AbstractRNNCell):
                                             
 
     def initialize_output_kernel(self, output_kernel = None):
-    	"""
-		Args:
-			output_kernel: (2D array) Tensor or numpy array containing the pre-initialized kernel. 
-								If none, the kernel will be randomly initialized. 
+        """
+        Args:
+            output_kernel: (2D array) Tensor or numpy array containing the pre-initialized kernel. 
+                                If none, the kernel will be randomly initialized. 
 
-    	"""
+        """
         if output_kernel is None:
             initializer=keras.initializers.RandomNormal(mean=0., 
                                                         stddev= 1/self.units**0.5, 
@@ -149,14 +148,13 @@ class FORCELayer(keras.layers.AbstractRNNCell):
 
     @classmethod
     def from_weights(cls, weights, **kwargs):
-    	"""
-    	Args:
-			weights: (tuple of four) Four 2D tensors or numpy array containing the 
-							 input, recurrent, feedback, and output kernels  
-		Returns:
-			A FORCE Layer object initialized with the input weights
-
-    	"""
+        """
+        Args:
+            weights: (tuple of four) Four 2D tensors or numpy array containing the 
+                            input, recurrent, feedback, and output kernels  
+        Returns:
+            A FORCE Layer object initialized with the input weights
+        """
  
         input_kernel, recurrent_kernel, feedback_kernel, output_kernel = weights 
         input_shape, input_units = input_kernel.shape 
@@ -184,18 +182,18 @@ class FORCELayer(keras.layers.AbstractRNNCell):
         return self
 
 class FORCEModel(keras.Model):
-""" Base class for FORCE models per Sussillo and Abbott. 
-    Input to the model should be of shape (1, timesteps, input dimensions). 
+    """ Base class for FORCE models per Sussillo and Abbott. 
+        Input to the model should be of shape (1, timesteps, input dimensions). 
 
-    If the recurrent kernel is to be trained, then the target must be one dimensional. 
+        If the recurrent kernel is to be trained, then the target must be one dimensional. 
 
-	Args:
-		force_layer: A FORCE Layer (or its subclass) object
-		alpha_P: (float) Constant parameter for initializing the P matrix
-		return_sequences: (bool) If True, target is returned as a sequence of the same length as
-							the number of time steps in the input.
+        Args:
+            force_layer: A FORCE Layer (or its subclass) object
+            alpha_P: (float) Constant parameter for initializing the P matrix
+            return_sequences: (bool) If True, target is returned as a sequence of the same length as
+                                the number of time steps in the input.
 
-"""
+    """
     def __init__(self, force_layer, alpha_P=1.,return_sequences=True):
         super().__init__()
         self.alpha_P = alpha_P
@@ -215,7 +213,7 @@ class FORCEModel(keras.Model):
 
     def initialize_P(self):
 
-    	# P matrix for updating the output kernel
+        # P matrix for updating the output kernel
         self.P_output = self.add_weight(name='P_output', shape=(self.units, self.units), 
                                  initializer=keras.initializers.Identity(
                                               gain=self.alpha_P), trainable=True)
@@ -230,7 +228,7 @@ class FORCEModel(keras.Model):
 
 
             if self.original_force_layer.recurrent_nontrainable_boolean_mask is not None:
-            	# transpose here is to be consistent with recurrent pseudogradient calculations
+                # transpose here is to be consistent with recurrent pseudogradient calculations
                 I,J = np.nonzero(tf.transpose(self.original_force_layer.recurrent_nontrainable_boolean_mask).numpy()==True)
                 identity_3d[I,:,J]=0
                 identity_3d[I,J,:]=0
@@ -357,8 +355,8 @@ class FORCEModel(keras.Model):
         return  dP 
 
     def pseudogradient_wO(self, P, h, z, y):
-    	# Return pseudogradient for wO
-    	# Example array shapes
+        # Return pseudogradient for wO
+        # Example array shapes
         # P : self.units x self.units 
         # h : 1 x self.units
         # z,y : 1 x output dimension
