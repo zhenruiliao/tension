@@ -14,7 +14,12 @@ class EchoStateNetwork(FORCELayer):
            initial_a: (array) An optional 1 x self.units tensor or numpy array specifying
                         the initial network activities 
     """
-    def __init__(self, dtdivtau, hscale = 0.25, initial_a = None, **kwargs):
+    def __init__(self, 
+                 dtdivtau, 
+                 hscale = 0.25, 
+                 initial_a = None, 
+                 **kwargs):
+
         self.dtdivtau = dtdivtau 
         self.hscale = hscale
         self._initial_a = initial_a
@@ -58,7 +63,10 @@ class NoFeedbackESN(EchoStateNetwork):
     """ Implements the no feedback echo state network
 
     """
-    def __init__(self, recurrent_kernel_trainable  = True, **kwargs):
+    def __init__(self, 
+                 recurrent_kernel_trainable  = True, 
+                 **kwargs):
+
         super().__init__(recurrent_kernel_trainable = recurrent_kernel_trainable, **kwargs)
 
     def call(self, inputs, states):
@@ -130,7 +138,10 @@ class NoFeedbackESN(EchoStateNetwork):
     
 class TargetGeneratingNetwork(EchoStateNetwork):
 
-    def __init__(self, hint_dim, **kwargs): 
+    def __init__(self, 
+                 hint_dim, 
+                 **kwargs): 
+
         super().__init__(**kwargs)  
         self._hint_dim = hint_dim
 
@@ -191,21 +202,25 @@ class TargetGeneratingNetwork(EchoStateNetwork):
         init_h =  self.activation(init_a)
 
         return (init_a, init_h, init_h)
-    
-    
+
 class fullFORCEModel(FORCEModel):
     """ Implements full FORCE learning by DePasquale et al. Subclassed from FORCEModel. 
 
-        Target dimension must be 1. 
-    
-        During training, input to the model should be of shape (1, timesteps, input dimensions + hint dimensions).
-        During inference, input to the model should be of shape (1, timesteps, input dimensions).
+        Target to the model during fit/evaluate should be of shape (timesteps, 1). 
+
+        During training, input to the model should be of shape (timesteps, input dimensions + hint dimensions).
+        During inference, input to the model should be of shape (timesteps, input dimensions).
 
         Args:
             hint_dim: (int) Dimension of the hint input
             target_output_kernel_trainable: (boolean) If True, train the target output kernel 
     """
-    def __init__(self, hint_dim, target_output_kernel_trainable = True, **kwargs):
+
+    def __init__(self, 
+                 hint_dim, 
+                 target_output_kernel_trainable = True, 
+                 **kwargs):
+
         super().__init__(**kwargs)
         
         self._target_output_kernel_trainable = target_output_kernel_trainable
@@ -228,7 +243,8 @@ class fullFORCEModel(FORCEModel):
                                                        output_size = self._output_dim, 
                                                        activation = self.original_force_layer.activation,
                                                        output_kernel_trainable = self._target_output_kernel_trainable,
-                                                       hint_dim = self._hint_dim)
+                                                       hint_dim = self._hint_dim,
+                                                       seed = 0) ###########################################################
 
         self.target_network = keras.layers.RNN(self._target_network, 
                                                stateful=True, 
@@ -279,53 +295,45 @@ class fullFORCEModel(FORCEModel):
     def train_step(self, data):
 
         x, y = data
+        assert all([x.shape[0]==1, x.shape[1]==1,y.shape[0]==1, y.shape[1]==1])
+        output_task, h_task, output_target, h_target, fb_hint_sum = self(tf.concat([x, y], axis = -1), training=True) 
 
-        if self.run_eagerly:
-            self.hidden_activation = []
-                
-        for i in range(x.shape[1]):
+        if self.force_layer.return_sequences:
+            output_task = output_task[:,0,:]
 
-            output_task, h_task, output_target, h_target, fb_hint_sum = self(tf.concat([x[:,i:i+1,:], y[:,i:i+1,:]], axis = -1), 
-                                                                training=True) 
+        if self.target_network.return_sequences:
+            output_target = output_target[:, 0, :]
 
-            if self.force_layer.return_sequences:
-                output_task = output_task[:,0,:]
+        trainable_vars = self.trainable_variables
 
-            if self.target_network.return_sequences:
-                output_target = output_target[:, 0, :]
+        if self._task_output_kernel_idx is not None:
+            # inherited from FORCEModel base class
+            self.update_output_kernel(self.task_P_output, 
+                                      h_task, 
+                                      output_task, 
+                                      y[:,0,:], 
+                                      trainable_vars[self._task_P_output_idx],
+                                      trainable_vars[self._task_output_kernel_idx])
 
-            trainable_vars = self.trainable_variables
-
-            if self._task_output_kernel_idx is not None:
-                # inherited from FORCEModel base class
-                self.update_output_kernel(self.task_P_output, 
-                                          h_task, 
-                                          output_task, 
-                                          y[:,i,:], 
-                                          trainable_vars[self._task_P_output_idx],
-                                          trainable_vars[self._task_output_kernel_idx])
-
-            if self._task_recurrent_kernel_idx is not None:
-                self.update_recurrent_kernel(h_task, 
-                                             h_target, 
-                                             fb_hint_sum, 
-                                             trainable_vars)
+        if self._task_recurrent_kernel_idx is not None:
+            self.update_recurrent_kernel(h_task, 
+                                         h_target, 
+                                         fb_hint_sum, 
+                                         trainable_vars)
                 
 
-            if self._target_output_kernel_idx is not None:
-                # inherited from FORCEModel base class
-                self.update_output_kernel(self.target_P_output, 
-                                          h_target, 
-                                          output_target, 
-                                          y[:,i,:], 
-                                          trainable_vars[self._target_P_output_idx], 
-                                          trainable_vars[self._target_output_kernel_idx])
+        if self._target_output_kernel_idx is not None:
+             # inherited from FORCEModel base class
+             self.update_output_kernel(self.target_P_output, 
+                                       h_target, 
+                                       output_target, 
+                                       y[:,0,:], 
+                                       trainable_vars[self._target_P_output_idx], 
+                                       trainable_vars[self._target_output_kernel_idx])
                 
-            # Update metrics (includes the metric that tracks the loss)
-            self.compiled_metrics.update_state(y[:,i,:], output_task)
+        # Update metrics (includes the metric that tracks the loss)
+        self.compiled_metrics.update_state(y[:,0,:], output_task)
 
-            if self.run_eagerly:
-                self.hidden_activation.append(h_task.numpy()[0])
 
         return {m.name: m.result() for m in self.metrics}
 
@@ -350,7 +358,7 @@ class fullFORCEModel(FORCEModel):
         dwR_task = backend.dot(backend.dot(P_task, tf.transpose(h_task)), e)
 
         return dwR_task 
-    
+
 class optimizedFORCEModel(FORCEModel):
     """ Optimized version of FORCE model per Sussillo and Abbott if all recurrent weights in the
         network is trainable. 

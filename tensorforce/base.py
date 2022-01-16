@@ -10,7 +10,7 @@ class FORCELayer(keras.layers.AbstractRNNCell):
         Args:
             units: (int) Number of recurrent units.
             output_size: (int) Dimension of the target. 
-            activation: (str) Activation function. 
+            activation: (function or str) Activation function. Can be a string (i.e. 'tanh') or a function.  
             seed: (int) Seed for random weight initialization.
             g: (int) Factor that scales the strengths of the recurrent connections within the network.
             input_kernel_trainable: (bool) If True, train the input kernel. 
@@ -20,9 +20,18 @@ class FORCELayer(keras.layers.AbstractRNNCell):
                               connections. Must be in [0,1). 
     """
 
-    def __init__(self, units, output_size, activation, seed = None, g = 1.5, 
-                 input_kernel_trainable = False, recurrent_kernel_trainable = False, 
-                 output_kernel_trainable = True, feedback_kernel_trainable = False, p_recurr = 1, **kwargs):
+    def __init__(self, 
+                 units, 
+                 output_size, 
+                 activation, 
+                 seed = None, 
+                 g = 1.5, 
+                 input_kernel_trainable = False, 
+                 recurrent_kernel_trainable = False, 
+                 output_kernel_trainable = True, 
+                 feedback_kernel_trainable = False, 
+                 p_recurr = 1, 
+                 **kwargs):
                 
         self.units = units 
         self._output_size = output_size
@@ -183,9 +192,13 @@ class FORCELayer(keras.layers.AbstractRNNCell):
 
 class FORCEModel(keras.Model):
     """ Base class for FORCE models per Sussillo and Abbott. 
-        Input to the model should be of shape (1, timesteps, input dimensions). 
+        Input to the model during fit/predict/evaluate should be of shape (timesteps, input dimensions). 
+        Target to the model during fit/evalaute should be of shape (timesteps, output dimensions).
 
-        If the recurrent kernel is to be trained, then the target must be one dimensional. 
+        If validation data is to be passed to model.fit, input and output should 
+        be of shape (1, timesteps, input dimensions) and (1, timesteps, output dimensions).
+
+        If the recurrent kernel is to be trained, then the output must be one dimensional. 
 
         Args:
             force_layer: A FORCE Layer (or its subclass) object
@@ -194,7 +207,11 @@ class FORCEModel(keras.Model):
                                 the number of time steps in the input.
 
     """
-    def __init__(self, force_layer, alpha_P=1.,return_sequences=True):
+    def __init__(self, 
+                 force_layer, 
+                 alpha_P=1.,
+                 return_sequences=True):
+    
         super().__init__()
         self.alpha_P = alpha_P
         self.force_layer = keras.layers.RNN(force_layer, 
@@ -257,6 +274,7 @@ class FORCEModel(keras.Model):
             self._recurrent_kernel_idx = idx
             
     def call(self, x, training=False,   **kwargs):
+
         if training:
             return self.force_layer_call(x, training, **kwargs)
         else:
@@ -279,42 +297,33 @@ class FORCEModel(keras.Model):
     def train_step(self, data):
 
         x, y = data
+        
+        z, _, h, _ = self(x, training=True)
+        if self.force_layer.return_sequences:
+          z = z[:,0,:]
 
-        if self.run_eagerly:
-          self.hidden_activation = []
-                
-        # for each time step
-        for i in range(x.shape[1]):
-          z, _, h, _ = self(x[:,i:i+1,:], training=True)
+        trainable_vars = self.trainable_variables
 
-          if self.force_layer.return_sequences:
-            z = z[:,0,:]
-         
-          trainable_vars = self.trainable_variables
-
-          # Update the output kernel
-          if self._output_kernel_idx is not None:
-            self.update_output_kernel(self.P_output, 
-                                      h, 
-                                      z, 
-                                      y[:,i,:], 
-                                      trainable_vars[self._P_output_idx], 
-                                      trainable_vars[self._output_kernel_idx])
+        # Update the output kernel
+        if self._output_kernel_idx is not None:
+          self.update_output_kernel(self.P_output, 
+                                    h, 
+                                    z, 
+                                    y[:,0,:], 
+                                    trainable_vars[self._P_output_idx], 
+                                    trainable_vars[self._output_kernel_idx])
           
-          # Update the recurrent kernel
-          if self._recurrent_kernel_idx is not None:
-            self.update_recurrent_kernel(self.P_GG, 
-                                         h, 
-                                         z, 
-                                         y[:,i,:],
-                                         trainable_vars[self._P_GG_idx],
-                                         trainable_vars[self._recurrent_kernel_idx])
+        # Update the recurrent kernel
+        if self._recurrent_kernel_idx is not None:
+          self.update_recurrent_kernel(self.P_GG, 
+                                        h, 
+                                        z, 
+                                        y[:,0,:],
+                                        trainable_vars[self._P_GG_idx],
+                                        trainable_vars[self._recurrent_kernel_idx])
           
-          # Update metrics (includes the metric that tracks the loss)
-          self.compiled_metrics.update_state(y[:,i,:], z)
-
-          if self.run_eagerly:
-            self.hidden_activation.append(h.numpy()[0])
+        # Update metrics (includes the metric that tracks the loss)
+        self.compiled_metrics.update_state(y[:,0,:], z)
 
         return {m.name: m.result() for m in self.metrics}
 
@@ -407,23 +416,31 @@ class FORCEModel(keras.Model):
             raise ValueError('Shape of y is invalid')
         
         if len(x.shape) == 2:
-            x = tf.expand_dims(x, axis = 0)
+            x = tf.expand_dims(x, axis = 1)
         
         if len(y.shape) == 2:
-            y = tf.expand_dims(y, axis = 0)
+            y = tf.expand_dims(y, axis = 1)
         
-        if x.shape[0] != 1:
-            raise ValueError("Dim 0 of x must be 1")
+        if x.shape[1] != 1:
+            raise ValueError("Dim 1 of x must be 1")
 
-        if y.shape[0] != 1:
-            raise ValueError("Dim 0 of y must be 1")
+        if y.shape[1] != 1:
+            raise ValueError("Dim 1 of y must be 1")
         
-        if x.shape[1] != y.shape[1]: 
+        if x.shape[0] != y.shape[0]: 
             raise ValueError('Timestep dimension of inputs must match')     
 
-        return super().fit(x = x, y = y, epochs = epochs, batch_size = 1, verbose = verbose, **kwargs)
+        return super().fit(x = x, 
+                           y = y, 
+                           epochs = epochs, 
+                           batch_size = 1, 
+                           shuffle = False, 
+                           verbose = verbose, 
+                           validation_batch_size = 1,
+                           **kwargs)
 
-    def predict(self, x, **kwargs):
+    def predict(self, x, training = False, **kwargs):
+
         if len(x.shape) == 3 and x.shape[0] != 1:
             raise ValueError('Dim 0 must be 1')
         
@@ -433,4 +450,20 @@ class FORCEModel(keras.Model):
         if len(x.shape) == 2:
             x = tf.expand_dims(x, axis = 0)
 
-        return self(x, training = False)[0]
+        return self(x, training = training)[0]
+
+    def evaluate(self, x, y, **kwargs):
+
+        if len(x.shape) < 2 or len(x.shape) > 3:
+            raise ValueError('')
+
+        if len(y.shape) < 2 or len(y.shape) > 3:
+            raise ValueError('')
+
+        if len(x.shape) == 2:
+            x = tf.expand_dims(x, axis = 0)
+
+        if len(y.shape) == 2:
+            y = tf.expand_dims(y, axis = 0)
+
+        return super().evaluate(x = x, y = y, **kwargs)
