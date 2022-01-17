@@ -48,8 +48,8 @@ class EchoStateNetwork(FORCELayer):
           initializer = keras.initializers.RandomNormal(mean=0., 
                                                         stddev= self.hscale , 
                                                         seed = self.seed_gen.uniform([1], 
-                                                                                        minval=None, 
-                                                                                        dtype=tf.dtypes.int64)[0])
+                                                                                     minval=None, 
+                                                                                     dtype=tf.dtypes.int64)[0])
           init_a = initializer((batch_size, self.units))  
 
         init_h =  self.activation(init_a)
@@ -203,7 +203,7 @@ class TargetGeneratingNetwork(EchoStateNetwork):
 
         return (init_a, init_h, init_h)
 
-class fullFORCEModel(FORCEModel):
+class FullFORCEModel(FORCEModel):
     """ Implements full FORCE learning by DePasquale et al. Subclassed from FORCEModel. 
 
         Target to the model during fit/evaluate should be of shape (timesteps, 1). 
@@ -359,7 +359,7 @@ class fullFORCEModel(FORCEModel):
 
         return dwR_task 
 
-class optimizedFORCEModel(FORCEModel):
+class OptimizedFORCEModel(FORCEModel):
     """ Optimized version of FORCE model per Sussillo and Abbott if all recurrent weights in the
         network is trainable. 
      
