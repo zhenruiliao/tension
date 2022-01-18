@@ -4,6 +4,7 @@ from tensorflow.keras import backend, activations
 
 from .base import FORCELayer
 
+
 class EchoStateNetwork(FORCELayer):
     """ Implements the feedback echo state network
 
@@ -26,8 +27,7 @@ class EchoStateNetwork(FORCELayer):
         super().__init__(**kwargs)        
 
     def call(self, inputs, states):
-        """ Implements the forward step 
-        """
+
         prev_a, prev_h, prev_output = states      
         input_term = backend.dot(inputs, self.input_kernel)
         recurrent_term = backend.dot(prev_h, self.recurrent_kernel)
@@ -58,7 +58,6 @@ class EchoStateNetwork(FORCELayer):
         return (init_a, init_h, init_out)
 
     
-    
 class NoFeedbackESN(EchoStateNetwork):
     """ Implements the no feedback echo state network
 
@@ -70,8 +69,7 @@ class NoFeedbackESN(EchoStateNetwork):
         super().__init__(recurrent_kernel_trainable = recurrent_kernel_trainable, **kwargs)
 
     def call(self, inputs, states):
-        """ Implements the forward step 
-        """
+
         prev_a, prev_h, prev_output = states      
         input_term = backend.dot(inputs, self.input_kernel)
         recurrent_term = backend.dot(prev_h, self.recurrent_kernel)
@@ -82,7 +80,6 @@ class NoFeedbackESN(EchoStateNetwork):
         output = backend.dot(h, self.output_kernel)
 
         return output, [a, h, output]
-
 
     def build(self, input_shape):
 
@@ -118,13 +115,11 @@ class NoFeedbackESN(EchoStateNetwork):
         units = input_units      
 
         assert np.all(np.array([input_units, recurrent_units1, recurrent_units2, output_units]) == units)
-
         assert 'p_recurr' not in kwargs.keys(), 'p_recurr not supported in this method'
         assert recurrent_kernel.shape == recurrent_nontrainable_boolean_mask.shape, "Boolean mask and recurrent kernel shape mis-match"
         assert tf.math.count_nonzero(tf.boolean_mask(recurrent_kernel, recurrent_nontrainable_boolean_mask)).numpy() == 0, "Invalid boolean mask"  
 
         self = cls(units=units, output_size=output_size, p_recurr = None, **kwargs)
-
         self.recurrent_nontrainable_boolean_mask = tf.convert_to_tensor(recurrent_nontrainable_boolean_mask)
         
         self.initialize_input_kernel(input_shape, input_kernel)
@@ -145,7 +140,6 @@ class TargetGeneratingNetwork(EchoStateNetwork):
         super().__init__(**kwargs)  
         self._hint_dim = hint_dim
 
-
     def build(self, input_shape):
         input_shape = input_shape[:-1] + (input_shape[-1]-self.output_size-self._hint_dim,)
         super().build(input_shape)
@@ -155,8 +149,8 @@ class TargetGeneratingNetwork(EchoStateNetwork):
                                               initializer=keras.initializers.RandomNormal(mean=0., 
                                                                                           stddev= 1/self._hint_dim**0.5, 
                                                                                           seed=self.seed_gen.uniform([1], 
-                                                                                                                    minval=None, 
-                                                                                                                    dtype=tf.dtypes.int64)[0]),
+                                                                                                                     minval=None, 
+                                                                                                                     dtype=tf.dtypes.int64)[0]),
                                               trainable=False,
                                               name='hint_kernel')
 
@@ -164,10 +158,7 @@ class TargetGeneratingNetwork(EchoStateNetwork):
     def from_weights(cls, weights, **kwargs):
         raise NotImplementedError
 
-    
     def call(self, inputs, states):
-        """ Implements the forward step (i.e., the esn() function)
-        """
 
         prev_a, prev_h, _ = states
      
@@ -195,13 +186,14 @@ class TargetGeneratingNetwork(EchoStateNetwork):
           initializer = keras.initializers.RandomNormal(mean=0., 
                                                         stddev= self.hscale , 
                                                         seed = self.seed_gen.uniform([1], 
-                                                                                        minval=None, 
-                                                                                        dtype=tf.dtypes.int64)[0])
+                                                                                     minval=None, 
+                                                                                     dtype=tf.dtypes.int64)[0])
           init_a = initializer((batch_size, self.units))  
 
         init_h =  self.activation(init_a)
 
         return (init_a, init_h, init_h)
+
 
 class FullFORCEModel(FORCEModel):
     """ Implements full FORCE learning by DePasquale et al. Subclassed from FORCEModel. 
@@ -234,7 +226,7 @@ class FullFORCEModel(FORCEModel):
 
         self.initialize_target_network(input_shape)
 
-        input_shape = input_shape[:-1] + (input_shape[-1]-self._output_dim-self._hint_dim,)
+        input_shape = input_shape[:-1] + (input_shape[-1] - self._output_dim - self._hint_dim,)
         super().build(input_shape)
 
     def initialize_target_network(self, input_shape):
@@ -243,8 +235,7 @@ class FullFORCEModel(FORCEModel):
                                                        output_size = self._output_dim, 
                                                        activation = self.original_force_layer.activation,
                                                        output_kernel_trainable = self._target_output_kernel_trainable,
-                                                       hint_dim = self._hint_dim,
-                                                       seed = 0) ###########################################################
+                                                       hint_dim = self._hint_dim) 
 
         self.target_network = keras.layers.RNN(self._target_network, 
                                                stateful=True, 
@@ -307,7 +298,7 @@ class FullFORCEModel(FORCEModel):
         trainable_vars = self.trainable_variables
 
         if self._task_output_kernel_idx is not None:
-            # inherited from FORCEModel base class
+            # Inherited from FORCEModel base class
             self.update_output_kernel(self.task_P_output, 
                                       h_task, 
                                       output_task, 
@@ -323,7 +314,7 @@ class FullFORCEModel(FORCEModel):
                 
 
         if self._target_output_kernel_idx is not None:
-             # inherited from FORCEModel base class
+             # Inherited from FORCEModel base class
              self.update_output_kernel(self.target_P_output, 
                                        h_target, 
                                        output_target, 
@@ -349,8 +340,7 @@ class FullFORCEModel(FORCEModel):
                                                h_task,
                                                self._target_network.recurrent_kernel,
                                                h_target,
-                                               fb_hint_sum
-                                               ) 
+                                               fb_hint_sum) 
         self.optimizer.apply_gradients(zip([dwR_task], [trainable_vars[self._task_recurrent_kernel_idx]]))
     
     def pseudogradient_wR_task(self, P_task, wR_task, h_task, wR_target, h_target, fb_hint_sum): 
@@ -358,6 +348,7 @@ class FullFORCEModel(FORCEModel):
         dwR_task = backend.dot(backend.dot(P_task, tf.transpose(h_task)), e)
 
         return dwR_task 
+
 
 class OptimizedFORCEModel(FORCEModel):
     """ Optimized version of FORCE model per Sussillo and Abbott if all recurrent weights in the
@@ -369,7 +360,8 @@ class OptimizedFORCEModel(FORCEModel):
     """
     def initialize_P(self):
 
-        self.P_output = self.add_weight(name='P_output', shape=(self.units, self.units), 
+        self.P_output = self.add_weight(name='P_output', 
+                                        shape=(self.units, self.units), 
                                         initializer=keras.initializers.Identity(gain=self.alpha_P), 
                                         trainable=True)
 
@@ -379,7 +371,8 @@ class OptimizedFORCEModel(FORCEModel):
 
             if bool_mask is None or tf.math.count_nonzero(bool_mask) == 0:
 
-              self.P_GG = self.add_weight(name='P_GG', shape=(self.units, self.units), 
+              self.P_GG = self.add_weight(name='P_GG', 
+                                          shape=(self.units, self.units), 
                                           initializer=keras.initializers.Identity(gain=self.alpha_P), 
                                           trainable=True)
               
@@ -395,7 +388,8 @@ class OptimizedFORCEModel(FORCEModel):
               identity_3d[I,:,J]=0
               identity_3d[I,J,:]=0
 
-              self.P_GG = self.add_weight(name='P_GG', shape=(self.units, self.units, self.units), 
+              self.P_GG = self.add_weight(name='P_GG', 
+                                          shape=(self.units, self.units, self.units), 
                                           initializer=keras.initializers.constant(identity_3d), 
                                           trainable=True)
               
@@ -403,13 +397,13 @@ class OptimizedFORCEModel(FORCEModel):
         e = z - y 
         assert e.shape == (1,1), 'Output must only have 1 dimension'
 
-        # if P is 2D, use optimized update rule
+        # If P is 2D, use optimized update rule
         if len(P_Gx.shape) == 2:
             dwR_inter = backend.dot(P_Gx, tf.transpose(h))*e
             return dwR_inter*tf.ones((P_Gx.shape))
         else:
             Ph = backend.dot(P_Gx, tf.transpose(h))[:,:,0]
-            dwR = Ph*e ### only valid for 1-d output 
+            dwR = Ph*e # Only valid for 1-d output 
             return tf.transpose(dwR) 
 
     def pseudogradient_P_Gx(self, P_Gx, h):
