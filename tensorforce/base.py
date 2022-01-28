@@ -439,7 +439,7 @@ class FORCEModel(keras.Model):
                            validation_batch_size = 1,
                            **kwargs)
 
-    def predict(self, x, training = False, **kwargs):
+    def predict(self, x, **kwargs):
 
         if len(x.shape) == 3 and x.shape[0] != 1:
             raise ValueError('Dim 0 must be 1')
@@ -449,8 +449,8 @@ class FORCEModel(keras.Model):
 
         if len(x.shape) == 2:
             x = tf.expand_dims(x, axis = 0)
-
-        return self(x, training = training)[0]
+            
+        return super().predict(x = x, batch_size = 1, **kwargs)[0]
 
     def evaluate(self, x, y, **kwargs):
 
