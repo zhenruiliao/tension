@@ -4,7 +4,6 @@ from tensorflow.keras import backend, activations
 
 from .base import FORCELayer
 
-
 class EchoStateNetwork(FORCELayer):
     """ Implements the feedback echo state network
 
