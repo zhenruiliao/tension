@@ -1,3 +1,9 @@
+import tensorflow as tf
+import tensorflow.keras as keras
+from tensorflow.keras import backend, activations
+
+from .base import FORCELayer, FORCEModel
+
 class SpikingNN(FORCELayer):
     """
     
@@ -17,7 +23,6 @@ class SpikingNN(FORCELayer):
                  initial_voltage = None,
                  **kwargs):
 
-        
         self.dt = dt
         self.tau_decay = tau_decay
         self.tau_rise = tau_rise
@@ -35,7 +40,6 @@ class SpikingNN(FORCELayer):
     @property
     def state_size(self):
         return [1, self.units, self.units, self.units, self.units, self.units, self.units, self.output_size]
-
 
     def initialize_recurrent_kernel(self, recurrent_kernel = None):
         """
@@ -79,7 +83,6 @@ class SpikingNN(FORCELayer):
                                                trainable = self._feedback_kernel_trainable,
                                                name='feedback_kernel')
 
-                                            
     def initialize_output_kernel(self, output_kernel = None):
         """
         Args:
