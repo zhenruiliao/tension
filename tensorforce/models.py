@@ -1,9 +1,9 @@
+import numpy as np
 import tensorflow as tf
 import tensorflow.keras as keras
 from tensorflow.keras import backend, activations
 
-from .base import FORCELayer
-
+from .base import FORCELayer, FORCEModel
 
 class EchoStateNetwork(FORCELayer):
     """ Implements the feedback echo state network
@@ -63,7 +63,7 @@ class NoFeedbackESN(EchoStateNetwork):
 
     """
     def __init__(self, 
-                 recurrent_kernel_trainable  = True, 
+                 recurrent_kernel_trainable = True, 
                  **kwargs):
 
         super().__init__(recurrent_kernel_trainable = recurrent_kernel_trainable, **kwargs)
