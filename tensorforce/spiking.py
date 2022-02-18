@@ -268,7 +268,25 @@ class Izhikevich(OptimizedSpikingNN):
         u = u + self.dt * self.adapt_time_inv * (self.resonance_param * (prev_v - self.v_resting) - u) + self.adapt_jump_curr * v_mask
 
         return v, u, v_mask
+    
+class Theta(OptimizedSpikingNN):
+    def initialize_voltage(self, batch_size):
 
+        initializer = keras.initializers.RandomUniform(minval=0., 
+                                                       maxval=1, 
+                                                       seed=self.seed_gen.uniform([1], 
+                                                                                  minval=None, 
+                                                                                  dtype=tf.dtypes.int64)[0])
+        return self.v_reset + initializer((batch_size, self.units)) * (self.v_peak - self.v_reset)  
+    
+    def update_voltage(self, I, states):
+        _, v, u, _, _, _, _, _ = states
+
+        v = v + self.dt * (1 - tf.math.cos(v) + np.pi**2 * (1 + tf.math.cos(v)) * I)
+        v_mask = tf.cast(v >= self.v_peak, tf.float32)
+
+        return v, u, v_mask
+    
 class SpikingNNModel(FORCEModel):
     """
     
