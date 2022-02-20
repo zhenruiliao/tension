@@ -2,7 +2,7 @@ import tensorflow as tf
 import tensorflow.keras as keras
 from tensorflow.keras import backend, activations
 
-from .base import FORCELayer, FORCEModel
+from base import FORCELayer, FORCEModel
 
 class SpikingNN(FORCELayer):
     """
@@ -18,9 +18,9 @@ class SpikingNN(FORCELayer):
                  I_bias,
                  G, 
                  Q, 
-                 hscale = 0.25, 
-                 initial_h = None, 
-                 initial_voltage = None,
+                 hscale=0.25, 
+                 initial_h=None, 
+                 initial_voltage=None,
                  **kwargs):
 
         self.dt = dt
@@ -35,13 +35,13 @@ class SpikingNN(FORCELayer):
         self._hscale = hscale
         self._initial_h = initial_h
         self._initial_voltage = initial_voltage
-        super().__init__(activation = None, recurrent_kernel_trainable = False, **kwargs)
+        super().__init__(activation=None, recurrent_kernel_trainable=False, **kwargs)
 
     @property
     def state_size(self):
         return [1, self.units, self.units, self.units, self.units, self.units, self.units, self.output_size]
 
-    def initialize_recurrent_kernel(self, recurrent_kernel = None):
+    def initialize_recurrent_kernel(self, recurrent_kernel=None):
         """
         Args:
             recurrent_kernel: (2D array) Tensor or numpy array containing the pre-initialized kernel. 
@@ -50,20 +50,20 @@ class SpikingNN(FORCELayer):
 
         if recurrent_kernel is None:        
             initializer = keras.initializers.RandomNormal(mean=0., 
-                                                          stddev=self._g/(self.units**0.5 * self._p_recurr), 
+                                                          stddev=self._g / (self.units**0.5 * self._p_recurr), 
                                                           seed=self.seed_gen.uniform([1], 
                                                                                       minval=None, 
                                                                                       dtype=tf.dtypes.int64)[0])
         
-            recurrent_kernel = self._p_recurr*keras.layers.Dropout(1-self._p_recurr)(initializer(shape=(self.units, self.units)), 
-                                                                                     training = True)
+            recurrent_kernel = self._p_recurr * keras.layers.Dropout(1-self._p_recurr)(initializer(shape=(self.units, self.units)), 
+                                                                                     training=True)
 
         self.recurrent_kernel = self.add_weight(shape=(self.units, self.units),
                                                 initializer=keras.initializers.constant(self.G * recurrent_kernel),
                                                 trainable=self._recurrent_kernel_trainable,
                                                 name='recurrent_kernel')
 
-    def initialize_feedback_kernel(self, feedback_kernel = None):
+    def initialize_feedback_kernel(self, feedback_kernel=None):
         """
         Args:
             feedback_kernel: (2D array) Tensor or numpy array containing the pre-initialized kernel. 
@@ -72,18 +72,18 @@ class SpikingNN(FORCELayer):
 
         if feedback_kernel is None:
             initializer = keras.initializers.RandomUniform(minval=-1., 
-                                                           maxval= 1., 
+                                                           maxval=1., 
                                                            seed=self.seed_gen.uniform([1], 
                                                                                       minval=None, 
                                                                                       dtype=tf.dtypes.int64)[0])
-            feedback_kernel = initializer(shape = (self.output_size, self.units))
+            feedback_kernel = initializer(shape=(self.output_size, self.units))
 
         self.feedback_kernel = self.add_weight(shape=(self.output_size, self.units),
                                                initializer=keras.initializers.constant(self.Q * feedback_kernel),
-                                               trainable = self._feedback_kernel_trainable,
+                                               trainable=self._feedback_kernel_trainable,
                                                name='feedback_kernel')
 
-    def initialize_output_kernel(self, output_kernel = None):
+    def initialize_output_kernel(self, output_kernel=None):
         """
         Args:
             output_kernel: (2D array) Tensor or numpy array containing the pre-initialized kernel.  
@@ -93,7 +93,7 @@ class SpikingNN(FORCELayer):
 
         self.output_kernel = self.add_weight(shape=(self.units, self.output_size),
                                              initializer=keras.initializers.constant(output_kernel),
-                                             trainable = self._output_kernel_trainable,
+                                             trainable=self._output_kernel_trainable,
                                              name='output_kernel')    
 
     def initialize_voltage(self, batch_size):
@@ -118,7 +118,7 @@ class SpikingNN(FORCELayer):
 
         _, _, _, h, _, _, _, out = states
 
-        # Q included as part of feedback kernel; G as part of recurrent kernel
+        # Q included as part of feedback kernel; G as part of static recurrent kernel
         return self.I_bias + backend.dot(h, self.recurrent_kernel) + \
                   backend.dot(out, self.feedback_kernel) 
      
@@ -166,8 +166,8 @@ class OptimizedSpikingNN(SpikingNN):
         n_spike = tf.math.reduce_sum(v_mask)
         if n_spike > 0:
           jd = tf.math.reduce_sum(self.recurrent_kernel[v_mask[0] == 1], 
-                                  axis = 0,
-                                  keepdims = True)
+                                  axis=0,
+                                  keepdims=True)
         else:
           jd = 0.0
 
@@ -270,6 +270,9 @@ class Izhikevich(OptimizedSpikingNN):
         return v, u, v_mask
     
 class Theta(OptimizedSpikingNN):
+    """
+
+    """
     def initialize_voltage(self, batch_size):
 
         initializer = keras.initializers.RandomUniform(minval=0., 

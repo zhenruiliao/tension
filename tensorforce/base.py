@@ -24,13 +24,13 @@ class FORCELayer(keras.layers.AbstractRNNCell):
                  units, 
                  output_size, 
                  activation, 
-                 seed = None, 
-                 g = 1.5, 
-                 input_kernel_trainable = False, 
-                 recurrent_kernel_trainable = False, 
-                 output_kernel_trainable = True, 
-                 feedback_kernel_trainable = False, 
-                 p_recurr = 1, 
+                 seed=None, 
+                 g=1.5, 
+                 input_kernel_trainable=False, 
+                 recurrent_kernel_trainable=False, 
+                 output_kernel_trainable=True, 
+                 feedback_kernel_trainable=False, 
+                 p_recurr=1, 
                  **kwargs):
                 
         self.units = units 
@@ -82,7 +82,7 @@ class FORCELayer(keras.layers.AbstractRNNCell):
                                             trainable=self._input_kernel_trainable,
                                             name='input_kernel')
         
-    def initialize_recurrent_kernel(self, recurrent_kernel = None):
+    def initialize_recurrent_kernel(self, recurrent_kernel=None):
         """
         Args:
             recurrent_kernel: (2D array) Tensor or numpy array containing the pre-initialized kernel. 
@@ -92,7 +92,7 @@ class FORCELayer(keras.layers.AbstractRNNCell):
 
         if recurrent_kernel is None:        
             initializer = keras.initializers.RandomNormal(mean=0., 
-                                                          stddev=self._g/self.units**0.5, 
+                                                          stddev=self._g / self.units**0.5, 
                                                           seed=self.seed_gen.uniform([1], 
                                                                                       minval=None, 
                                                                                       dtype=tf.dtypes.int64)[0])
@@ -105,7 +105,7 @@ class FORCELayer(keras.layers.AbstractRNNCell):
                                                 trainable=self._recurrent_kernel_trainable,
                                                 name='recurrent_kernel')
     
-    def initialize_feedback_kernel(self, feedback_kernel = None):
+    def initialize_feedback_kernel(self, feedback_kernel=None):
         """
         Args:
             feedback_kernel: (2D array) Tensor or numpy array containing the pre-initialized kernel. 
@@ -114,7 +114,7 @@ class FORCELayer(keras.layers.AbstractRNNCell):
 
         if feedback_kernel is None:
             initializer = keras.initializers.RandomNormal(mean=0., 
-                                                          stddev= 1, 
+                                                          stddev=1, 
                                                           seed=self.seed_gen.uniform([1], 
                                                                                      minval=None, 
                                                                                      dtype=tf.dtypes.int64)[0])
@@ -122,10 +122,10 @@ class FORCELayer(keras.layers.AbstractRNNCell):
 
         self.feedback_kernel = self.add_weight(shape=(self.output_size, self.units),
                                                initializer=keras.initializers.constant(feedback_kernel),
-                                               trainable = self._feedback_kernel_trainable,
+                                               trainable=self._feedback_kernel_trainable,
                                                name='feedback_kernel')
                                             
-    def initialize_output_kernel(self, output_kernel = None):
+    def initialize_output_kernel(self, output_kernel=None):
         """
         Args:
             output_kernel: (2D array) Tensor or numpy array containing the pre-initialized kernel. 
@@ -142,7 +142,7 @@ class FORCELayer(keras.layers.AbstractRNNCell):
 
         self.output_kernel = self.add_weight(shape=(self.units, self.output_size),
                                              initializer=keras.initializers.constant(output_kernel),
-                                             trainable = self._output_kernel_trainable,
+                                             trainable=self._output_kernel_trainable,
                                              name='output_kernel')     
     
     def build(self, input_shape):
@@ -189,16 +189,15 @@ class FORCELayer(keras.layers.AbstractRNNCell):
 
         return self
 
-
 class FORCEModel(keras.Model):
-    """ Base class for FORCE models per Sussillo and Abbott. 
+    """ Base class for FORCE model per Sussillo and Abbott. 
         Input to the model during fit/predict/evaluate should be of shape (timesteps, input dimensions). 
-        Target to the model during fit/evalaute should be of shape (timesteps, output dimensions).
+        Target to the model during fit/evaluate should be of shape (timesteps, output dimensions).
 
-        If validation data is to be passed to model.fit, input and output should 
+        If validation data is to be passed to model.fit, input and target of the validation data should 
         be of shape (1, timesteps, input dimensions) and (1, timesteps, output dimensions).
 
-        If the recurrent kernel is to be trained, then the output must be one dimensional. 
+        If the recurrent kernel is to be trained, then the target must be one dimensional. 
 
         Args:
             force_layer: A FORCE Layer (or its subclass) object
@@ -230,25 +229,24 @@ class FORCEModel(keras.Model):
     def initialize_P(self):
 
         # P matrix for updating the output kernel
-        self.P_output = self.add_weight(name='P_output', 
-        	                            shape=(self.units, self.units), 
-                                        initializer=keras.initializers.Identity(gain=self.alpha_P), 
-                                        trainable=True)
+        if self.original_force_layer.output_kernel.trainable:
+
+            self.P_output = self.add_weight(name='P_output', 
+                                            shape=(self.units, self.units), 
+                                            initializer=keras.initializers.Identity(gain=self.alpha_P), 
+                                            trainable=True)
 
         if self.original_force_layer.recurrent_kernel.trainable:
 
-
             identity_3d = np.zeros((self.units, self.units, self.units))
             idx = np.arange(self.units)
-
             identity_3d[:, idx, idx] = self.alpha_P 
-
 
             if self.original_force_layer.recurrent_nontrainable_boolean_mask is not None:
                 # Transpose here is to be consistent with recurrent pseudogradient calculations
-                I,J = np.nonzero(tf.transpose(self.original_force_layer.recurrent_nontrainable_boolean_mask).numpy()==True)
-                identity_3d[I,:,J]=0
-                identity_3d[I,J,:]=0
+                I,J = np.nonzero(tf.transpose(self.original_force_layer.recurrent_nontrainable_boolean_mask).numpy() == True)
+                identity_3d[I,:,J] = 0
+                identity_3d[I,J,:] = 0
 
             # P matrix for updating the recurrent kernel
             self.P_GG = self.add_weight(name='P_GG', 
@@ -289,7 +287,7 @@ class FORCEModel(keras.Model):
             # reset the state
             if not initialization:
               for i, state in enumerate(self.force_layer.states):
-                  state.assign(original_state[i], read_value = False)
+                  state.assign(original_state[i], read_value=False)
             return output
 
     def force_layer_call(self, x, training, **kwargs):
@@ -317,11 +315,11 @@ class FORCEModel(keras.Model):
         # Update the recurrent kernel
         if self._recurrent_kernel_idx is not None:
           self.update_recurrent_kernel(self.P_GG, 
-                                        h, 
-                                        z, 
-                                        y[:,0,:],
-                                        trainable_vars[self._P_GG_idx],
-                                        trainable_vars[self._recurrent_kernel_idx])
+                                       h, 
+                                       z, 
+                                       y[:,0,:],
+                                       trainable_vars[self._P_GG_idx],
+                                       trainable_vars[self._recurrent_kernel_idx])
           
         # Update metrics (includes the metric that tracks the loss)
         self.compiled_metrics.update_state(y[:,0,:], z)
@@ -331,23 +329,12 @@ class FORCEModel(keras.Model):
     def update_output_kernel(self, P_output, h, z, y, trainable_vars_P_output, trainable_vars_output_kernel):
 
         # Compute pseudogradients and update the P matrix of the output kernel
-        dP = self.pseudogradient_P(P_output, h)
+        dP, Pht, hPht = self.pseudogradient_P(P_output, h)
         self.optimizer.apply_gradients(zip([dP], [trainable_vars_P_output]))
 
         # Compute pseudogradient and update output kernel
-        dwO = self.pseudogradient_wO(P_output, h, z, y)
+        dwO = self.pseudogradient_wO(P_output, h, z, y, Pht, hPht)
         self.optimizer.apply_gradients(zip([dwO], [trainable_vars_output_kernel]))
-
-    def update_recurrent_kernel(self, P_Gx, h, z, y, trainable_vars_P_Gx, trainable_vars_recurrent_kernel):
-
-        # Compute pseudogradients and update the P matrix for the recurrent kernel
-        dP_Gx = self.pseudogradient_P_Gx(P_Gx, h)
-        self.optimizer.apply_gradients(zip([dP_Gx], [trainable_vars_P_Gx]))
-
-        # Compute pseudogradient and update recurrent kernel
-        dwR = self.pseudogradient_wR(P_Gx, h, z, y)
-        self.optimizer.apply_gradients(zip([dwR], [trainable_vars_recurrent_kernel]))
-
 
     def pseudogradient_P(self, P, h):
         # Returns pseudogradient for P
@@ -358,39 +345,35 @@ class FORCEModel(keras.Model):
         # hPht : 1 x 1
         # dP : self.units x self.units 
 
-        k = backend.dot(P, tf.transpose(h))
-        hPht = backend.dot(h, k)
-        c = 1./(1.+hPht)
-        dP = backend.dot(c*k, tf.transpose(k))
+        Pht = backend.dot(P, tf.transpose(h))
+        hPht = backend.dot(h, Pht)
+        c = 1. / (1. + hPht)
+        dP = backend.dot(c * Pht, tf.transpose(Pht))
 
-        return  dP 
+        return dP, Pht, hPht 
 
-    def pseudogradient_wO(self, P, h, z, y):
+    def pseudogradient_wO(self, P, h, z, y, Pht, hPht):
         # Return pseudogradient for wO
         # Example array shapes
         # P : self.units x self.units 
         # h : 1 x self.units
         # z,y : 1 x output dimension
    
-        e = z-y
-        Ph = backend.dot(P, tf.transpose(h))
-        dwO = backend.dot(Ph, e)
+        e = z - y
+        Pht = backend.dot(P, tf.transpose(h))
+        dwO = backend.dot(Pht, e)
 
-        return  dwO
- 
-    def pseudogradient_wR(self, P_Gx, h, z, y):
-        # Return pseudogradient for wR
-        # Example array shapes
-        # P_Gx : self.units x self.units x self.units 
-        # h : 1 x self.units
-        # z,y : 1 x 1
+        return dwO
 
-        e = z - y 
-        assert e.shape == (1,1), 'Output must only have 1 dimension'
-        Ph = backend.dot(P_Gx, tf.transpose(h))[:,:,0]
-        dwR = Ph*e 
+    def update_recurrent_kernel(self, P_Gx, h, z, y, trainable_vars_P_Gx, trainable_vars_recurrent_kernel):
 
-        return tf.transpose(dwR) 
+        # Compute pseudogradients and update the P matrix for the recurrent kernel
+        dP_Gx, Ph, hPh = self.pseudogradient_P_Gx(P_Gx, h)
+        self.optimizer.apply_gradients(zip([dP_Gx], [trainable_vars_P_Gx]))
+
+        # Compute pseudogradient and update recurrent kernel
+        dwR = self.pseudogradient_wR(P_Gx, h, z, y, Ph, hPh)
+        self.optimizer.apply_gradients(zip([dwR], [trainable_vars_recurrent_kernel]))
 
     def pseudogradient_P_Gx(self, P_Gx, h):
         # Return pseudogradient for P_Gx
@@ -399,15 +382,29 @@ class FORCEModel(keras.Model):
         # h : 1 x self.units
 
         Ph = backend.dot(P_Gx, tf.transpose(h))[:,:,0]
-        hPh = tf.expand_dims(backend.dot(Ph, tf.transpose(h)),axis = 2)
-        dP_Gx = tf.expand_dims(Ph, axis = 2) * tf.expand_dims(Ph, axis = 1)/(1+hPh)
+        hPh = tf.expand_dims(backend.dot(Ph, tf.transpose(h)), axis = 2)
+        dP_Gx = tf.expand_dims(Ph, axis = 2) * tf.expand_dims(Ph, axis = 1) / (1 + hPh)
 
-        return dP_Gx
+        return dP_Gx, Ph, hPh
+ 
+    def pseudogradient_wR(self, P_Gx, h, z, y, Ph, hPh):
+        # Return pseudogradient for wR
+        # Example array shapes
+        # P_Gx : self.units x self.units x self.units 
+        # h : 1 x self.units
+        # z,y : 1 x 1
+
+        e = z - y 
+        assert e.shape == (1, 1), 'Output must only have 1 dimension'
+        Ph = backend.dot(P_Gx, tf.transpose(h))[:,:,0]
+        dwR = Ph * e 
+
+        return tf.transpose(dwR) 
 
     def compile(self, metrics, **kwargs):
-        super().compile(optimizer=keras.optimizers.SGD(learning_rate=1), loss = 'mae', metrics=metrics,   **kwargs)
+        super().compile(optimizer=keras.optimizers.SGD(learning_rate=1), loss='mae', metrics=metrics, **kwargs)
 
-    def fit(self, x, y=None, epochs = 1, verbose = 'auto', **kwargs):
+    def fit(self, x, y=None, epochs=1, verbose='auto', **kwargs):
 
         if len(x.shape) < 2 or len(x.shape) > 3:
             raise ValueError('Shape of x is invalid')
@@ -416,10 +413,10 @@ class FORCEModel(keras.Model):
             raise ValueError('Shape of y is invalid')
         
         if len(x.shape) == 2:
-            x = tf.expand_dims(x, axis = 1)
+            x = tf.expand_dims(x, axis=1)
         
         if len(y.shape) == 2:
-            y = tf.expand_dims(y, axis = 1)
+            y = tf.expand_dims(y, axis=1)
         
         if x.shape[1] != 1:
             raise ValueError("Dim 1 of x must be 1")
@@ -430,13 +427,13 @@ class FORCEModel(keras.Model):
         if x.shape[0] != y.shape[0]: 
             raise ValueError('Timestep dimension of inputs must match')     
 
-        return super().fit(x = x, 
-                           y = y, 
-                           epochs = epochs, 
-                           batch_size = 1, 
-                           shuffle = False, 
-                           verbose = verbose, 
-                           validation_batch_size = 1,
+        return super().fit(x=x, 
+                           y=y, 
+                           epochs=epochs, 
+                           batch_size=1, 
+                           shuffle=False, 
+                           verbose=verbose, 
+                           validation_batch_size=1,
                            **kwargs)
 
     def predict(self, x, **kwargs):
@@ -448,9 +445,9 @@ class FORCEModel(keras.Model):
             raise ValueError('')
 
         if len(x.shape) == 2:
-            x = tf.expand_dims(x, axis = 0)
+            x = tf.expand_dims(x, axis=0)
             
-        return super().predict(x = x, batch_size = 1, **kwargs)[0]
+        return super().predict(x=x, batch_size=1, **kwargs)[0]
 
     def evaluate(self, x, y, **kwargs):
 
@@ -461,9 +458,9 @@ class FORCEModel(keras.Model):
             raise ValueError('')
 
         if len(x.shape) == 2:
-            x = tf.expand_dims(x, axis = 0)
+            x = tf.expand_dims(x, axis=0)
 
         if len(y.shape) == 2:
-            y = tf.expand_dims(y, axis = 0)
+            y = tf.expand_dims(y, axis=0)
 
-        return super().evaluate(x = x, y = y, **kwargs)
+        return super().evaluate(x=x, y=y, **kwargs)
