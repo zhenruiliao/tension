@@ -3,7 +3,7 @@ import tensorflow as tf
 import tensorflow.keras as keras
 from tensorflow.keras import backend, activations
 
-from .base import FORCELayer, FORCEModel
+from base import FORCELayer, FORCEModel
 
 class EchoStateNetwork(FORCELayer):
     """ Implements the feedback echo state network
@@ -312,7 +312,6 @@ class FullFORCEModel(FORCEModel):
                                          fb_hint_sum, 
                                          trainable_vars)
                 
-
         if self._target_output_kernel_idx is not None:
              # Inherited from FORCEModel base class
              self.update_output_kernel(self.target_P_output, 
@@ -325,14 +324,13 @@ class FullFORCEModel(FORCEModel):
         # Update metrics (includes the metric that tracks the loss)
         self.compiled_metrics.update_state(y[:,0,:], output_task)
 
-
         return {m.name: m.result() for m in self.metrics}
 
     def update_recurrent_kernel(self, h_task, h_target, fb_hint_sum, trainable_vars):
 
         # Update output P of the task network if it hasn't been updated already
         if self._task_output_kernel_idx is None:
-            dP_task = self.pseudogradient_P(self.task_P_output, h_task)
+            dP_task, _, _ = self.pseudogradient_P(self.task_P_output, h_task)
             self.optimizer.apply_gradients(zip([dP_task], [trainable_vars[self._task_P_output_idx]]))
 
         dwR_task = self.pseudogradient_wR_task(self.task_P_output, 
@@ -349,7 +347,6 @@ class FullFORCEModel(FORCEModel):
 
         return dwR_task 
 
-
 class OptimizedFORCEModel(FORCEModel):
     """ Optimized version of FORCE model per Sussillo and Abbott if all recurrent weights in the
         network is trainable. 
@@ -360,10 +357,12 @@ class OptimizedFORCEModel(FORCEModel):
     """
     def initialize_P(self):
 
-        self.P_output = self.add_weight(name='P_output', 
-                                        shape=(self.units, self.units), 
-                                        initializer=keras.initializers.Identity(gain=self.alpha_P), 
-                                        trainable=True)
+        if self.original_force_layer.output_kernel.trainable:
+
+            self.P_output = self.add_weight(name='P_output', 
+                                            shape=(self.units, self.units), 
+                                            initializer=keras.initializers.Identity(gain=self.alpha_P), 
+                                            trainable=True)
 
         if self.original_force_layer.recurrent_kernel.trainable:
 
@@ -376,43 +375,35 @@ class OptimizedFORCEModel(FORCEModel):
                                           initializer=keras.initializers.Identity(gain=self.alpha_P), 
                                           trainable=True)
               
-              
             else:
 
               identity_3d = np.zeros((self.units, self.units, self.units))
               idx = np.arange(self.units)
-
               identity_3d[:, idx, idx] = self.alpha_P 
 
-              I,J = np.nonzero(tf.transpose(bool_mask).numpy()==True)
-              identity_3d[I,:,J]=0
-              identity_3d[I,J,:]=0
+              I,J = np.nonzero(tf.transpose(bool_mask).numpy() == True)
+              identity_3d[I,:,J] = 0
+              identity_3d[I,J,:] = 0
 
               self.P_GG = self.add_weight(name='P_GG', 
                                           shape=(self.units, self.units, self.units), 
                                           initializer=keras.initializers.constant(identity_3d), 
                                           trainable=True)
               
-    def pseudogradient_wR(self, P_Gx, h, z, y):
-        e = z - y 
-        assert e.shape == (1,1), 'Output must only have 1 dimension'
+    def pseudogradient_wR(self, P_Gx, h, z, y, Ph, hPh):
 
         # If P is 2D, use optimized update rule
         if len(P_Gx.shape) == 2:
-            dwR_inter = backend.dot(P_Gx, tf.transpose(h))*e
-            return dwR_inter*tf.ones((P_Gx.shape))
+            e = z - y 
+            assert e.shape == (1, 1), 'Output must only have 1 dimension'
+            dwR_inter = backend.dot(P_Gx, tf.transpose(h)) * e
+            return dwR_inter * tf.ones((P_Gx.shape))
         else:
-            Ph = backend.dot(P_Gx, tf.transpose(h))[:,:,0]
-            dwR = Ph*e # Only valid for 1-d output 
-            return tf.transpose(dwR) 
+            return super().pseudogradient_wR(P_Gx, h, z, y, Ph, hPh)
 
     def pseudogradient_P_Gx(self, P_Gx, h):
 
         if len(P_Gx.shape) == 2:
-            return self.pseudogradient_P(P_Gx,h)
+            return self.pseudogradient_P(P_Gx, h)
 
-        Ph = backend.dot(P_Gx, tf.transpose(h))[:,:,0]
-        hPh = tf.expand_dims(backend.dot(Ph, tf.transpose(h)),axis = 2)
-        dP_Gx = tf.expand_dims(Ph, axis = 2) * tf.expand_dims(Ph, axis = 1)/(1+hPh)
-        return dP_Gx
-    
+        return super().pseudogradient_P_Gx(P_Gx, h)
