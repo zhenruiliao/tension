@@ -357,38 +357,36 @@ class OptimizedFORCEModel(FORCEModel):
     """
     def initialize_P(self):
 
-        if self.original_force_layer.output_kernel.trainable:
+        if hasattr(self.original_force_layer, 'output_kernel'):
+            if self.original_force_layer.output_kernel.trainable:
+                self.P_output = self.add_weight(name='P_output', 
+                                                shape=(self.units, self.units), 
+                                                initializer=keras.initializers.Identity(gain=self.alpha_P), 
+                                                trainable=True)
 
-            self.P_output = self.add_weight(name='P_output', 
-                                            shape=(self.units, self.units), 
-                                            initializer=keras.initializers.Identity(gain=self.alpha_P), 
-                                            trainable=True)
+        if hasattr(self.original_force_layer, 'recurrent_kernel'):
+            if self.original_force_layer.recurrent_kernel.trainable:
 
-        if self.original_force_layer.recurrent_kernel.trainable:
+                bool_mask = self.original_force_layer.recurrent_nontrainable_boolean_mask
 
-            bool_mask = self.original_force_layer.recurrent_nontrainable_boolean_mask
+                if bool_mask is None or tf.math.count_nonzero(bool_mask) == 0:
+                  self.P_GG = self.add_weight(name='P_GG', 
+                                              shape=(self.units, self.units), 
+                                              initializer=keras.initializers.Identity(gain=self.alpha_P), 
+                                              trainable=True)    
+                else:
+                  identity_3d = np.zeros((self.units, self.units, self.units))
+                  idx = np.arange(self.units)
+                  identity_3d[:, idx, idx] = self.alpha_P 
 
-            if bool_mask is None or tf.math.count_nonzero(bool_mask) == 0:
+                  I,J = np.nonzero(tf.transpose(bool_mask).numpy() == True)
+                  identity_3d[I,:,J] = 0
+                  identity_3d[I,J,:] = 0
 
-              self.P_GG = self.add_weight(name='P_GG', 
-                                          shape=(self.units, self.units), 
-                                          initializer=keras.initializers.Identity(gain=self.alpha_P), 
-                                          trainable=True)
-              
-            else:
-
-              identity_3d = np.zeros((self.units, self.units, self.units))
-              idx = np.arange(self.units)
-              identity_3d[:, idx, idx] = self.alpha_P 
-
-              I,J = np.nonzero(tf.transpose(bool_mask).numpy() == True)
-              identity_3d[I,:,J] = 0
-              identity_3d[I,J,:] = 0
-
-              self.P_GG = self.add_weight(name='P_GG', 
-                                          shape=(self.units, self.units, self.units), 
-                                          initializer=keras.initializers.constant(identity_3d), 
-                                          trainable=True)
+                  self.P_GG = self.add_weight(name='P_GG', 
+                                              shape=(self.units, self.units, self.units), 
+                                              initializer=keras.initializers.constant(identity_3d), 
+                                              trainable=True)
               
     def pseudogradient_wR(self, P_Gx, h, z, y, Ph, hPh):
 

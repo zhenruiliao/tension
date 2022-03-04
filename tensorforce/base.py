@@ -229,30 +229,31 @@ class FORCEModel(keras.Model):
     def initialize_P(self):
 
         # P matrix for updating the output kernel
-        if self.original_force_layer.output_kernel.trainable:
+        if hasattr(self.original_force_layer, 'output_kernel'):
+            if self.original_force_layer.output_kernel.trainable:
+                self.P_output = self.add_weight(name='P_output', 
+                                                shape=(self.units, self.units), 
+                                                initializer=keras.initializers.Identity(gain=self.alpha_P), 
+                                                trainable=True)
 
-            self.P_output = self.add_weight(name='P_output', 
-                                            shape=(self.units, self.units), 
-                                            initializer=keras.initializers.Identity(gain=self.alpha_P), 
+        if hasattr(self.original_force_layer, 'recurrent_kernel'):
+            if self.original_force_layer.recurrent_kernel.trainable:
+
+                identity_3d = np.zeros((self.units, self.units, self.units))
+                idx = np.arange(self.units)
+                identity_3d[:, idx, idx] = self.alpha_P 
+
+                if self.original_force_layer.recurrent_nontrainable_boolean_mask is not None:
+                    # Transpose here is to be consistent with recurrent pseudogradient calculations
+                    I,J = np.nonzero(tf.transpose(self.original_force_layer.recurrent_nontrainable_boolean_mask).numpy() == True)
+                    identity_3d[I,:,J] = 0
+                    identity_3d[I,J,:] = 0
+
+                # P matrix for updating the recurrent kernel
+                self.P_GG = self.add_weight(name='P_GG', 
+                                            shape=(self.units, self.units, self.units), 
+                                            initializer=keras.initializers.constant(identity_3d), 
                                             trainable=True)
-
-        if self.original_force_layer.recurrent_kernel.trainable:
-
-            identity_3d = np.zeros((self.units, self.units, self.units))
-            idx = np.arange(self.units)
-            identity_3d[:, idx, idx] = self.alpha_P 
-
-            if self.original_force_layer.recurrent_nontrainable_boolean_mask is not None:
-                # Transpose here is to be consistent with recurrent pseudogradient calculations
-                I,J = np.nonzero(tf.transpose(self.original_force_layer.recurrent_nontrainable_boolean_mask).numpy() == True)
-                identity_3d[I,:,J] = 0
-                identity_3d[I,J,:] = 0
-
-            # P matrix for updating the recurrent kernel
-            self.P_GG = self.add_weight(name='P_GG', 
-            	                        shape=(self.units, self.units, self.units), 
-                                        initializer=keras.initializers.constant(identity_3d), 
-                                        trainable=True)
 
     def initialize_train_idx(self):
 
