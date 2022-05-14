@@ -166,7 +166,7 @@ class SpikingNN(FORCELayer):
 
         return h, hr, ipsc, hr_ipsc
 
-    def compute_current(self, states):
+    def compute_current(self, inputs, states):
         """ Computes current of each neuron
 
             Args:
@@ -178,13 +178,13 @@ class SpikingNN(FORCELayer):
         _, _, _, h, _, _, _, out = states
 
         # Q included as part of feedback kernel; G as part of static recurrent kernel
-        return self.I_bias + backend.dot(h, self.recurrent_kernel) + \
-                  backend.dot(out, self.feedback_kernel) 
+        return self.I_bias + backend.dot(h, self.recurrent_kernel) \
+                + backend.dot(out, self.feedback_kernel) + backend.dot(inputs, self.input_kernel)
      
     def call(self, inputs, states):
         prev_t_step, prev_v, prev_u, prev_h, prev_hr, prev_ipsc, prev_hr_ipsc, prev_out = states
 
-        I = self.compute_current(states)
+        I = self.compute_current(inputs, states)
         v, u, v_mask = self.update_voltage(I, states)
         h, hr, ipsc, hr_ipsc = self.update_firing_rate(v_mask, states)
 
@@ -243,9 +243,10 @@ class OptimizedSpikingNN(SpikingNN):
 
         return h, hr, ipsc, hr_ipsc
 
-    def compute_current(self, states):
+    def compute_current(self, inputs, states):
         _, _, _, _, _, ipsc, _, out = states
-        return self.I_bias + ipsc + backend.dot(out, self.feedback_kernel) 
+        return self.I_bias + ipsc + backend.dot(out, self.feedback_kernel) \
+                + backend.dot(inputs, self.input_kernel)
 
 class LIF(OptimizedSpikingNN):
     """ Leaky integrate and fire neuron
