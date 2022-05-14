@@ -1,4 +1,4 @@
-# TensorFORCE
+# TENSION
 A TensorFlow/keras-based Python package for FORCE training chaotic recurrent neural networks
 
 Authors: Zhenrui Liao and Lu Bin Liu
