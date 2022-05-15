@@ -27,5 +27,6 @@ Contents
 
 	installation
 	usage
+        examples
         layers
         models
