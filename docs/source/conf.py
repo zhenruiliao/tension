@@ -12,15 +12,15 @@
 #
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../../tensorforce'))
+sys.path.insert(0, os.path.abspath('../../tension'))
 
 
 
 # -- Project information -----------------------------------------------------
 
-project = 'TensorFORCE'
-copyright = '2022, Zhenrui Liao and Lu Bin Liu'
-author = 'Zhenrui Liao and Lu Bin Liu'
+project = 'TENSION'
+copyright = ''
+author = ''
 
 # The full version, including alpha/beta/rc tags
 release = '0.1'

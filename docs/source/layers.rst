@@ -11,3 +11,19 @@ Base FORCE Layer
 
 Inherited FORCE Layer
 ---------------------
+.. autoclass:: models.EchoStateNetwork
+   :members:
+.. autoclass:: models.NoFeedbackESN
+   :members:
+.. autoclass:: constrained.ConstrainedNoFeedbackESN
+   :members:
+.. autoclass:: spiking.SpikingNN
+   :members:
+.. autoclass:: spiking.OptimizedSpikingNN
+   :members:
+.. autoclass:: spiking.LIF
+   :members:
+.. autoclass:: spiking.Izhikevich
+   :members:
+.. autoclass:: spiking.Theta
+   :members:
