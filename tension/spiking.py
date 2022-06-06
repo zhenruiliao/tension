@@ -6,7 +6,9 @@ from base import FORCELayer, FORCEModel
 
 class SpikingNN(FORCELayer):
     """
-    Parent class part of the spiking neural networks implementation by Nicola and Clopath
+    Parent class part of the spiking neural networks as described in `Nicola and Clopath 
+    <https://www.nature.com/articles/s41467-017-01827-3>`_. New spiking RNN layers can 
+    be created by subclassing from this class or ``spiking.OptimizedSpikingNN``.
 
     :param dt: Duration of one time step
     :type dt: float
@@ -32,7 +34,7 @@ class SpikingNN(FORCELayer):
     :param initial_voltage: An optional ``1`` x ``self.units`` tensor or numpy array specifying
         the initial voltage. (*Default: None*)
     :type initial_voltage: Tensor[2D float] or None
-    :param kwargs: Additional parameters as outlined in FORCELayer
+    :param kwargs: Additional parameters as outlined in ``base.FORCELayer``
 
     :states: 
         - **t_step** - ``1`` x ``1`` tensor that tracks number of time steps 
@@ -186,6 +188,18 @@ class SpikingNN(FORCELayer):
      
     def call(self, inputs, states):
         """
+        Implements forward pass of the layer. 
+
+        :param inputs: Input tensor of shape *(1, input dimensions)*.
+        :type inputs: Tensor[2D float]
+        :param states: List of tensors corresponding to the states of the layer.
+        :type states: list[Tensor[2D float]]
+
+        :returns:
+            - **output** (*Tensor[2D float]*) - ``1`` x ``self.output_size`` tensor containing the 
+              output of the forward pass.
+            - **updated states** (*list[Tensor[2D float]]*) - List of tensors containing the
+              updated states of the layer.
         """
         prev_t_step, prev_v, prev_u, prev_h, prev_hr, prev_ipsc, prev_hr_ipsc, prev_out = states
 
@@ -201,6 +215,10 @@ class SpikingNN(FORCELayer):
 
     def get_initial_state(self, inputs=None, batch_size=None, dtype=None):
         """
+        Initializes the states of the layer (applied implicitly during layer build). See:
+        https://www.tensorflow.org/api_docs/python/tf/keras/layers/RNN
+
+        :returns: A list of tensors containing the initial states of the layer
         """
         if self._initial_h is not None:
           init_h = self._initial_h
@@ -223,9 +241,9 @@ class SpikingNN(FORCELayer):
 
 class OptimizedSpikingNN(SpikingNN):
     """ 
-    Optimizations added for improved computational speed
+    Optimizations added to SpikingNN for improved computational speed. Subclass from this class 
+    when creating new spiking layers. 
     """
-
     def update_firing_rate(self, v_mask, states):
         n_spike = tf.math.reduce_sum(v_mask)
         if n_spike > 0:
@@ -373,7 +391,8 @@ class Theta(OptimizedSpikingNN):
     
 class SpikingNNModel(FORCEModel):
     """ 
-    Implements FORCE training on spiking neural networks per Nicola and Clopath. 
+    Implements FORCE training on spiking neural networks per `Nicola and Clopath 
+    <https://www.nature.com/articles/s41467-017-01827-3>`_. 
     """
 
     def force_layer_call(self, x, training, **kwargs):

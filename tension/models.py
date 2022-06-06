@@ -31,6 +31,18 @@ class EchoStateNetwork(FORCELayer):
 
     def call(self, inputs, states):
         """
+        Implements forward pass of the layer. 
+
+        :param inputs: Input tensor of shape *(1, input dimensions)*.
+        :type inputs: Tensor[2D float]
+        :param states: List of tensors corresponding to the states of the layer.
+        :type states: list[Tensor[2D float]]
+
+        :returns:
+            - **output** (*Tensor[2D float]*) - ``1`` x ``self.output_size`` tensor containing the 
+              output of the forward pass.
+            - **updated states** (*list[Tensor[2D float]]*) - List of tensors containing the
+              updated states of the layer.
         """
         prev_a, prev_h, prev_output = states      
         input_term = backend.dot(inputs, self.input_kernel)
@@ -46,7 +58,7 @@ class EchoStateNetwork(FORCELayer):
 
     def get_initial_state(self, inputs=None, batch_size=None, dtype=None):
         """
-        Initializes the states of the layer. See:
+        Initializes the states of the layer (applied implicitly during layer build). See:
         https://www.tensorflow.org/api_docs/python/tf/keras/layers/RNN
 
         :returns:
@@ -205,16 +217,22 @@ class TargetGeneratingNetwork(EchoStateNetwork):
 
 class FullFORCEModel(FORCEModel):
     """ 
-    Implements full FORCE learning by DePasquale et al. Subclassed from FORCEModel. 
+    Subclassed from FORCEModel, implements full FORCE learning by `DePasquale et al. 
+    <https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0191527>`_. 
 
-    Target to the model during fit/evaluate should be of shape (timesteps, 1). 
+    Target to the model should be of shape (timesteps, 1). 
 
-    During training, input to the model should be of shape (timesteps, input dimensions + hint dimensions).
-    During inference, input to the model should be of shape (timesteps, input dimensions).
+    **Note** - Input shapes during training and inference differ:
+    During training, input to the model should be of shape *(timesteps, input dimensions + hint dimensions)*.
+    During inference, input to the model should be of shape *(timesteps, input dimensions)*.
+    During model call when ``training=True``, input to the call should have shape 
+    *(1, timesteps, input dimensions + hint dimensions + output dimensions)*.
+    During model call when ``training=False``, input to the call should have shape 
+    *(1, timesteps, input dimensions)*.
 
     :param hint_dim: Dimension of the hint input
     :type hint_dim: int
-    :param target_output_kernel_trainable: If True, train the target output kernel 
+    :param target_output_kernel_trainable: If True, train the target output kernel (*Default: False*)
     :type target_output_kernel_trainable: bool
     :param kwargs:  Other key word arguments as needed. See ``base.FORCEModel``
     """
@@ -240,6 +258,10 @@ class FullFORCEModel(FORCEModel):
 
     def initialize_target_network(self, input_shape):
         """
+        Initializes the target generating network. 
+
+        :param input_shape: Input shape
+        :type input_shape: tuple
         """
         self._target_network = TargetGeneratingNetwork(dtdivtau=self.original_force_layer.dtdivtau, 
                                                        units=self.units, 
@@ -254,7 +276,9 @@ class FullFORCEModel(FORCEModel):
         self.target_network.build(input_shape)
 
     def initialize_P(self):
-        """
+        """ 
+        Initializes the P matrices corresponding to the output kernel  necessary for FORCE for the 
+        task and target generating network. 
         """
         self.task_P_output = self.add_weight(name='task_P_output', 
                                              shape=(self.units, self.units), 
@@ -286,6 +310,17 @@ class FullFORCEModel(FORCEModel):
             elif 'recurrent_kernel' in trainable_name:
               self._task_recurrent_kernel_idx = idx
 
+    def call(self, x, training=False, reset_states=False, **kwargs):
+        if not reset_states:
+          output = super().call(x=x, training=training, reset_states=reset_states, **kwargs)
+        else:
+          original_state = [tf.identity(state) for state in self.target_network.states]
+          output = super().call(x=x, training=training, reset_states=reset_states, **kwargs)
+          for i, state in enumerate(self.target_network.states):
+              state.assign(original_state[i], read_value=False)      
+
+        return output
+
     def force_layer_call(self, x, training, **kwargs):
         if training:
             output_target, _, h_target, fb_hint_sum = self.target_network(x, **kwargs)
@@ -296,14 +331,14 @@ class FullFORCEModel(FORCEModel):
 
     def train_step(self, data):
         x, y = data
-        output_task, h_task, output_target, h_target, fb_hint_sum = self(tf.concat([x, y], axis=-1), training=True) 
+        output_task, h_task, output_target, h_target, fb_hint_sum = self(tf.concat([x, y], axis=-1), 
+                                                                         training=True, 
+                                                                         reset_states=False) 
 
         if self.force_layer.return_sequences:
             output_task = output_task[:,0,:]
-
         if self.target_network.return_sequences:
             output_target = output_target[:, 0, :]
-
         trainable_vars = self.trainable_variables
 
         if self._task_output_kernel_idx is not None:

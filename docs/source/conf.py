@@ -19,8 +19,8 @@ sys.path.insert(0, os.path.abspath('../../tension'))
 # -- Project information -----------------------------------------------------
 
 project = 'TENSION'
-copyright = ''
-author = ''
+copyright = '2022, Zhenrui Liao and Lu Bin Liu'
+author = 'Zhenrui Liao and Lu Bin Liu'
 
 # The full version, including alpha/beta/rc tags
 release = '0.1'
