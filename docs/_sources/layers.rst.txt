@@ -9,14 +9,17 @@ Base FORCE Layer
              initialize_feedback_kernel, initialize_output_kernel, 
              build, from_weights  
 
-Inherited FORCE Layer
----------------------
+Echo State Networks
+-------------------
 .. autoclass:: models.EchoStateNetwork
    :members:
 .. autoclass:: models.NoFeedbackESN
    :members:
 .. autoclass:: constrained.ConstrainedNoFeedbackESN
    :members:
+
+Spiking Networks
+----------------
 .. autoclass:: spiking.SpikingNN
    :members:
 .. autoclass:: spiking.OptimizedSpikingNN

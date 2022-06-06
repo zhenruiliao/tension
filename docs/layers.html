@@ -42,7 +42,8 @@
 <li class="toctree-l1"><a class="reference internal" href="examples.html">Usage</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">FORCE Layers</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#base-force-layer">Base FORCE Layer</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#inherited-force-layer">Inherited FORCE Layer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#echo-state-networks">Echo State Networks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#spiking-networks">Spiking Networks</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="models.html">FORCE Model</a></li>
@@ -138,7 +139,7 @@ and output kernels</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>feedback_kernel</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – Tensor array containing the pre-initialized kernel. 
-If none, the kernel will be randomly initialized.</p>
+If none, the kernel will be randomly initialized. (<em>Default: None</em>)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -152,7 +153,7 @@ If none, the kernel will be randomly initialized.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>input_dim</strong> (<em>int</em>) – Dimension of input</p></li>
 <li><p><strong>input_kernel</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – Tensor containing the pre-initialized kernel. 
-If none, the kernel will be randomly initialized.</p></li>
+If none, the kernel will be randomly initialized. (<em>Default: None</em>)</p></li>
 </ul>
 </dd>
 </dl>
@@ -165,7 +166,7 @@ If none, the kernel will be randomly initialized.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>output_kernel</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – Tensor or numpy array containing the pre-initialized kernel. 
-If none, the kernel will be randomly initialized.</p>
+If none, the kernel will be randomly initialized. (<em>Default: None</em>)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -177,7 +178,7 @@ If none, the kernel will be randomly initialized.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>recurrent_kernel</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – Tensor containing the pre-initialized kernel. 
-If none, the kernel will be randomly initialized.</p>
+If none, the kernel will be randomly initialized. (<em>Default: None</em>)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -185,8 +186,8 @@ If none, the kernel will be randomly initialized.</p>
 </dd></dl>
 
 </section>
-<section id="inherited-force-layer">
-<h2>Inherited FORCE Layer<a class="headerlink" href="#inherited-force-layer" title="Permalink to this headline"></a></h2>
+<section id="echo-state-networks">
+<h2>Echo State Networks<a class="headerlink" href="#echo-state-networks" title="Permalink to this headline"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="models.EchoStateNetwork">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">models.</span></span><span class="sig-name descname"><span class="pre">EchoStateNetwork</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#models.EchoStateNetwork" title="Permalink to this definition"></a></dt>
@@ -205,12 +206,30 @@ the initial neuron pre-activation firing rates. (<em>Default: None</em>)</p></li
 <dl class="py method">
 <dt class="sig sig-object py" id="models.EchoStateNetwork.call">
 <span class="sig-name descname"><span class="pre">call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">states</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#models.EchoStateNetwork.call" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Implements forward pass of the layer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>inputs</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – Input tensor of shape <em>(1, input dimensions)</em>.</p></li>
+<li><p><strong>states</strong> (<em>list</em><em>[</em><em>Tensor</em><em>[</em><em>2D float</em><em>]</em><em>]</em>) – List of tensors corresponding to the states of the layer.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>output</strong> (<em>Tensor[2D float]</em>) - <code class="docutils literal notranslate"><span class="pre">1</span></code> x <code class="docutils literal notranslate"><span class="pre">self.output_size</span></code> tensor containing the 
+output of the forward pass.</p></li>
+<li><p><strong>updated states</strong> (<em>list[Tensor[2D float]]</em>) - List of tensors containing the
+updated states of the layer.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="models.EchoStateNetwork.get_initial_state">
 <span class="sig-name descname"><span class="pre">get_initial_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#models.EchoStateNetwork.get_initial_state" title="Permalink to this definition"></a></dt>
-<dd><p>Initializes the states of the layer. See:
+<dd><p>Initializes the states of the layer (applied implicitly during layer build). See:
 <a class="reference external" href="https://www.tensorflow.org/api_docs/python/tf/keras/layers/RNN">https://www.tensorflow.org/api_docs/python/tf/keras/layers/RNN</a></p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -253,7 +272,25 @@ initialization of layer kernals. Typically called implicitly.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="models.NoFeedbackESN.call">
 <span class="sig-name descname"><span class="pre">call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">states</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#models.NoFeedbackESN.call" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Implements forward pass of the layer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>inputs</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – Input tensor of shape <em>(1, input dimensions)</em>.</p></li>
+<li><p><strong>states</strong> (<em>list</em><em>[</em><em>Tensor</em><em>[</em><em>2D float</em><em>]</em><em>]</em>) – List of tensors corresponding to the states of the layer.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>output</strong> (<em>Tensor[2D float]</em>) - <code class="docutils literal notranslate"><span class="pre">1</span></code> x <code class="docutils literal notranslate"><span class="pre">self.output_size</span></code> tensor containing the 
+output of the forward pass.</p></li>
+<li><p><strong>updated states</strong> (<em>list[Tensor[2D float]]</em>) - List of tensors containing the
+updated states of the layer.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="models.NoFeedbackESN.from_weights">
@@ -281,7 +318,7 @@ at indices where recurrent_nontrainable_boolean_mask is True.</p></li>
 <dl class="py class">
 <dt class="sig sig-object py" id="constrained.ConstrainedNoFeedbackESN">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">constrained.</span></span><span class="sig-name descname"><span class="pre">ConstrainedNoFeedbackESN</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#constrained.ConstrainedNoFeedbackESN" title="Permalink to this definition"></a></dt>
-<dd><p>Constrained ESN without feedback based on Hadjiabadi et al.</p>
+<dd><p>Constrained ESN without feedback as described in <a class="reference external" href="https://pubmed.ncbi.nlm.nih.gov/34197732/">Hadjiabadi et al.</a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -305,7 +342,25 @@ initialization of layer kernals. Typically called implicitly.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="constrained.ConstrainedNoFeedbackESN.call">
 <span class="sig-name descname"><span class="pre">call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">states</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#constrained.ConstrainedNoFeedbackESN.call" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Implements forward pass of the layer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>inputs</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – Input tensor of shape <em>(1, input dimensions)</em>.</p></li>
+<li><p><strong>states</strong> (<em>list</em><em>[</em><em>Tensor</em><em>[</em><em>2D float</em><em>]</em><em>]</em>) – List of tensors corresponding to the states of the layer.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>output</strong> (<em>Tensor[2D float]</em>) - <code class="docutils literal notranslate"><span class="pre">1</span></code> x <code class="docutils literal notranslate"><span class="pre">self.output_size</span></code> tensor containing the 
+output of the forward pass.</p></li>
+<li><p><strong>updated states</strong> (<em>list[Tensor[2D float]]</em>) - List of tensors containing the
+updated states of the layer.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="constrained.ConstrainedNoFeedbackESN.from_weights">
@@ -324,7 +379,7 @@ initialization of layer kernals. Typically called implicitly.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="constrained.ConstrainedNoFeedbackESN.get_initial_state">
 <span class="sig-name descname"><span class="pre">get_initial_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#constrained.ConstrainedNoFeedbackESN.get_initial_state" title="Permalink to this definition"></a></dt>
-<dd><p>Initializes the states of the layer. See:
+<dd><p>Initializes the states of the layer (applied implicitly during layer build). See:
 <a class="reference external" href="https://www.tensorflow.org/api_docs/python/tf/keras/layers/RNN">https://www.tensorflow.org/api_docs/python/tf/keras/layers/RNN</a></p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -345,17 +400,21 @@ initialization of layer kernals. Typically called implicitly.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>recurrent_kernel</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – Tensor containing the pre-initialized kernel. 
-If none, the kernel will be randomly initialized.</p>
+If none, the kernel will be randomly initialized. (<em>Default: None</em>)</p>
 </dd>
 </dl>
 </dd></dl>
 
 </dd></dl>
 
+</section>
+<section id="spiking-networks">
+<h2>Spiking Networks<a class="headerlink" href="#spiking-networks" title="Permalink to this headline"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="spiking.SpikingNN">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spiking.</span></span><span class="sig-name descname"><span class="pre">SpikingNN</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spiking.SpikingNN" title="Permalink to this definition"></a></dt>
-<dd><p>Parent class part of the spiking neural networks implementation by Nicola and Clopath</p>
+<dd><p>Parent class part of the spiking neural networks as described in <a class="reference external" href="https://www.nature.com/articles/s41467-017-01827-3">Nicola and Clopath</a>. New spiking RNN layers can 
+be created by subclassing from this class or <code class="docutils literal notranslate"><span class="pre">spiking.OptimizedSpikingNN</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -372,7 +431,7 @@ If none, the kernel will be randomly initialized.</p>
 the initial neuron firing rates. (<em>Default: None</em>)</p></li>
 <li><p><strong>initial_voltage</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>] or </em><em>None</em>) – An optional <code class="docutils literal notranslate"><span class="pre">1</span></code> x <code class="docutils literal notranslate"><span class="pre">self.units</span></code> tensor or numpy array specifying
 the initial voltage. (<em>Default: None</em>)</p></li>
-<li><p><strong>kwargs</strong> – Additional parameters as outlined in FORCELayer</p></li>
+<li><p><strong>kwargs</strong> – Additional parameters as outlined in <code class="docutils literal notranslate"><span class="pre">base.FORCELayer</span></code></p></li>
 </ul>
 </dd>
 <dt class="field-even">States</dt>
@@ -391,7 +450,25 @@ the initial voltage. (<em>Default: None</em>)</p></li>
 <dl class="py method">
 <dt class="sig sig-object py" id="spiking.SpikingNN.call">
 <span class="sig-name descname"><span class="pre">call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">states</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spiking.SpikingNN.call" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Implements forward pass of the layer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>inputs</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – Input tensor of shape <em>(1, input dimensions)</em>.</p></li>
+<li><p><strong>states</strong> (<em>list</em><em>[</em><em>Tensor</em><em>[</em><em>2D float</em><em>]</em><em>]</em>) – List of tensors corresponding to the states of the layer.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>output</strong> (<em>Tensor[2D float]</em>) - <code class="docutils literal notranslate"><span class="pre">1</span></code> x <code class="docutils literal notranslate"><span class="pre">self.output_size</span></code> tensor containing the 
+output of the forward pass.</p></li>
+<li><p><strong>updated states</strong> (<em>list[Tensor[2D float]]</em>) - List of tensors containing the
+updated states of the layer.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="spiking.SpikingNN.compute_current">
@@ -410,7 +487,14 @@ the initial voltage. (<em>Default: None</em>)</p></li>
 <dl class="py method">
 <dt class="sig sig-object py" id="spiking.SpikingNN.get_initial_state">
 <span class="sig-name descname"><span class="pre">get_initial_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spiking.SpikingNN.get_initial_state" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Initializes the states of the layer (applied implicitly during layer build). See:
+<a class="reference external" href="https://www.tensorflow.org/api_docs/python/tf/keras/layers/RNN">https://www.tensorflow.org/api_docs/python/tf/keras/layers/RNN</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A list of tensors containing the initial states of the layer</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="spiking.SpikingNN.initialize_feedback_kernel">
@@ -419,7 +503,7 @@ the initial voltage. (<em>Default: None</em>)</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>feedback_kernel</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – Tensor array containing the pre-initialized kernel. 
-If none, the kernel will be randomly initialized.</p>
+If none, the kernel will be randomly initialized. (<em>Default: None</em>)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -431,7 +515,7 @@ If none, the kernel will be randomly initialized.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>output_kernel</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – Tensor or numpy array containing the pre-initialized kernel. 
-If none, the kernel will be randomly initialized.</p>
+If none, the kernel will be randomly initialized. (<em>Default: None</em>)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -443,7 +527,7 @@ If none, the kernel will be randomly initialized.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>recurrent_kernel</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – Tensor containing the pre-initialized kernel. 
-If none, the kernel will be randomly initialized.</p>
+If none, the kernel will be randomly initialized. (<em>Default: None</em>)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -522,7 +606,8 @@ one indicates that the neuron voltage exceeded <code class="docutils literal not
 <dl class="py class">
 <dt class="sig sig-object py" id="spiking.OptimizedSpikingNN">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spiking.</span></span><span class="sig-name descname"><span class="pre">OptimizedSpikingNN</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spiking.OptimizedSpikingNN" title="Permalink to this definition"></a></dt>
-<dd><p>Optimizations added for improved computational speed</p>
+<dd><p>Optimizations added to SpikingNN for improved computational speed. Subclass from this class 
+when creating new spiking layers.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="spiking.OptimizedSpikingNN.compute_current">
 <span class="sig-name descname"><span class="pre">compute_current</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">states</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spiking.OptimizedSpikingNN.compute_current" title="Permalink to this definition"></a></dt>
@@ -729,7 +814,7 @@ one indicates that the neuron voltage exceeded <code class="docutils literal not
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright .</p>
+    <p>&#169; Copyright 2022, Zhenrui Liao and Lu Bin Liu.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

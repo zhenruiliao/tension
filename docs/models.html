@@ -78,14 +78,16 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="base.FORCEModel">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">base.</span></span><span class="sig-name descname"><span class="pre">FORCEModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#base.FORCEModel" title="Permalink to this definition"></a></dt>
-<dd><p>Base class for FORCE model per Sussillo and Abbott.</p>
-<p>Input to the model during <code class="docutils literal notranslate"><span class="pre">FORCEModel.fit</span></code>, <code class="docutils literal notranslate"><span class="pre">FORCEModel.predict</span></code>, or <code class="docutils literal notranslate"><span class="pre">FORCEModel.evaluate</span></code> 
-should be of shape <em>(timesteps, input dimensions)</em>. Target to the model during <code class="docutils literal notranslate"><span class="pre">FORCEModel.fit</span></code> 
-or <code class="docutils literal notranslate"><span class="pre">FORCEModel.evaluate</span></code> should be of shape <em>(timesteps, output dimensions)</em>.</p>
-<p>If validation data is to be passed to <code class="docutils literal notranslate"><span class="pre">FORCEModel.fit</span></code>, input and target of the validation 
-data should be of shape <em>(1, timesteps, input dimensions)</em> and <em>(1, timesteps, output dimensions)</em> 
+<dd><p>Base class for FORCE model per <a class="reference external" href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2756108/">Sussillo and Abbott</a>.</p>
+<p>Input to the model during <code class="docutils literal notranslate"><span class="pre">FORCEModel</span></code>’s <cite>fit</cite>, <cite>predict</cite>, or <cite>evaluate</cite> methods  
+should be of shape <em>(timesteps, input dimensions)</em>.</p>
+<p>Target to the model during <cite>fit</cite> or <cite>evaluate</cite> should be of shape <em>(timesteps, output dimensions)</em>.</p>
+<p>Input to the model when calling the model should be of shape <em>(1, timesteps, input dimensions)</em>.</p>
+<p>If validation data is to be passed to <cite>fit</cite>, input and target of the validation 
+data should be of shape <em>(timesteps, input dimensions)</em> and <em>(timesteps, output dimensions)</em> 
 respectively.</p>
 <p>If the recurrent kernel is to be trained, then the target must be one dimensional.</p>
+<p>Use <code class="docutils literal notranslate"><span class="pre">self.force_layer.states</span></code> to access the states of <code class="docutils literal notranslate"><span class="pre">self.force_layer</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -110,15 +112,35 @@ initialization of variables the model requires for training. Typically called im
 
 <dl class="py method">
 <dt class="sig sig-object py" id="base.FORCEModel.call">
-<span class="sig-name descname"><span class="pre">call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">training</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#base.FORCEModel.call" title="Permalink to this definition"></a></dt>
-<dd><p>Inherited and serves the same function as from <code class="docutils literal notranslate"><span class="pre">tensorflow.keras.Model.call</span></code>. 
-If <code class="docutils literal notranslate"><span class="pre">training=False</span></code>, the <code class="docutils literal notranslate"><span class="pre">self.force_layer</span></code>’s states are reset at the end of the execution.</p>
+<span class="sig-name descname"><span class="pre">call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">training</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reset_states</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#base.FORCEModel.call" title="Permalink to this definition"></a></dt>
+<dd><p>Inherited and serves the same function as from <cite>tensorflow.keras.Model.call</cite>.</p>
+<p><strong>Note:</strong> By default, <code class="docutils literal notranslate"><span class="pre">reset_states=False</span></code> and therefore, the <code class="docutils literal notranslate"><span class="pre">self.force_layer</span></code>’s 
+states are <strong>not</strong> reset at the end of the execution.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>x</strong> (<em>Tensor</em><em>[</em><em>3D float</em><em>]</em>) – Input tensor.</p></li>
-<li><p><strong>training</strong> (<em>bool</em>) – If True, model is called during training.</p></li>
+<li><p><strong>x</strong> (<em>Tensor</em><em>[</em><em>3D float</em><em>]</em>) – Input tensor of shape <em>(1, timestep, input dimension)</em>.</p></li>
+<li><p><strong>training</strong> (<em>bool</em>) – Whether the model is being called during training or inference. (<em>Default: False</em>)</p></li>
+<li><p><strong>reset_states</strong> (<em>bool</em>) – Whether to reset the state of <code class="docutils literal notranslate"><span class="pre">self.force_layer</span></code> after the model is called.
+(<em>Default: False</em>)</p></li>
 <li><p><strong>kwargs</strong> – Other key word arguments as needed.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="base.FORCEModel.coerce_input_data">
+<span class="sig-name descname"><span class="pre">coerce_input_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#base.FORCEModel.coerce_input_data" title="Permalink to this definition"></a></dt>
+<dd><p>Coerces the input data to a desired shape based on method used 
+(<cite>fit</cite>, <cite>predict</cite>, <cite>evaluate</cite>).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>Tensor</em><em>[</em><em>3D float</em><em>]</em>) – Tensor of shape <em>(timestep, 1, input dimensions)</em></p></li>
+<li><p><strong>y</strong> (<em>Tensor</em><em>[</em><em>3D float</em><em>]</em>) – Tensor of shape <em>(timestep, 1, target dimensions)</em></p></li>
+<li><p><strong>method</strong> (<em>str</em>) – One of <em>fit</em>, <em>validation</em>, <em>predict</em>, or <em>evaluate</em></p></li>
+<li><p><strong>kwargs</strong> – Other arguments as needed.</p></li>
 </ul>
 </dd>
 </dl>
@@ -127,10 +149,11 @@ If <code class="docutils literal notranslate"><span class="pre">training=False</
 <dl class="py method">
 <dt class="sig sig-object py" id="base.FORCEModel.compile">
 <span class="sig-name descname"><span class="pre">compile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">metrics</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#base.FORCEModel.compile" title="Permalink to this definition"></a></dt>
-<dd><p>A wrapper around <code class="docutils literal notranslate"><span class="pre">tensorflow.keras.Model.compile</span></code>.</p>
+<dd><p>A wrapper around <cite>tensorflow.keras.Model.compile</cite>.</p>
+<p><strong>Note:</strong> The <em>optimizer</em> parameter is not supported</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>metrics</strong> (<em>list</em><em>[</em><em>str</em><em>]</em>) – Same as in <code class="docutils literal notranslate"><span class="pre">tensorflow.keras.Model.compile</span></code>.</p>
+<dd class="field-odd"><p><strong>metrics</strong> (<em>list</em><em>[</em><em>str</em><em>]</em>) – Same as in <cite>tensorflow.keras.Model.compile</cite>.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -138,12 +161,13 @@ If <code class="docutils literal notranslate"><span class="pre">training=False</
 <dl class="py method">
 <dt class="sig sig-object py" id="base.FORCEModel.evaluate">
 <span class="sig-name descname"><span class="pre">evaluate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#base.FORCEModel.evaluate" title="Permalink to this definition"></a></dt>
-<dd><p>A wrapper around <code class="docutils literal notranslate"><span class="pre">tensorflow.keras.Model.evaluate</span></code>.</p>
+<dd><p>A wrapper around <cite>tensorflow.keras.Model.evaluate</cite>. 
+<strong>Note</strong>: the <em>batch_size</em> and <em>steps</em> parameter are not supported.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>x</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – Tensor of input signal of shape timesteps x input dimensions.</p></li>
-<li><p><strong>y</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – Tensor of target signal of shape timesteps x output dimensions.</p></li>
+<li><p><strong>x</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – Tensor of input signal of shape <em>timesteps x input dimensions</em>.</p></li>
+<li><p><strong>y</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – Tensor of target signal of shape <em>timesteps x output dimensions</em>.</p></li>
 </ul>
 </dd>
 </dl>
@@ -152,15 +176,16 @@ If <code class="docutils literal notranslate"><span class="pre">training=False</
 <dl class="py method">
 <dt class="sig sig-object py" id="base.FORCEModel.fit">
 <span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epochs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'auto'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#base.FORCEModel.fit" title="Permalink to this definition"></a></dt>
-<dd><p>A wrapper around <code class="docutils literal notranslate"><span class="pre">tensorflow.keras.Model.fit</span></code>. Note that the <em>batch_size</em>, 
-<em>validation_batch_size</em>, and <em>shuffle</em> parameters are not supported.</p>
+<dd><p>A wrapper around <cite>tensorflow.keras.Model.fit</cite>. 
+<strong>Note:</strong> the <em>batch_size</em>, <em>validation_batch_size</em>,  <em>shuffle</em>, 
+<em>steps_per_epoch</em>, and <em>validation_steps</em> parameters are not supported.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>x</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – Tensor of input signal of shape timesteps x input dimensions.</p></li>
-<li><p><strong>y</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – Tensor of target signal of shape timesteps x output dimensions.</p></li>
+<li><p><strong>x</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – Tensor of input signal of shape <em>timesteps x input dimensions</em>.</p></li>
+<li><p><strong>y</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – Tensor of target signal of shape <em>timesteps x output dimensions</em>.</p></li>
 <li><p><strong>epoch</strong> (<em>int</em>) – Number of epochs to train.</p></li>
-<li><p><strong>verbose</strong> (<em>str</em>) – Same as from <code class="docutils literal notranslate"><span class="pre">tensorflow.keras.Model.fit</span></code>.</p></li>
+<li><p><strong>verbose</strong> (<em>str</em>) – Same as from <cite>tensorflow.keras.Model.fit</cite>.</p></li>
 <li><p><strong>kwargs</strong> – Other key word arguments as needed.</p></li>
 </ul>
 </dd>
@@ -180,7 +205,7 @@ If <code class="docutils literal notranslate"><span class="pre">training=False</
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>(<em>tuple[Tensor[2D float]]</em>) - Output of <code class="docutils literal notranslate"><span class="pre">self.force_layer</span></code>’s call method</p>
+<dd class="field-even"><p>(<em>tuple[Tensor[2D float]]</em>) - Output of <code class="docutils literal notranslate"><span class="pre">self.force_layer</span></code>’s call method.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -194,17 +219,17 @@ If <code class="docutils literal notranslate"><span class="pre">training=False</
 <dl class="py method">
 <dt class="sig sig-object py" id="base.FORCEModel.initialize_train_idx">
 <span class="sig-name descname"><span class="pre">initialize_train_idx</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#base.FORCEModel.initialize_train_idx" title="Permalink to this definition"></a></dt>
-<dd><p>Finds the indices inside self.trainable_variables corresponding to the relevant kernel and P tensors.</p>
+<dd><p>Finds the indices inside <code class="docutils literal notranslate"><span class="pre">self.trainable_variables</span></code> corresponding to the relevant kernel and P tensors.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="base.FORCEModel.predict">
 <span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#base.FORCEModel.predict" title="Permalink to this definition"></a></dt>
-<dd><p>A wrapper around <code class="docutils literal notranslate"><span class="pre">tensorflow.keras.Model.predict</span></code>. <strong>Note: parameters batch_size 
-and callbacks are not supported</strong>.</p>
+<dd><p>A wrapper around <cite>tensorflow.keras.Model.predict</cite>. 
+<strong>Note</strong>: the <em>batch_size</em> and <em>steps</em> parameter are not supported.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>x</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – Tensor of input signal of shape timesteps x input dimensions.</p>
+<dd class="field-odd"><p><strong>x</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – Tensor of input signal of shape <em>timesteps x input dimensions</em>.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>(<em>Tensor[2D float]</em>) - Tensor of predictions</p>
@@ -219,17 +244,17 @@ and callbacks are not supported</strong>.</p>
 update rule is required.</p>
 <p>Example array shapes:</p>
 <div class="line-block">
-<div class="line">h : 1 x <code class="docutils literal notranslate"><span class="pre">self.units</span></code></div>
+<div class="line">h : <code class="docutils literal notranslate"><span class="pre">1</span></code> x <code class="docutils literal notranslate"><span class="pre">self.units</span></code></div>
 <div class="line">P : <code class="docutils literal notranslate"><span class="pre">self.units</span></code> x <code class="docutils literal notranslate"><span class="pre">self.units</span></code></div>
-<div class="line">k : <code class="docutils literal notranslate"><span class="pre">self.units</span></code> x 1 </div>
-<div class="line">hPht : 1 x 1</div>
+<div class="line">k : <code class="docutils literal notranslate"><span class="pre">self.units</span></code> x <code class="docutils literal notranslate"><span class="pre">1</span></code> </div>
+<div class="line">hPht : <code class="docutils literal notranslate"><span class="pre">1</span></code> x <code class="docutils literal notranslate"><span class="pre">1</span></code></div>
 <div class="line">dP : <code class="docutils literal notranslate"><span class="pre">self.units</span></code> x <code class="docutils literal notranslate"><span class="pre">self.units</span></code></div>
 </div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>P</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – The FORCE P tensor.</p></li>
-<li><p><strong>h</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – An 1 x self.units tensor of firing ratings for each recurrent neuron.</p></li>
+<li><p><strong>h</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – An <code class="docutils literal notranslate"><span class="pre">1</span></code> x <code class="docutils literal notranslate"><span class="pre">self.units</span></code> tensor of firing ratings for each recurrent neuron.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -255,7 +280,7 @@ computation.</p></li>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>P_Gx</strong> (<em>Tensor</em><em>[</em><em>3D float</em><em>]</em>) – A <code class="docutils literal notranslate"><span class="pre">self.units</span></code> x <code class="docutils literal notranslate"><span class="pre">self.units</span></code> x <code class="docutils literal notranslate"><span class="pre">self.units</span></code>  P tensor corresponding to
 the recurrent kernel.</p></li>
-<li><p><strong>h</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – An 1 x <code class="docutils literal notranslate"><span class="pre">self.units</span></code> tensor of firing ratings for each recurrent neuron</p></li>
+<li><p><strong>h</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – An <code class="docutils literal notranslate"><span class="pre">1</span></code> x <code class="docutils literal notranslate"><span class="pre">self.units</span></code> tensor of firing ratings for each recurrent neuron</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -279,20 +304,20 @@ update rule is required.</p>
 <p>Example array shapes:</p>
 <div class="line-block">
 <div class="line">P : <code class="docutils literal notranslate"><span class="pre">self.units</span></code> x <code class="docutils literal notranslate"><span class="pre">self.units</span></code></div>
-<div class="line">h : 1 x <code class="docutils literal notranslate"><span class="pre">self.units</span></code></div>
-<div class="line">z, y : 1 x output dimension</div>
+<div class="line">h : <code class="docutils literal notranslate"><span class="pre">1</span></code> x <code class="docutils literal notranslate"><span class="pre">self.units</span></code></div>
+<div class="line">z, y : <code class="docutils literal notranslate"><span class="pre">1</span></code> x output dimension</div>
 </div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>P</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – The FORCE P tensor corresponding to output kernel.</p></li>
-<li><p><strong>h</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – An 1 x <code class="docutils literal notranslate"><span class="pre">self.units</span></code> tensor of firing ratings for each recurrent neuron.</p></li>
-<li><p><strong>z</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – An 1 x output dimensions tensor of predictions.</p></li>
-<li><p><strong>y</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – An 1 x output dimensions tensor of ground truth target.</p></li>
-<li><p><strong>Pht</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – <code class="docutils literal notranslate"><span class="pre">self.units</span></code> x 1 intermediate tensor from pseudogradient computation 
-from <code class="docutils literal notranslate"><span class="pre">FORCEModel.pseudogradient_P</span></code> (unused by default).</p></li>
-<li><p><strong>hPht</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – 1 x 1 intermediate tensor from pseudogradient computation
-from <code class="docutils literal notranslate"><span class="pre">FORCEModel.pseudogradient_P</span></code> (unused by default).</p></li>
+<li><p><strong>h</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – An <code class="docutils literal notranslate"><span class="pre">1</span></code> x <code class="docutils literal notranslate"><span class="pre">self.units</span></code> tensor of firing ratings for each recurrent neuron.</p></li>
+<li><p><strong>z</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – An <code class="docutils literal notranslate"><span class="pre">1</span></code> x output dimensions tensor of predictions.</p></li>
+<li><p><strong>y</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – An <code class="docutils literal notranslate"><span class="pre">1</span></code> x output dimensions tensor of ground truth target.</p></li>
+<li><p><strong>Pht</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – <code class="docutils literal notranslate"><span class="pre">self.units</span></code> x <code class="docutils literal notranslate"><span class="pre">1</span></code> intermediate tensor from pseudogradient computation 
+in the <cite>pseudogradient_P</cite> method (unused by default).</p></li>
+<li><p><strong>hPht</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – <code class="docutils literal notranslate"><span class="pre">1</span></code> x <code class="docutils literal notranslate"><span class="pre">1</span></code> intermediate tensor from pseudogradient computation
+in the <cite>pseudogradient_P</cite> method (unused by default).</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -310,11 +335,11 @@ from <code class="docutils literal notranslate"><span class="pre">FORCEModel.pse
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>P_Gx</strong> (<em>Tensor</em><em>[</em><em>3D float</em><em>]</em>) – A <code class="docutils literal notranslate"><span class="pre">self.units</span></code> x <code class="docutils literal notranslate"><span class="pre">self.units</span></code> x <code class="docutils literal notranslate"><span class="pre">self.units</span></code> P tensor corresponding to
 the recurrent kernel.</p></li>
-<li><p><strong>h</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – A 1 x <code class="docutils literal notranslate"><span class="pre">self.units</span></code> tensor of firing ratings for each recurrent neuron.</p></li>
-<li><p><strong>z</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – A 1 x 1 tensor of predictions.</p></li>
-<li><p><strong>y</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – A 1 x 1 tensor of ground truth target.</p></li>
-<li><p><strong>Ph</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – Intended to match output from <code class="docutils literal notranslate"><span class="pre">FORCEModel.pseudogradient_P_Gx</span></code> (unused by default).</p></li>
-<li><p><strong>hPh</strong> (<em>Tensor</em><em>[</em><em>3D float</em><em>]</em>) – Intended to match output from <code class="docutils literal notranslate"><span class="pre">FORCEModel.pseudogradient_P_Gx</span></code> (unused by default).</p></li>
+<li><p><strong>h</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – A <code class="docutils literal notranslate"><span class="pre">1</span></code> x <code class="docutils literal notranslate"><span class="pre">self.units</span></code> tensor of firing ratings for each recurrent neuron.</p></li>
+<li><p><strong>z</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – A <code class="docutils literal notranslate"><span class="pre">1</span></code> x <code class="docutils literal notranslate"><span class="pre">1</span></code> tensor of predictions.</p></li>
+<li><p><strong>y</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – A <code class="docutils literal notranslate"><span class="pre">1</span></code> x <code class="docutils literal notranslate"><span class="pre">1</span></code> tensor of ground truth target.</p></li>
+<li><p><strong>Ph</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – Intended to match output from the <cite>pseudogradient_P_Gx</cite> method (unused by default).</p></li>
+<li><p><strong>hPh</strong> (<em>Tensor</em><em>[</em><em>3D float</em><em>]</em>) – Intended to match output from <cite>pseudogradient_P_Gx</cite> method (unused by default).</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -326,7 +351,7 @@ the recurrent kernel.</p></li>
 <dl class="py method">
 <dt class="sig sig-object py" id="base.FORCEModel.train_step">
 <span class="sig-name descname"><span class="pre">train_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#base.FORCEModel.train_step" title="Permalink to this definition"></a></dt>
-<dd><p>Inherited and serves the same function as from <code class="docutils literal notranslate"><span class="pre">tensorflow.keras.Model.train_step</span></code>. Performs
+<dd><p>Inherited and serves the same function as from <cite>tensorflow.keras.Model.train_step</cite>. Performs
 weight updates for the output and recurrent kernels.</p>
 <p>Intended to be customized via Keras style sub-classing. For more details see:
 <a class="reference external" href="https://keras.io/guides/customizing_what_happens_in_fit/">https://keras.io/guides/customizing_what_happens_in_fit/</a></p>
@@ -356,9 +381,9 @@ weight updates for the output and recurrent kernels.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>h</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – An 1 x <code class="docutils literal notranslate"><span class="pre">self.units</span></code> tensor of firing ratings for each recurrent neuron</p></li>
-<li><p><strong>z</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – An 1 x output dimensions tensor of predictions</p></li>
-<li><p><strong>y</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – An 1 x output dimensions tensor of ground truth target</p></li>
+<li><p><strong>h</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – An <code class="docutils literal notranslate"><span class="pre">1</span></code> x <code class="docutils literal notranslate"><span class="pre">self.units</span></code> tensor of firing ratings for each recurrent neuron</p></li>
+<li><p><strong>z</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – An <code class="docutils literal notranslate"><span class="pre">1</span></code> x output dimensions tensor of predictions</p></li>
+<li><p><strong>y</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – An <code class="docutils literal notranslate"><span class="pre">1</span></code> x output dimensions tensor of ground truth target</p></li>
 <li><p><strong>trainable_vars_P_Gx</strong> (<em>Tensor</em><em>[</em><em>3D float</em><em>]</em>) – A <code class="docutils literal notranslate"><span class="pre">self.units</span></code> x <code class="docutils literal notranslate"><span class="pre">self.units</span></code> x <code class="docutils literal notranslate"><span class="pre">self.units</span></code> P tensor 
 corresponding to the recurrent kernel</p></li>
 <li><p><strong>trainable_vars_recurrent_kernel</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – A <code class="docutils literal notranslate"><span class="pre">self.units</span></code> x <code class="docutils literal notranslate"><span class="pre">self.units</span></code> tensor 
@@ -376,15 +401,20 @@ corresponding to the force layer’s recurrent kernel</p></li>
 <dl class="py class">
 <dt class="sig sig-object py" id="models.FullFORCEModel">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">models.</span></span><span class="sig-name descname"><span class="pre">FullFORCEModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#models.FullFORCEModel" title="Permalink to this definition"></a></dt>
-<dd><p>Implements full FORCE learning by DePasquale et al. Subclassed from FORCEModel.</p>
-<p>Target to the model during fit/evaluate should be of shape (timesteps, 1).</p>
-<p>During training, input to the model should be of shape (timesteps, input dimensions + hint dimensions).
-During inference, input to the model should be of shape (timesteps, input dimensions).</p>
+<dd><p>Subclassed from FORCEModel, implements full FORCE learning by <a class="reference external" href="https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0191527">DePasquale et al.</a>.</p>
+<p>Target to the model should be of shape (timesteps, 1).</p>
+<p><strong>Note</strong> - Input shapes during training and inference differ:
+During training, input to the model should be of shape <em>(timesteps, input dimensions + hint dimensions)</em>.
+During inference, input to the model should be of shape <em>(timesteps, input dimensions)</em>.
+During model call when <code class="docutils literal notranslate"><span class="pre">training=True</span></code>, input to the call should have shape 
+<em>(1, timesteps, input dimensions + hint dimensions + output dimensions)</em>.
+During model call when <code class="docutils literal notranslate"><span class="pre">training=False</span></code>, input to the call should have shape 
+<em>(1, timesteps, input dimensions)</em>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>hint_dim</strong> (<em>int</em>) – Dimension of the hint input</p></li>
-<li><p><strong>target_output_kernel_trainable</strong> (<em>bool</em>) – If True, train the target output kernel</p></li>
+<li><p><strong>target_output_kernel_trainable</strong> (<em>bool</em>) – If True, train the target output kernel (<em>Default: False</em>)</p></li>
 <li><p><strong>kwargs</strong> – Other key word arguments as needed. See <code class="docutils literal notranslate"><span class="pre">base.FORCEModel</span></code></p></li>
 </ul>
 </dd>
@@ -402,6 +432,25 @@ initialization of variables the model requires for training. Typically called im
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="models.FullFORCEModel.call">
+<span class="sig-name descname"><span class="pre">call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">training</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reset_states</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#models.FullFORCEModel.call" title="Permalink to this definition"></a></dt>
+<dd><p>Inherited and serves the same function as from <cite>tensorflow.keras.Model.call</cite>.</p>
+<p><strong>Note:</strong> By default, <code class="docutils literal notranslate"><span class="pre">reset_states=False</span></code> and therefore, the <code class="docutils literal notranslate"><span class="pre">self.force_layer</span></code>’s 
+states are <strong>not</strong> reset at the end of the execution.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>Tensor</em><em>[</em><em>3D float</em><em>]</em>) – Input tensor of shape <em>(1, timestep, input dimension)</em>.</p></li>
+<li><p><strong>training</strong> (<em>bool</em>) – Whether the model is being called during training or inference. (<em>Default: False</em>)</p></li>
+<li><p><strong>reset_states</strong> (<em>bool</em>) – Whether to reset the state of <code class="docutils literal notranslate"><span class="pre">self.force_layer</span></code> after the model is called.
+(<em>Default: False</em>)</p></li>
+<li><p><strong>kwargs</strong> – Other key word arguments as needed.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="models.FullFORCEModel.force_layer_call">
 <span class="sig-name descname"><span class="pre">force_layer_call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">training</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#models.FullFORCEModel.force_layer_call" title="Permalink to this definition"></a></dt>
 <dd><p>Calls <code class="docutils literal notranslate"><span class="pre">self.force_layer</span></code>; to be customized via sub-classing.</p>
@@ -414,7 +463,7 @@ initialization of variables the model requires for training. Typically called im
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>(<em>tuple[Tensor[2D float]]</em>) - Output of <code class="docutils literal notranslate"><span class="pre">self.force_layer</span></code>’s call method</p>
+<dd class="field-even"><p>(<em>tuple[Tensor[2D float]]</em>) - Output of <code class="docutils literal notranslate"><span class="pre">self.force_layer</span></code>’s call method.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -422,17 +471,25 @@ initialization of variables the model requires for training. Typically called im
 <dl class="py method">
 <dt class="sig sig-object py" id="models.FullFORCEModel.initialize_P">
 <span class="sig-name descname"><span class="pre">initialize_P</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#models.FullFORCEModel.initialize_P" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Initializes the P matrices corresponding to the output kernel  necessary for FORCE for the 
+task and target generating network.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="models.FullFORCEModel.initialize_target_network">
 <span class="sig-name descname"><span class="pre">initialize_target_network</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_shape</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#models.FullFORCEModel.initialize_target_network" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Initializes the target generating network.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>input_shape</strong> (<em>tuple</em>) – Input shape</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="models.FullFORCEModel.initialize_train_idx">
 <span class="sig-name descname"><span class="pre">initialize_train_idx</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#models.FullFORCEModel.initialize_train_idx" title="Permalink to this definition"></a></dt>
-<dd><p>Finds the indices inside self.trainable_variables corresponding to the relevant kernel and P tensors.</p>
+<dd><p>Finds the indices inside <code class="docutils literal notranslate"><span class="pre">self.trainable_variables</span></code> corresponding to the relevant kernel and P tensors.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -457,7 +514,7 @@ components</p></li>
 <dl class="py method">
 <dt class="sig sig-object py" id="models.FullFORCEModel.train_step">
 <span class="sig-name descname"><span class="pre">train_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#models.FullFORCEModel.train_step" title="Permalink to this definition"></a></dt>
-<dd><p>Inherited and serves the same function as from <code class="docutils literal notranslate"><span class="pre">tensorflow.keras.Model.train_step</span></code>. Performs
+<dd><p>Inherited and serves the same function as from <cite>tensorflow.keras.Model.train_step</cite>. Performs
 weight updates for the output and recurrent kernels.</p>
 <p>Intended to be customized via Keras style sub-classing. For more details see:
 <a class="reference external" href="https://keras.io/guides/customizing_what_happens_in_fit/">https://keras.io/guides/customizing_what_happens_in_fit/</a></p>
@@ -503,7 +560,7 @@ network is trainable.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>P_Gx</strong> (<em>Tensor</em><em>[</em><em>3D float</em><em>]</em>) – A <code class="docutils literal notranslate"><span class="pre">self.units</span></code> x <code class="docutils literal notranslate"><span class="pre">self.units</span></code> x <code class="docutils literal notranslate"><span class="pre">self.units</span></code>  P tensor corresponding to
 the recurrent kernel.</p></li>
-<li><p><strong>h</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – An 1 x <code class="docutils literal notranslate"><span class="pre">self.units</span></code> tensor of firing ratings for each recurrent neuron</p></li>
+<li><p><strong>h</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – An <code class="docutils literal notranslate"><span class="pre">1</span></code> x <code class="docutils literal notranslate"><span class="pre">self.units</span></code> tensor of firing ratings for each recurrent neuron</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -528,11 +585,11 @@ kernel.</p></li>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>P_Gx</strong> (<em>Tensor</em><em>[</em><em>3D float</em><em>]</em>) – A <code class="docutils literal notranslate"><span class="pre">self.units</span></code> x <code class="docutils literal notranslate"><span class="pre">self.units</span></code> x <code class="docutils literal notranslate"><span class="pre">self.units</span></code> P tensor corresponding to
 the recurrent kernel.</p></li>
-<li><p><strong>h</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – A 1 x <code class="docutils literal notranslate"><span class="pre">self.units</span></code> tensor of firing ratings for each recurrent neuron.</p></li>
-<li><p><strong>z</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – A 1 x 1 tensor of predictions.</p></li>
-<li><p><strong>y</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – A 1 x 1 tensor of ground truth target.</p></li>
-<li><p><strong>Ph</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – Intended to match output from <code class="docutils literal notranslate"><span class="pre">FORCEModel.pseudogradient_P_Gx</span></code> (unused by default).</p></li>
-<li><p><strong>hPh</strong> (<em>Tensor</em><em>[</em><em>3D float</em><em>]</em>) – Intended to match output from <code class="docutils literal notranslate"><span class="pre">FORCEModel.pseudogradient_P_Gx</span></code> (unused by default).</p></li>
+<li><p><strong>h</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – A <code class="docutils literal notranslate"><span class="pre">1</span></code> x <code class="docutils literal notranslate"><span class="pre">self.units</span></code> tensor of firing ratings for each recurrent neuron.</p></li>
+<li><p><strong>z</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – A <code class="docutils literal notranslate"><span class="pre">1</span></code> x <code class="docutils literal notranslate"><span class="pre">1</span></code> tensor of predictions.</p></li>
+<li><p><strong>y</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – A <code class="docutils literal notranslate"><span class="pre">1</span></code> x <code class="docutils literal notranslate"><span class="pre">1</span></code> tensor of ground truth target.</p></li>
+<li><p><strong>Ph</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – Intended to match output from the <cite>pseudogradient_P_Gx</cite> method (unused by default).</p></li>
+<li><p><strong>hPh</strong> (<em>Tensor</em><em>[</em><em>3D float</em><em>]</em>) – Intended to match output from <cite>pseudogradient_P_Gx</cite> method (unused by default).</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -546,7 +603,7 @@ the recurrent kernel.</p></li>
 <dl class="py class">
 <dt class="sig sig-object py" id="constrained.BioFORCEModel">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">constrained.</span></span><span class="sig-name descname"><span class="pre">BioFORCEModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#constrained.BioFORCEModel" title="Permalink to this definition"></a></dt>
-<dd><p>Trains constrained ESN without feedback based on Hadjiabadi et al.</p>
+<dd><p>Trains constrained ESN without feedback based on <a class="reference external" href="https://pubmed.ncbi.nlm.nih.gov/34197732/">Hadjiabadi et al.</a>.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="constrained.BioFORCEModel.pseudogradient_wR">
 <span class="sig-name descname"><span class="pre">pseudogradient_wR</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">P_Gx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Ph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hPh</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#constrained.BioFORCEModel.pseudogradient_wR" title="Permalink to this definition"></a></dt>
@@ -556,11 +613,11 @@ the recurrent kernel.</p></li>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>P_Gx</strong> (<em>Tensor</em><em>[</em><em>3D float</em><em>]</em>) – A <code class="docutils literal notranslate"><span class="pre">self.units</span></code> x <code class="docutils literal notranslate"><span class="pre">self.units</span></code> x <code class="docutils literal notranslate"><span class="pre">self.units</span></code> P tensor corresponding to
 the recurrent kernel.</p></li>
-<li><p><strong>h</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – A 1 x <code class="docutils literal notranslate"><span class="pre">self.units</span></code> tensor of firing ratings for each recurrent neuron.</p></li>
-<li><p><strong>z</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – A 1 x 1 tensor of predictions.</p></li>
-<li><p><strong>y</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – A 1 x 1 tensor of ground truth target.</p></li>
-<li><p><strong>Ph</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – Intended to match output from <code class="docutils literal notranslate"><span class="pre">FORCEModel.pseudogradient_P_Gx</span></code> (unused by default).</p></li>
-<li><p><strong>hPh</strong> (<em>Tensor</em><em>[</em><em>3D float</em><em>]</em>) – Intended to match output from <code class="docutils literal notranslate"><span class="pre">FORCEModel.pseudogradient_P_Gx</span></code> (unused by default).</p></li>
+<li><p><strong>h</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – A <code class="docutils literal notranslate"><span class="pre">1</span></code> x <code class="docutils literal notranslate"><span class="pre">self.units</span></code> tensor of firing ratings for each recurrent neuron.</p></li>
+<li><p><strong>z</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – A <code class="docutils literal notranslate"><span class="pre">1</span></code> x <code class="docutils literal notranslate"><span class="pre">1</span></code> tensor of predictions.</p></li>
+<li><p><strong>y</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – A <code class="docutils literal notranslate"><span class="pre">1</span></code> x <code class="docutils literal notranslate"><span class="pre">1</span></code> tensor of ground truth target.</p></li>
+<li><p><strong>Ph</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – Intended to match output from the <cite>pseudogradient_P_Gx</cite> method (unused by default).</p></li>
+<li><p><strong>hPh</strong> (<em>Tensor</em><em>[</em><em>3D float</em><em>]</em>) – Intended to match output from <cite>pseudogradient_P_Gx</cite> method (unused by default).</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -574,7 +631,7 @@ the recurrent kernel.</p></li>
 <dl class="py class">
 <dt class="sig sig-object py" id="spiking.SpikingNNModel">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spiking.</span></span><span class="sig-name descname"><span class="pre">SpikingNNModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spiking.SpikingNNModel" title="Permalink to this definition"></a></dt>
-<dd><p>Implements FORCE training on spiking neural networks per Nicola and Clopath.</p>
+<dd><p>Implements FORCE training on spiking neural networks per <a class="reference external" href="https://www.nature.com/articles/s41467-017-01827-3">Nicola and Clopath</a>.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="spiking.SpikingNNModel.force_layer_call">
 <span class="sig-name descname"><span class="pre">force_layer_call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">training</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spiking.SpikingNNModel.force_layer_call" title="Permalink to this definition"></a></dt>
@@ -588,7 +645,7 @@ the recurrent kernel.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>(<em>tuple[Tensor[2D float]]</em>) - Output of <code class="docutils literal notranslate"><span class="pre">self.force_layer</span></code>’s call method</p>
+<dd class="field-even"><p>(<em>tuple[Tensor[2D float]]</em>) - Output of <code class="docutils literal notranslate"><span class="pre">self.force_layer</span></code>’s call method.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -608,7 +665,7 @@ the recurrent kernel.</p></li>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright .</p>
+    <p>&#169; Copyright 2022, Zhenrui Liao and Lu Bin Liu.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

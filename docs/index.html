@@ -82,10 +82,27 @@ Controlled Error) training chaotic recurrent neural networks.</p>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="examples.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Usage</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="examples.html#quick-start">Quick Start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples.html#layer-and-model-class-compatibilities">Layer and Model Class Compatibilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples.html#creating-new-layers">Creating New Layers</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples.html#creating-new-spiking-layers">Creating New Spiking Layers</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples.html#creating-new-model-classes">Creating New Model Classes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples.html#customizing-train-step">Customizing <cite>train_step</cite></a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples.html#customizing-force-layer-call">Customizing <cite>force_layer_call</cite></a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples.html#customizing-pseudogradient-updates">Customizing Pseudogradient Updates</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples.html#callbacks">Callbacks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples.html#gpu-support">GPU Support</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="layers.html">FORCE Layers</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="layers.html#base-force-layer">Base FORCE Layer</a></li>
-<li class="toctree-l2"><a class="reference internal" href="layers.html#inherited-force-layer">Inherited FORCE Layer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="layers.html#echo-state-networks">Echo State Networks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="layers.html#spiking-networks">Spiking Networks</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="models.html">FORCE Model</a><ul>
@@ -108,7 +125,7 @@ Controlled Error) training chaotic recurrent neural networks.</p>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright .</p>
+    <p>&#169; Copyright 2022, Zhenrui Liao and Lu Bin Liu.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
