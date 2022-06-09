@@ -81,7 +81,6 @@ class EchoStateNetwork(FORCELayer):
 
         return (init_a, init_h, init_out)
 
-    
 class NoFeedbackESN(EchoStateNetwork):
     """ 
     Implements the no feedback echo state network. See ``base.FORCELayer`` for states. 
@@ -151,7 +150,6 @@ class NoFeedbackESN(EchoStateNetwork):
 
         return self
     
-    
 class TargetGeneratingNetwork(EchoStateNetwork):
     """ 
     For internal use in FullFORCEModel
@@ -165,13 +163,13 @@ class TargetGeneratingNetwork(EchoStateNetwork):
         self._hint_dim = hint_dim
 
     def build(self, input_shape):
-        input_shape = input_shape[:-1] + (input_shape[-1]-self.output_size-self._hint_dim,)
+        input_shape = input_shape[:-1] + (input_shape[-1] - self.output_size - self._hint_dim,)
         super().build(input_shape)
 
         if self._hint_dim > 0:
            self.hint_kernel = self.add_weight(shape=(self._hint_dim, self.units),
                                               initializer=keras.initializers.RandomNormal(mean=0., 
-                                                                                          stddev=1/self._hint_dim**0.5, 
+                                                                                          stddev=1 / self._hint_dim**0.5, 
                                                                                           seed=self.seed_gen.uniform([1], 
                                                                                                                      minval=None, 
                                                                                                                      dtype=tf.dtypes.int64)[0]),
@@ -324,7 +322,7 @@ class FullFORCEModel(FORCEModel):
     def force_layer_call(self, x, training, **kwargs):
         if training:
             output_target, _, h_target, fb_hint_sum = self.target_network(x, **kwargs)
-            output_task, _, h_task, _ = self.force_layer(x[:,:,:-self._output_dim-self._hint_dim], **kwargs)
+            output_task, _, h_task, _ = self.force_layer(x[:,:,:-self._output_dim - self._hint_dim], **kwargs)
             return output_task, h_task, output_target, h_target, fb_hint_sum
         else:
             return self.force_layer(x, **kwargs) 

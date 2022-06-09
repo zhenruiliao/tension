@@ -17,7 +17,7 @@ TENSION uses the Keras interface for training models via the following steps:
 **Note:** 
 
 * Not all input parameters from the Keras model fit/predict/evaluate 
-  are supported (see TENSION documentation).  
+  are supported (see :ref:`base-forcemodel` for details).  
 
 * Batching is not supported. Batch size parameter are set to 1 and each timestep is processed
   as its an individual batch. 
@@ -87,12 +87,12 @@ Creating New Layers
 Custom chaotic RNN layers can be created via Keras style subclassing of the 
 ``base.FORCELayer`` object and defining:
 
-* A custom `call(self, inputs, states)` method that defines the forward pass 
+* A custom ``call(self, inputs, states)`` method that defines the forward pass 
   of the RNN. The call method will return the output and the updated states of 
   the ``FORCELayer`` instance, which by default are a list of 3 tensors of shape 
   ``1`` x ``self.units``, ``1`` x ``self.units``, and ``1`` x ``self.output_size``. 
 
-* A custom `get_initial_state(self, inputs=None, batch_size=None, dtype=None)` 
+* A custom ``get_initial_state(self, inputs=None, batch_size=None, dtype=None)``
   method which returns a list of 3 tensors of shape ``1`` x ``self.units``, 
   ``1`` x ``self.units``, and ``1`` x ``self.output_size`` containing the initial
   states of the ``FORCELayer`` instance.
@@ -145,35 +145,58 @@ If needed, existing ``base.FORCELayer`` methods can be modified via sub-classing
 (noting the required input and output as listed in the documentation):
 
 * ``base.FORCEModel`` class only implements update rules for the output
-  and recurrent kernels. If a custom FORCELayer requires the recurrent
+  and recurrent kernels. If a custom ``FORCELayer`` requires the recurrent
   kernels to be trainable, it must have an attribute ``self.recurrent_nontrainable_boolean_mask``
-  of shape ``self.units`` x ``self.units`` where True indicates that the 
-  weights at the corresponding indices in the recurrent kernel is not trainable. 
+  of shape ``self.units`` x ``self.units`` where ``True`` indicates that the 
+  weights at the corresponding indices in ``self.recurrent_kernel`` is not trainable. 
 
-* Kernel initialization methods `initialize_input_kernel`,
-  `initialize_recurrent_kernel`, `initialize_feedback_kernel`, and
-  `initialize_output_kernel` may be modified if a different initialization
-  scheme is required. The kernels must have names 'input_kernel', 'recurrent_kernel',
-  'feedback_kernel', and 'output_kernel' respectively. 
+* Kernel initialization methods ``initialize_input_kernel(self, input_dim, input_kernel=None)``,
+  ``initialize_recurrent_kernel(self, recurrent_kernel=None)``, 
+  ``initialize_feedback_kernel(self, feedback_kernel=None)``, and
+  ``initialize_output_kernel(self, output_kernel=None)`` may be modified if a different initialization
+  scheme is required. See code example below. 
+  
+  * Custom initialized kernels must have names `input_kernel`, `recurrent_kernel`,
+    `feedback_kernel`, and `output_kernel` respectively. 
 
   * If a seed is desired during kernel initialization, then the ``self.seed_gen`` attribute,
     the ``FORCELayer`` instance's `Tensorflow random generator object 
     <https://www.tensorflow.org/api_docs/python/tf/random/Generator>`_, can be used to generate
     a deterministic seed to pass into the Keras initializer. 
 
-  * Alternatively, one can use the `from_weights` method
-    to create a layer object with pre-initialized weights. 
+  * Alternatively, one can use the ``from_weights(self, ...)`` method to create a layer object with 
+    pre-initialized weights. 
 
-* The `build` method which calls the kernel initialization methods may need
+.. code-block:: python
+
+    def initialize_recurrent_kernel(self, recurrent_kernel=None):
+        #####
+        #
+        # Code to initialize kernel and save result in a variable named `recurrent_kernel` 
+        # 
+        #####
+        self.recurrent_kernel = self.add_weight(shape=(self.units, self.units),
+                                                initializer=keras.initializers.constant(recurrent_kernel),
+                                                trainable=self._recurrent_kernel_trainable,
+                                                name='recurrent_kernel')
+    
+
+* The ``build(self, input_shape)`` method which calls the kernel initialization methods may need
   to be modified if kernels are added or removed, as well as initializing any other
   required variables (i.e. ``self.recurrent_nontrainable_boolean_mask``). 
 
-* The classmethod `from_weights` may need to be modified if different (number of) kernels are 
+* The classmethod ``from_weights(self, ...)`` may need to be modified if different (number of) kernels are 
   required and / or if pre-initialized weights are desired to be loaded in.  
 
-* `state_size` may be modified if the default state definition needs to be changed.
-  By default, the states of a ``FORCELayer`` are 3 tensors of shape ``1`` x ``self.units``, 
-  ``1`` x ``self.units``, and ``1`` x ``self.output_size``.
+* The ``state_size(self)`` property may be modified if the default state definition needs to be changed.
+  By default (below), the states of a ``FORCELayer`` are 3 tensors of shape ``1`` x ``self.units``, 
+  ``1`` x ``self.units``, and ``1`` x ``self.output_size``:
+
+.. code-block:: python
+
+    @property
+    def state_size(self):
+        return [self.units, self.units, self.output_size]
 
 
 Creating New Spiking Layers
@@ -182,10 +205,10 @@ Creating New Spiking Layers
 Creating new spiking layers require sub-classing ``spiking.SpikingNN`` or 
 ``spiking.OptimizedSpikingNN`` and defining the following methods:
 
-* `initialize_voltage(self, batch_size)`: Returns a tensor of shape ``batch_size`` x 
+* ``initialize_voltage(self, batch_size)``: Returns a tensor of shape ``batch_size`` x 
   ``self.units`` of initial voltages for the neurons in the network.
 
-* `update_voltage(self, I, states)`: Returns a list of 3 tensors each of shape   
+* ``update_voltage(self, I, states)``: Returns a list of 3 tensors each of shape   
   ``1`` x ``self.units``. The first result is the voltage trace of each
   neuron, the second an auxillary storage variable that may be unused, and the last
   a 1-0 tensor where 1 in the i-th position indicates that the voltage of the i-th 
@@ -194,17 +217,17 @@ Creating new spiking layers require sub-classing ``spiking.SpikingNN`` or
 Creating New Model Classes
 --------------------------
 
-Custom FORCE Model classes can be created by sub-classing ``base.FORCEModel``. 
+Custom FORCE Model classes can be created using Keras style sub-classing of ``base.FORCEModel``. 
 
 
-Customizing `train_step`
-~~~~~~~~~~~~~~~~~~~~~~~~
+Customizing ``train_step``
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 See `the Keras guide <https://keras.io/guides/customizing_what_happens_in_fit/>`_ for details on customizing
-train_step in a Keras model. The `train_step` method from ``base.FORCEModel`` is reproduced below. 
+train_step in a Keras model. The ``train_step(self, data)`` method from ``base.FORCEModel`` is reproduced below. 
 By default, the method performs the forward pass for one time step and performs weight updates 
 for the output and recurrent kernels in ``self.force_layer`` if those two kernels are 
-set to be trainable. Below is the default `train_step` method in ``FORCEModel`` class:
+set to be trainable. Below is the default ``train_step(self, data)`` method in ``FORCEModel`` class:
 
 .. code-block:: python
 
@@ -240,8 +263,8 @@ set to be trainable. Below is the default `train_step` method in ``FORCEModel`` 
 
 
 
-Customizing `force_layer_call`
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Customizing ``force_layer_call``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The default `force_layer_call` method calls ``self.force_layer`` of the ``FORCEModel`` instance
 as below:
@@ -253,10 +276,10 @@ as below:
 
 To be compatible with the default `train_step`, the `force_layer_call` method 
 of ``base.FORCEModel`` must return 4 tensors, the first of which is ``self.force_layer``'s
-output after the forward pass, and the third must be the post-activation firing rates of
-the RNN layer's neurons (thus must be a ``1`` x ``self.units`` tensor). By default, it is assumed 
+network output after the forward pass, and the third must be the post-activation firing rates of
+the layer's neurons (and thus a ``1`` x ``self.units`` tensor). By default, it is assumed 
 that the call method of ``self.force_layer`` meets these requirements. If
-this is not the case, then `force_layer_call` should be adjusted like the example below:
+this is not the case, then `force_layer_call` can be adjusted like the example below:
 
 .. code-block:: python
 
@@ -266,7 +289,7 @@ this is not the case, then `force_layer_call` should be adjusted like the exampl
            return output, t_step, h, out
 
 Alternatively, the indicated line below from the default `train_step` method can be adjusted 
-to accomodate different output from calling the model during training. 
+to accomodate different output during calling the model in training. 
 
 .. code-block:: python
 

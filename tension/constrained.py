@@ -54,10 +54,8 @@ class ConstrainedNoFeedbackESN(EchoStateNetwork):
         return z, [a, h, z]
 
     def build(self, input_shape):
-
         self.initialize_input_kernel(input_shape[-1])
         self.initialize_recurrent_kernel()
-          
         self.recurrent_nontrainable_boolean_mask = (self.recurrent_kernel == 0)
         self.built = True
 

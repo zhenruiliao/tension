@@ -1,6 +1,9 @@
 FORCE Model
 ===========
 
+.. _base-forcemodel:
+
+
 Base FORCE Model
 ----------------
 .. autoclass:: base.FORCEModel

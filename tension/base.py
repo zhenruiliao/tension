@@ -85,7 +85,7 @@ class FORCELayer(keras.layers.AbstractRNNCell):
         """
         if input_kernel is None:
             initializer = keras.initializers.RandomNormal(mean=0., 
-                                                          stddev=1/input_dim**0.5, 
+                                                          stddev=1 / input_dim**0.5, 
                                                           seed=self.seed_gen.uniform([1], 
                                                                                      minval=None, 
                                                                                      dtype=tf.dtypes.int64)[0])
@@ -112,8 +112,8 @@ class FORCELayer(keras.layers.AbstractRNNCell):
                                                                                       minval=None, 
                                                                                       dtype=tf.dtypes.int64)[0])
         
-            recurrent_kernel = self._p_recurr*keras.layers.Dropout(1-self._p_recurr)(initializer(shape=(self.units, self.units)), 
-                                                                                     training=True)
+            recurrent_kernel = self._p_recurr*keras.layers.Dropout(1 - self._p_recurr)(initializer(shape=(self.units, self.units)), 
+                                                                                       training=True)
 
         self.recurrent_kernel = self.add_weight(shape=(self.units, self.units),
                                                 initializer=keras.initializers.constant(recurrent_kernel),
@@ -150,11 +150,11 @@ class FORCELayer(keras.layers.AbstractRNNCell):
         :type output_kernel: Tensor[2D float]
         """
         if output_kernel is None:
-            initializer=keras.initializers.RandomNormal(mean=0., 
-                                                        stddev= 1/self.units**0.5, 
-                                                        seed=self.seed_gen.uniform([1], 
-                                                                                   minval=None, 
-                                                                                   dtype=tf.dtypes.int64)[0])
+            initializer = keras.initializers.RandomNormal(mean=0., 
+                                                          stddev=1 / self.units**0.5, 
+                                                          seed=self.seed_gen.uniform([1], 
+                                                                                     minval=None, 
+                                                                                     dtype=tf.dtypes.int64)[0])
             output_kernel = initializer(shape=(self.units, self.output_size))
 
         self.output_kernel = self.add_weight(shape=(self.units, self.output_size),
@@ -431,11 +431,11 @@ class FORCEModel(keras.Model):
         """ 
         Performs pseudogradient updates for output kernel and its corresponding P tensor.
             
-        :param h: An 1 x ``self.units`` tensor of firing ratings for each recurrent neuron.
+        :param h: An ``1`` x ``self.units`` tensor of firing ratings for each recurrent neuron.
         :type h: Tensor[2D float]
-        :param z: An 1 x output dimensions tensor of predictions. 
+        :param z: An ``1`` x output dimensions tensor of predictions. 
         :type z: Tensor[2D float]
-        :param y: An 1 x output dimensions tensor of ground truth target.
+        :param y: An ``1`` x output dimensions tensor of ground truth target.
         :type y: Tensor[2D float]
         :param trainable_vars_P_output: The FORCE P tensor corresponding to the output kernel.
         :type trainable_vars_P_output: Tensor[2D float]
