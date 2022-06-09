@@ -78,8 +78,28 @@ FORCELayer and FORCEModel class compatibilities are listed below:
   * ``constrained.ConstrainedNoFeedbackESN``: supports weight updates for 
     recurrent kernel.
 
-Refer to documentation for initialization parameters.  
+Refer to :ref:`forcelayers` and :ref:`forcemodel` for initialization parameters.  
 
+Accessing Key Attributes
+------------------------
+
+``FORCELayer`` Classes
+~~~~~~~~~~~~~~~~~~~~~~
+
+* ``self.input_kernel``: 
+
+* ``self.recurrent_kernel``: 
+
+* ``self.output_kernel``:
+
+* ``self.feedback_kernel``:
+
+``FORCEModel`` Classes
+~~~~~~~~~~~~~~~~~~~~~~
+
+* ``self.force_layer.states``: Output a list of the current states of the input ``force_layer``
+
+*  
 
 Creating New Layers
 -------------------

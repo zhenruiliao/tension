@@ -72,9 +72,9 @@
            <div itemprop="articleBody">
              
   <section id="force-model">
-<h1>FORCE Model<a class="headerlink" href="#force-model" title="Permalink to this headline"></a></h1>
+<span id="forcemodel"></span><h1>FORCE Model<a class="headerlink" href="#force-model" title="Permalink to this headline"></a></h1>
 <section id="base-force-model">
-<h2>Base FORCE Model<a class="headerlink" href="#base-force-model" title="Permalink to this headline"></a></h2>
+<span id="base-forcemodel"></span><h2>Base FORCE Model<a class="headerlink" href="#base-force-model" title="Permalink to this headline"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="base.FORCEModel">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">base.</span></span><span class="sig-name descname"><span class="pre">FORCEModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#base.FORCEModel" title="Permalink to this definition"></a></dt>
@@ -364,9 +364,9 @@ weight updates for the output and recurrent kernels.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>h</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – An 1 x <code class="docutils literal notranslate"><span class="pre">self.units</span></code> tensor of firing ratings for each recurrent neuron.</p></li>
-<li><p><strong>z</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – An 1 x output dimensions tensor of predictions.</p></li>
-<li><p><strong>y</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – An 1 x output dimensions tensor of ground truth target.</p></li>
+<li><p><strong>h</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – An <code class="docutils literal notranslate"><span class="pre">1</span></code> x <code class="docutils literal notranslate"><span class="pre">self.units</span></code> tensor of firing ratings for each recurrent neuron.</p></li>
+<li><p><strong>z</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – An <code class="docutils literal notranslate"><span class="pre">1</span></code> x output dimensions tensor of predictions.</p></li>
+<li><p><strong>y</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – An <code class="docutils literal notranslate"><span class="pre">1</span></code> x output dimensions tensor of ground truth target.</p></li>
 <li><p><strong>trainable_vars_P_output</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – The FORCE P tensor corresponding to the output kernel.</p></li>
 <li><p><strong>trainable_vars_output_kernel</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – Output kernel of <code class="docutils literal notranslate"><span class="pre">self.force_layer</span></code>.</p></li>
 </ul>
