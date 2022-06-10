@@ -5,3 +5,5 @@ Authors: Zhenrui Liao and Lu Bin Liu
 
 Based on work by David Sussillo and Larry Abbott
 https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2756108/
+
+Read the docs [https://zhenruiliao.github.io/tension/index.html](here)
