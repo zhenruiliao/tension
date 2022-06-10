@@ -8,7 +8,7 @@ from models import EchoStateNetwork
 
 class ConstrainedNoFeedbackESN(EchoStateNetwork):
     """ 
-    Constrained ESN without feedback based on Hadjiabadi et al. 
+    Constrained ESN without feedback as described in `Hadjiabadi et al. <https://pubmed.ncbi.nlm.nih.gov/34197732/>`_. 
 
     :param structural_connectivity: ``self.units`` x ``self.units`` structural connectivity matrix
     :type structural_connectivity: Tensor[2D float]
@@ -54,10 +54,8 @@ class ConstrainedNoFeedbackESN(EchoStateNetwork):
         return z, [a, h, z]
 
     def build(self, input_shape):
-
         self.initialize_input_kernel(input_shape[-1])
         self.initialize_recurrent_kernel()
-          
         self.recurrent_nontrainable_boolean_mask = (self.recurrent_kernel == 0)
         self.built = True
 
@@ -107,7 +105,8 @@ class ConstrainedNoFeedbackESN(EchoStateNetwork):
 
 class BioFORCEModel(FORCEModel):
     """
-    Trains constrained ESN without feedback based on Hadjiabadi et al. 
+    Trains constrained ESN without feedback based on `Hadjiabadi et al. 
+    <https://pubmed.ncbi.nlm.nih.gov/34197732/>`_. 
     """
     def pseudogradient_wR(self, P_Gx, h, z, y, Ph, hPh):
         # Return pseudogradient for wR

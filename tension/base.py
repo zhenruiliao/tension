@@ -80,12 +80,12 @@ class FORCELayer(keras.layers.AbstractRNNCell):
         :param input_dim: Dimension of input
         :type input_dim: int
         :param input_kernel: Tensor containing the pre-initialized kernel. 
-            If none, the kernel will be randomly initialized. 
+            If none, the kernel will be randomly initialized. (*Default: None*)
         :type input_kernel: Tensor[2D float]
         """
         if input_kernel is None:
             initializer = keras.initializers.RandomNormal(mean=0., 
-                                                          stddev=1/input_dim**0.5, 
+                                                          stddev=1 / input_dim**0.5, 
                                                           seed=self.seed_gen.uniform([1], 
                                                                                      minval=None, 
                                                                                      dtype=tf.dtypes.int64)[0])
@@ -102,7 +102,7 @@ class FORCELayer(keras.layers.AbstractRNNCell):
         Initializes the recurrent kernel. 
 
         :param recurrent_kernel: Tensor containing the pre-initialized kernel. 
-            If none, the kernel will be randomly initialized.
+            If none, the kernel will be randomly initialized. (*Default: None*)
         :type recurrent_kernel: Tensor[2D float]  
         """
         if recurrent_kernel is None:        
@@ -112,8 +112,8 @@ class FORCELayer(keras.layers.AbstractRNNCell):
                                                                                       minval=None, 
                                                                                       dtype=tf.dtypes.int64)[0])
         
-            recurrent_kernel = self._p_recurr*keras.layers.Dropout(1-self._p_recurr)(initializer(shape=(self.units, self.units)), 
-                                                                                     training=True)
+            recurrent_kernel = self._p_recurr*keras.layers.Dropout(1 - self._p_recurr)(initializer(shape=(self.units, self.units)), 
+                                                                                       training=True)
 
         self.recurrent_kernel = self.add_weight(shape=(self.units, self.units),
                                                 initializer=keras.initializers.constant(recurrent_kernel),
@@ -125,7 +125,7 @@ class FORCELayer(keras.layers.AbstractRNNCell):
         Initializes the feedback kernel. 
 
         :param feedback_kernel: Tensor array containing the pre-initialized kernel. 
-            If none, the kernel will be randomly initialized. 
+            If none, the kernel will be randomly initialized. (*Default: None*)
         :type feedback_kernel: Tensor[2D float]
         """
         if feedback_kernel is None:
@@ -146,15 +146,15 @@ class FORCELayer(keras.layers.AbstractRNNCell):
         Initializes the output kernel.
 
         :param output_kernel: Tensor or numpy array containing the pre-initialized kernel. 
-            If none, the kernel will be randomly initialized. 
+            If none, the kernel will be randomly initialized. (*Default: None*)
         :type output_kernel: Tensor[2D float]
         """
         if output_kernel is None:
-            initializer=keras.initializers.RandomNormal(mean=0., 
-                                                        stddev= 1/self.units**0.5, 
-                                                        seed=self.seed_gen.uniform([1], 
-                                                                                   minval=None, 
-                                                                                   dtype=tf.dtypes.int64)[0])
+            initializer = keras.initializers.RandomNormal(mean=0., 
+                                                          stddev=1 / self.units**0.5, 
+                                                          seed=self.seed_gen.uniform([1], 
+                                                                                     minval=None, 
+                                                                                     dtype=tf.dtypes.int64)[0])
             output_kernel = initializer(shape=(self.units, self.output_size))
 
         self.output_kernel = self.add_weight(shape=(self.units, self.output_size),
@@ -210,17 +210,23 @@ class FORCELayer(keras.layers.AbstractRNNCell):
 
 class FORCEModel(keras.Model):
     """ 
-    Base class for FORCE model per Sussillo and Abbott. 
+    Base class for FORCE model per `Sussillo and Abbott 
+    <https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2756108/>`_. 
     
-    Input to the model during ``FORCEModel.fit``, ``FORCEModel.predict``, or ``FORCEModel.evaluate`` 
-    should be of shape *(timesteps, input dimensions)*. Target to the model during ``FORCEModel.fit`` 
-    or ``FORCEModel.evaluate`` should be of shape *(timesteps, output dimensions)*.
+    Input to the model during ``FORCEModel``'s `fit`, `predict`, or `evaluate` methods  
+    should be of shape *(timesteps, input dimensions)*. 
 
-    If validation data is to be passed to ``FORCEModel.fit``, input and target of the validation 
-    data should be of shape *(1, timesteps, input dimensions)* and *(1, timesteps, output dimensions)* 
+    Target to the model during `fit` or `evaluate` should be of shape *(timesteps, output dimensions)*.
+
+    Input to the model when calling the model should be of shape *(1, timesteps, input dimensions)*.
+
+    If validation data is to be passed to `fit`, input and target of the validation 
+    data should be of shape *(timesteps, input dimensions)* and *(timesteps, output dimensions)* 
     respectively.
 
     If the recurrent kernel is to be trained, then the target must be one dimensional. 
+
+    Use ``self.force_layer.states`` to access the states of ``self.force_layer``.
 
     :param force_layer: A FORCE Layer object or one of its subclasses.
     :type force_layer: class[FORCELayer] or equiv. 
@@ -288,7 +294,7 @@ class FORCEModel(keras.Model):
 
     def initialize_train_idx(self):
         """ 
-        Finds the indices inside self.trainable_variables corresponding to the relevant kernel and P tensors.
+        Finds the indices inside ``self.trainable_variables`` corresponding to the relevant kernel and P tensors.
         """
         self._output_kernel_idx = None
         self._recurrent_kernel_idx = None
@@ -306,33 +312,69 @@ class FORCEModel(keras.Model):
           elif 'recurrent_kernel' in trainable_name:
             self._recurrent_kernel_idx = idx
             
-    def call(self, x, training=False, **kwargs):
-        """
-        Inherited and serves the same function as from ``tensorflow.keras.Model.call``. 
-        If ``training=False``, the ``self.force_layer``'s states are reset at the end of the execution. 
+    # def call(self, x, training=False, **kwargs):
+    #     """
+    #     Inherited and serves the same function as from ``tensorflow.keras.Model.call``. 
+    #     If ``training=False``, the ``self.force_layer``'s states are reset at the end of the execution. 
 
-        :param x: Input tensor.
+    #     :param x: Input tensor.
+    #     :type x: Tensor[3D float]
+    #     :param training: If True, model is called during training. 
+    #     :type training: bool
+    #     :param kwargs: Other key word arguments as needed. 
+    #     """
+    #     if training:
+    #         return self.force_layer_call(x, training, **kwargs)
+    #     else:
+    #         initialization = all(v is None for v in self.force_layer.states)
+            
+    #         # if a state exists, store it
+    #         if not initialization:
+    #           original_state = [tf.identity(state) for state in self.force_layer.states]
+    #         output = self.force_layer_call(x, training, **kwargs)[0]
+
+    #         # reset the state
+    #         if not initialization:
+    #           for i, state in enumerate(self.force_layer.states):
+    #               state.assign(original_state[i], read_value=False)
+                  
+    #         return output
+
+    def call(self, x, training=False, reset_states=False, **kwargs):
+        """
+        Inherited and serves the same function as from `tensorflow.keras.Model.call`. 
+
+        **Note:** By default, ``reset_states=False`` and therefore, the ``self.force_layer``'s 
+        states are **not** reset at the end of the execution. 
+
+        :param x: Input tensor of shape *(1, timestep, input dimension)*.
         :type x: Tensor[3D float]
-        :param training: If True, model is called during training. 
+        :param training: Whether the model is being called during training or inference. (*Default: False*)
         :type training: bool
+        :param reset_states: Whether to reset the state of ``self.force_layer`` after the model is called.
+            (*Default: False*)
+        :type reset_states: bool
         :param kwargs: Other key word arguments as needed. 
         """
-        if training:
-            return self.force_layer_call(x, training, **kwargs)
+        if not reset_states:
+            output = self.force_layer_call(x, training, **kwargs)
         else:
             initialization = all(v is None for v in self.force_layer.states)
             
             # if a state exists, store it
             if not initialization:
               original_state = [tf.identity(state) for state in self.force_layer.states]
-            output = self.force_layer_call(x, training, **kwargs)[0]
+            output = self.force_layer_call(x, training, **kwargs)
 
             # reset the state
             if not initialization:
               for i, state in enumerate(self.force_layer.states):
                   state.assign(original_state[i], read_value=False)
-                  
+
+        if training:
             return output
+        else:
+            return output[0]
 
     def force_layer_call(self, x, training, **kwargs):
         """
@@ -344,20 +386,20 @@ class FORCEModel(keras.Model):
         :type training: bool
         :param kwargs: Other key word arguments as needed. 
 
-        :returns: (*tuple[Tensor[2D float]]*) - Output of ``self.force_layer``'s call method
+        :returns: (*tuple[Tensor[2D float]]*) - Output of ``self.force_layer``'s call method.
         """
         return self.force_layer(x, **kwargs) 
 
     def train_step(self, data):
         """
-        Inherited and serves the same function as from ``tensorflow.keras.Model.train_step``. Performs
+        Inherited and serves the same function as from `tensorflow.keras.Model.train_step`. Performs
         weight updates for the output and recurrent kernels. 
 
         Intended to be customized via Keras style sub-classing. For more details see:
         https://keras.io/guides/customizing_what_happens_in_fit/
         """
         x, y = data
-        z, _, h, _ = self(x, training=True)
+        z, _, h, _ = self(x, training=True, reset_states=False)
 
         if self.force_layer.return_sequences:
           z = z[:,0,:]
@@ -389,11 +431,11 @@ class FORCEModel(keras.Model):
         """ 
         Performs pseudogradient updates for output kernel and its corresponding P tensor.
             
-        :param h: An 1 x ``self.units`` tensor of firing ratings for each recurrent neuron.
+        :param h: An ``1`` x ``self.units`` tensor of firing ratings for each recurrent neuron.
         :type h: Tensor[2D float]
-        :param z: An 1 x output dimensions tensor of predictions. 
+        :param z: An ``1`` x output dimensions tensor of predictions. 
         :type z: Tensor[2D float]
-        :param y: An 1 x output dimensions tensor of ground truth target.
+        :param y: An ``1`` x output dimensions tensor of ground truth target.
         :type y: Tensor[2D float]
         :param trainable_vars_P_output: The FORCE P tensor corresponding to the output kernel.
         :type trainable_vars_P_output: Tensor[2D float]
@@ -415,15 +457,15 @@ class FORCEModel(keras.Model):
 
         Example array shapes: 
 
-        | h : 1 x ``self.units``
+        | h : ``1`` x ``self.units``
         | P : ``self.units`` x ``self.units``
-        | k : ``self.units`` x 1 
-        | hPht : 1 x 1
+        | k : ``self.units`` x ``1`` 
+        | hPht : ``1`` x ``1``
         | dP : ``self.units`` x ``self.units``
 
         :param P: The FORCE P tensor.
         :type P: Tensor[2D float]
-        :param h: An 1 x self.units tensor of firing ratings for each recurrent neuron.
+        :param h: An ``1`` x ``self.units`` tensor of firing ratings for each recurrent neuron.
         :type h: Tensor[2D float]
 
         :returns:
@@ -449,22 +491,22 @@ class FORCEModel(keras.Model):
         Example array shapes:
 
         | P : ``self.units`` x ``self.units``
-        | h : 1 x ``self.units``
-        | z, y : 1 x output dimension
+        | h : ``1`` x ``self.units``
+        | z, y : ``1`` x output dimension
 
         :param P: The FORCE P tensor corresponding to output kernel.
         :type P: Tensor[2D float]
-        :param h: An 1 x ``self.units`` tensor of firing ratings for each recurrent neuron.
+        :param h: An ``1`` x ``self.units`` tensor of firing ratings for each recurrent neuron.
         :type h: Tensor[2D float]
-        :param z: An 1 x output dimensions tensor of predictions.
+        :param z: An ``1`` x output dimensions tensor of predictions.
         :type z: Tensor[2D float]
-        :param y: An 1 x output dimensions tensor of ground truth target.
+        :param y: An ``1`` x output dimensions tensor of ground truth target.
         :type y: Tensor[2D float]
-        :param Pht: ``self.units`` x 1 intermediate tensor from pseudogradient computation 
-            from ``FORCEModel.pseudogradient_P`` (unused by default).
+        :param Pht: ``self.units`` x ``1`` intermediate tensor from pseudogradient computation 
+            in the `pseudogradient_P` method (unused by default).
         :type Pht: Tensor[2D float]
-        :param hPht: 1 x 1 intermediate tensor from pseudogradient computation
-            from ``FORCEModel.pseudogradient_P`` (unused by default).
+        :param hPht: ``1`` x ``1`` intermediate tensor from pseudogradient computation
+            in the `pseudogradient_P` method (unused by default).
         :type hPht: Tensor[2D float]
 
         :returns: **dwO** (*Tensor[2D float]*) - Weight updates for the output kernel.
@@ -479,11 +521,11 @@ class FORCEModel(keras.Model):
         """ 
         Performs pseudogradient updates for recurrent kernel and its corresponding P tensor
             
-        :param h: An 1 x ``self.units`` tensor of firing ratings for each recurrent neuron
+        :param h: An ``1`` x ``self.units`` tensor of firing ratings for each recurrent neuron
         :type h: Tensor[2D float]
-        :param z: An 1 x output dimensions tensor of predictions  
+        :param z: An ``1`` x output dimensions tensor of predictions  
         :type z: Tensor[2D float]
-        :param y: An 1 x output dimensions tensor of ground truth target
+        :param y: An ``1`` x output dimensions tensor of ground truth target
         :type y: Tensor[2D float]
         :param trainable_vars_P_Gx: A ``self.units`` x ``self.units`` x ``self.units`` P tensor 
             corresponding to the recurrent kernel 
@@ -507,7 +549,7 @@ class FORCEModel(keras.Model):
         :param P_Gx: A ``self.units`` x ``self.units`` x ``self.units``  P tensor corresponding to
             the recurrent kernel. 
         :type P_Gx: Tensor[3D float]
-        :param h: An 1 x ``self.units`` tensor of firing ratings for each recurrent neuron
+        :param h: An ``1`` x ``self.units`` tensor of firing ratings for each recurrent neuron
         :type h: Tensor[2D float] 
 
         :returns:
@@ -530,15 +572,15 @@ class FORCEModel(keras.Model):
         :param P_Gx: A ``self.units`` x ``self.units`` x ``self.units`` P tensor corresponding to
             the recurrent kernel. 
         :type P_Gx: Tensor[3D float]
-        :param h: A 1 x ``self.units`` tensor of firing ratings for each recurrent neuron. 
+        :param h: A ``1`` x ``self.units`` tensor of firing ratings for each recurrent neuron. 
         :type h: Tensor[2D float]
-        :param z: A 1 x 1 tensor of predictions.
+        :param z: A ``1`` x ``1`` tensor of predictions.
         :type z: Tensor[2D float]
-        :param y: A 1 x 1 tensor of ground truth target.
+        :param y: A ``1`` x ``1`` tensor of ground truth target.
         :type y: Tensor[2D float]
-        :param Ph: Intended to match output from ``FORCEModel.pseudogradient_P_Gx`` (unused by default).
+        :param Ph: Intended to match output from the `pseudogradient_P_Gx` method (unused by default).
         :type Ph: Tensor[2D float]
-        :param hPh: Intended to match output from ``FORCEModel.pseudogradient_P_Gx`` (unused by default).
+        :param hPh: Intended to match output from `pseudogradient_P_Gx` method (unused by default).
         :type hPh: Tensor[3D float]
 
         :returns: **dwR** (*Tensor[2D float]*) - Weight updates for the recurrent kernel.
@@ -552,48 +594,160 @@ class FORCEModel(keras.Model):
 
     def compile(self, metrics, **kwargs):
         """
-        A wrapper around ``tensorflow.keras.Model.compile``.
+        A wrapper around `tensorflow.keras.Model.compile`.
 
-        :param metrics: Same as in ``tensorflow.keras.Model.compile``.
+        **Note:** The *optimizer* parameter is not supported
+
+        :param metrics: Same as in `tensorflow.keras.Model.compile`.
         :type metrics: list[str] 
         """
         super().compile(optimizer=keras.optimizers.SGD(learning_rate=1), loss='mae', metrics=metrics, **kwargs)
 
+    # def fit(self, x, y=None, epochs=1, verbose='auto', **kwargs):
+    #     """
+    #     A wrapper around ``tensorflow.keras.Model.fit``. Note that the *batch_size*, 
+    #     *validation_batch_size*, and *shuffle* parameters are not supported. 
+
+    #     :param x: Tensor of input signal of shape timesteps x input dimensions.
+    #     :type x: Tensor[2D float]
+    #     :param y: Tensor of target signal of shape timesteps x output dimensions.
+    #     :type y: Tensor[2D float]
+    #     :param epoch: Number of epochs to train. 
+    #     :type epoch: int
+    #     :param verbose: Same as from ``tensorflow.keras.Model.fit``.
+    #     :type verbose: str
+    #     :param kwargs: Other key word arguments as needed.        
+    #     """
+    #     if len(x.shape) < 2 or len(x.shape) > 3:
+    #         raise ValueError('Shape of x is invalid')
+
+    #     if len(y.shape) < 2 or len(y.shape) > 3:
+    #         raise ValueError('Shape of y is invalid')
+        
+    #     if len(x.shape) == 2:
+    #         x = tf.expand_dims(x, axis=1)
+        
+    #     if len(y.shape) == 2:
+    #         y = tf.expand_dims(y, axis=1)
+        
+    #     if x.shape[1] != 1:
+    #         raise ValueError("Dim 1 of x must be 1")
+
+    #     if y.shape[1] != 1:
+    #         raise ValueError("Dim 1 of y must be 1")
+        
+    #     if x.shape[0] != y.shape[0]: 
+    #         raise ValueError('Timestep dimension of inputs must match')     
+
+    #     return super().fit(x=x, 
+    #                        y=y, 
+    #                        epochs=epochs, 
+    #                        batch_size=1, 
+    #                        shuffle=False, 
+    #                        verbose=verbose, 
+    #                        validation_batch_size=1,
+    #                        **kwargs)
+
+    # def predict(self, x, **kwargs):
+    #     """
+    #     A wrapper around ``tensorflow.keras.Model.predict``. **Note: parameters batch_size 
+    #     and callbacks are not supported**.
+
+    #     :param x: Tensor of input signal of shape timesteps x input dimensions.
+    #     :type x: Tensor[2D float]
+
+    #     :returns: (*Tensor[2D float]*) - Tensor of predictions
+    #     """
+    #     if len(x.shape) == 3 and x.shape[0] != 1:
+    #         raise ValueError('Dim 0 must be 1')
+        
+    #     if len(x.shape) < 2 or len(x.shape) > 3:
+    #         raise ValueError('')
+
+    #     if len(x.shape) == 2:
+    #         x = tf.expand_dims(x, axis=0)
+            
+    #     return super().predict(x=x, batch_size=1, **kwargs)[0]
+
+    # def evaluate(self, x, y, **kwargs):
+    #     """
+    #     A wrapper around ``tensorflow.keras.Model.evaluate``. 
+
+    #     :param x: Tensor of input signal of shape timesteps x input dimensions.
+    #     :type x: Tensor[2D float]
+    #     :param y: Tensor of target signal of shape timesteps x output dimensions.
+    #     :type y: Tensor[2D float]
+    #     """
+    #     if len(x.shape) < 2 or len(x.shape) > 3:
+    #         raise ValueError('')
+
+    #     if len(y.shape) < 2 or len(y.shape) > 3:
+    #         raise ValueError('')
+
+    #     if len(x.shape) == 2:
+    #         x = tf.expand_dims(x, axis=0)
+
+    #     if len(y.shape) == 2:
+    #         y = tf.expand_dims(y, axis=0)
+
+    #     return super().evaluate(x=x, y=y, **kwargs)
+
+
+    def _coerce_input_shape(self, inp, inp_type, method, **kwargs):
+        if len(inp.shape) < 2 or len(inp.shape) > 3:
+            raise ValueError(f'Shape of {inp_type} is invalid')
+        
+        if len(inp.shape) == 2:
+            inp = tf.expand_dims(inp, axis=1)
+        
+        if inp.shape[1] != 1:
+            raise ValueError(f"Dim 1 of {inp_type} must be 1")
+
+        return inp
+
+    def coerce_input_data(self, x, y, method, **kwargs):
+        """
+        Coerces the input data to a desired shape based on method used 
+        (`fit`, `predict`, `evaluate`). 
+
+        :param x: Tensor of shape *(timestep, 1, input dimensions)*
+        :type x: Tensor[3D float]
+        :param y: Tensor of shape *(timestep, 1, target dimensions)* 
+        :type y: Tensor[3D float]
+        :param method: One of *fit*, *validation*, *predict*, or *evaluate* 
+        :type method: str
+        :param kwargs: Other arguments as needed. 
+        """
+        if y is not None:
+           assert x.shape[0] == y.shape[0], 'Timestep dimension must match'
+        return x, y
+
     def fit(self, x, y=None, epochs=1, verbose='auto', **kwargs):
         """
-        A wrapper around ``tensorflow.keras.Model.fit``. Note that the *batch_size*, 
-        *validation_batch_size*, and *shuffle* parameters are not supported. 
+        A wrapper around `tensorflow.keras.Model.fit`. 
+        **Note:** the *batch_size*, *validation_batch_size*,  *shuffle*, 
+        *steps_per_epoch*, and *validation_steps* parameters are not supported. 
 
-        :param x: Tensor of input signal of shape timesteps x input dimensions.
+        :param x: Tensor of input signal of shape *timesteps x input dimensions*.
         :type x: Tensor[2D float]
-        :param y: Tensor of target signal of shape timesteps x output dimensions.
+        :param y: Tensor of target signal of shape *timesteps x output dimensions*.
         :type y: Tensor[2D float]
         :param epoch: Number of epochs to train. 
         :type epoch: int
-        :param verbose: Same as from ``tensorflow.keras.Model.fit``.
+        :param verbose: Same as from `tensorflow.keras.Model.fit`.
         :type verbose: str
         :param kwargs: Other key word arguments as needed.        
         """
-        if len(x.shape) < 2 or len(x.shape) > 3:
-            raise ValueError('Shape of x is invalid')
+        x = self._coerce_input_shape(inp=x, inp_type='x', method='fit', **kwargs)
+        y = self._coerce_input_shape(inp=y, inp_type='y', method='fit', **kwargs)
+        x, y = self.coerce_input_data(x=x, y=y, method='fit', **kwargs)
 
-        if len(y.shape) < 2 or len(y.shape) > 3:
-            raise ValueError('Shape of y is invalid')
-        
-        if len(x.shape) == 2:
-            x = tf.expand_dims(x, axis=1)
-        
-        if len(y.shape) == 2:
-            y = tf.expand_dims(y, axis=1)
-        
-        if x.shape[1] != 1:
-            raise ValueError("Dim 1 of x must be 1")
-
-        if y.shape[1] != 1:
-            raise ValueError("Dim 1 of y must be 1")
-        
-        if x.shape[0] != y.shape[0]: 
-            raise ValueError('Timestep dimension of inputs must match')     
+        if 'validation_data' in kwargs.keys() and kwargs['validation_data'] is not None:
+           val_x, val_y = kwargs['validation_data']
+           val_x = self._coerce_input_shape(inp=val_x, inp_type='val_x', method='validation', **kwargs)
+           val_y = self._coerce_input_shape(inp=val_y, inp_type='val_y', method='validation', **kwargs)
+           val_x, val_y = self.coerce_input_data(x=val_x, y=val_y, method='validation', **kwargs)
+           kwargs['validation_data'] = (val_x, val_y)
 
         return super().fit(x=x, 
                            y=y, 
@@ -606,44 +760,48 @@ class FORCEModel(keras.Model):
 
     def predict(self, x, **kwargs):
         """
-        A wrapper around ``tensorflow.keras.Model.predict``. **Note: parameters batch_size 
-        and callbacks are not supported**.
+        A wrapper around `tensorflow.keras.Model.predict`. 
+        **Note**: the *batch_size* and *steps* parameter are not supported.  
 
-        :param x: Tensor of input signal of shape timesteps x input dimensions.
+        :param x: Tensor of input signal of shape *timesteps x input dimensions*.
         :type x: Tensor[2D float]
 
         :returns: (*Tensor[2D float]*) - Tensor of predictions
         """
-        if len(x.shape) == 3 and x.shape[0] != 1:
-            raise ValueError('Dim 0 must be 1')
-        
-        if len(x.shape) < 2 or len(x.shape) > 3:
-            raise ValueError('')
+        x = self._coerce_input_shape(inp=x, inp_type='x', method='predict', **kwargs)
+        x, _ = self.coerce_input_data(x=x, y=None, method='predict', **kwargs)
 
-        if len(x.shape) == 2:
-            x = tf.expand_dims(x, axis=0)
-            
-        return super().predict(x=x, batch_size=1, **kwargs)[0]
+        assert self.built, 'Error: Model not built'
+        original_state = [tf.identity(state) for state in self.force_layer.states]
+        output = super().predict(x=x, batch_size=1, **kwargs)[:,0,:] 
+        for i, state in enumerate(self.force_layer.states):
+            state.assign(original_state[i], read_value=False)
+
+        return output
 
     def evaluate(self, x, y, **kwargs):
         """
-        A wrapper around ``tensorflow.keras.Model.evaluate``. 
+        A wrapper around `tensorflow.keras.Model.evaluate`. 
+        **Note**: the *batch_size* and *steps* parameter are not supported.  
 
-        :param x: Tensor of input signal of shape timesteps x input dimensions.
+        :param x: Tensor of input signal of shape *timesteps x input dimensions*.
         :type x: Tensor[2D float]
-        :param y: Tensor of target signal of shape timesteps x output dimensions.
+        :param y: Tensor of target signal of shape *timesteps x output dimensions*.
         :type y: Tensor[2D float]
         """
-        if len(x.shape) < 2 or len(x.shape) > 3:
-            raise ValueError('')
+        if 'batch_size' not in kwargs.keys() or kwargs['batch_size'] is None:
+           kwargs['batch_size'] = 1
+        elif kwargs['batch_size'] != 1:
+           raise ValueError('Batch size must be 1')
 
-        if len(y.shape) < 2 or len(y.shape) > 3:
-            raise ValueError('')
+        x = self._coerce_input_shape(inp=x, inp_type='x', method='evaluate', **kwargs)
+        y = self._coerce_input_shape(inp=y, inp_type='y', method='evaluate', **kwargs)
+        x, y = self.coerce_input_data(x=x, y=y, method='evaluate', **kwargs)
 
-        if len(x.shape) == 2:
-            x = tf.expand_dims(x, axis=0)
+        assert self.built, 'Error: Model not built'
+        original_state = [tf.identity(state) for state in self.force_layer.states]
+        output = super().evaluate(x=x, y=y, **kwargs)
+        for i, state in enumerate(self.force_layer.states):
+            state.assign(original_state[i], read_value=False)
 
-        if len(y.shape) == 2:
-            y = tf.expand_dims(y, axis=0)
-
-        return super().evaluate(x=x, y=y, **kwargs)
+        return output

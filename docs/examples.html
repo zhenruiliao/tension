@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Usage &mdash; TENSION 0.1 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="FORCE Layers" href="layers.html" />
+    <link rel="prev" title="Installation" href="installation.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> TENSION
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Usage</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#quick-start">Quick Start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#layer-and-model-class-compatibilities">Layer and Model Class Compatibilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#accessing-key-attributes">Accessing Key Attributes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#forcelayer-classes"><code class="docutils literal notranslate"><span class="pre">FORCELayer</span></code> Classes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#forcemodel-classes"><code class="docutils literal notranslate"><span class="pre">FORCEModel</span></code> Classes</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#creating-new-layers">Creating New Layers</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#creating-new-spiking-layers">Creating New Spiking Layers</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#creating-new-model-classes">Creating New Model Classes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#customizing-train-step">Customizing <code class="docutils literal notranslate"><span class="pre">train_step</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#customizing-force-layer-call">Customizing <code class="docutils literal notranslate"><span class="pre">force_layer_call</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#customizing-pseudogradient-updates">Customizing Pseudogradient Updates</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#callbacks">Callbacks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#gpu-support">GPU Support</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="layers.html">FORCE Layers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="models.html">FORCE Model</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">TENSION</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Usage</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/examples.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="usage">
+<h1>Usage<a class="headerlink" href="#usage" title="Permalink to this headline"></a></h1>
+<p>TENSION uses the Keras interface for training models via the following steps:</p>
+<ol class="arabic simple">
+<li><p>Initialize an chaotic RNN layer object (a subclass of <code class="docutils literal notranslate"><span class="pre">base.FORCELayer</span></code> class).</p></li>
+<li><p>Initialize a model object (typically <code class="docutils literal notranslate"><span class="pre">base.FORCEModel</span></code> or its subclass) capable of
+training the layer object.</p></li>
+<li><p>Compile the model object with the relevant metrics like a regular Keras model.</p></li>
+<li><p>Fit the model by calling <cite>fit</cite> method of a <code class="docutils literal notranslate"><span class="pre">FORCEModel</span></code> instance.</p></li>
+<li><p>If desired, call <cite>predict</cite> or <cite>evaluate</cite> method of a <code class="docutils literal notranslate"><span class="pre">FORCEModel</span></code> instance.</p></li>
+</ol>
+<p><strong>Note:</strong></p>
+<ul class="simple">
+<li><p>Not all input parameters from the Keras model fit/predict/evaluate
+are supported (see <a class="reference internal" href="models.html#base-forcemodel"><span class="std std-ref">Base FORCE Model</span></a> for details).</p></li>
+<li><p>Batching is not supported. Batch size parameter are set to 1 and each timestep is processed
+as its an individual batch.</p></li>
+</ul>
+<section id="quick-start">
+<h2>Quick Start<a class="headerlink" href="#quick-start" title="Permalink to this headline"></a></h2>
+<p>The code example below implements FullFORCE by DePasquale et al. on a network
+without feedback.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">models</span> <span class="kn">import</span> <span class="n">FullFORCEModel</span><span class="p">,</span> <span class="n">NoFeedbackESN</span>
+
+<span class="n">no_fb_esn_layer</span> <span class="o">=</span> <span class="n">NoFeedbackESN</span><span class="p">(</span><span class="n">dtdivtau</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+                                <span class="n">units</span><span class="o">=</span><span class="mi">400</span><span class="p">,</span>
+                                <span class="n">output_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                                <span class="n">activation</span><span class="o">=</span><span class="s1">&#39;tanh&#39;</span><span class="p">)</span>
+<span class="n">ffmodel</span> <span class="o">=</span> <span class="n">FullFORCEModel</span><span class="p">(</span><span class="n">force_layer</span><span class="o">=</span><span class="n">no_fb_esn_layer</span><span class="p">,</span>
+                         <span class="n">target_output_kernel_trainable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                         <span class="n">hint_dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">ffmodel</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">metrics</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;mae&quot;</span><span class="p">])</span>
+<span class="n">history</span> <span class="o">=</span> <span class="n">ffmodel</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">input_with_hint</span><span class="p">,</span>
+                      <span class="n">y</span><span class="o">=</span><span class="n">target</span><span class="p">,</span>
+                      <span class="n">epochs</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<span class="n">predictions</span> <span class="o">=</span> <span class="n">ffmodel</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">input_tensor</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="layer-and-model-class-compatibilities">
+<h2>Layer and Model Class Compatibilities<a class="headerlink" href="#layer-and-model-class-compatibilities" title="Permalink to this headline"></a></h2>
+<p>FORCELayer and FORCEModel class compatibilities are listed below:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">base.FORCEModel</span></code></p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">model.EchoStateNetwork</span></code>: supports weight updates for output kernel.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">model.NoFeedbackESN</span></code>: supports weight updates for recurrent and
+output kernel.</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">model.FullFORCEModel</span></code></p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">model.EchoStateNetwork</span></code>: supports weight updates for output kernel.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">model.NoFeedbackESN</span></code>: supports weight updates for recurrent and
+output kernels. Note that recurrent neurons are assumed fully connected
+in full-FORCE (no masking out of connections).</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">spiking.SpikingNNModel</span></code></p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">spiking.LIF</span></code>: supports weight updates for output kernel.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">spiking.Izhikevich</span></code>: supports weight updates for output kernel.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">spiking.Theta</span></code>: supports weight updates for output kernel.</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">constrained.BioFORCEModel</span></code></p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">constrained.ConstrainedNoFeedbackESN</span></code>: supports weight updates for
+recurrent kernel.</p></li>
+</ul>
+</li>
+</ul>
+<p>Refer to <a class="reference internal" href="layers.html#forcelayers"><span class="std std-ref">FORCE Layers</span></a> and <a class="reference internal" href="models.html#forcemodel"><span class="std std-ref">FORCE Model</span></a> for initialization parameters.</p>
+</section>
+<section id="accessing-key-attributes">
+<h2>Accessing Key Attributes<a class="headerlink" href="#accessing-key-attributes" title="Permalink to this headline"></a></h2>
+<section id="forcelayer-classes">
+<h3><code class="docutils literal notranslate"><span class="pre">FORCELayer</span></code> Classes<a class="headerlink" href="#forcelayer-classes" title="Permalink to this headline"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">self.input_kernel</span></code>:</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">self.recurrent_kernel</span></code>:</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">self.output_kernel</span></code>:</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">self.feedback_kernel</span></code>:</p></li>
+</ul>
+</section>
+<section id="forcemodel-classes">
+<h3><code class="docutils literal notranslate"><span class="pre">FORCEModel</span></code> Classes<a class="headerlink" href="#forcemodel-classes" title="Permalink to this headline"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">self.force_layer.states</span></code>: Output a list of the current states of the input <code class="docutils literal notranslate"><span class="pre">force_layer</span></code></p></li>
+<li></li>
+</ul>
+</section>
+</section>
+<section id="creating-new-layers">
+<h2>Creating New Layers<a class="headerlink" href="#creating-new-layers" title="Permalink to this headline"></a></h2>
+<p>Custom chaotic RNN layers can be created via Keras style subclassing of the
+<code class="docutils literal notranslate"><span class="pre">base.FORCELayer</span></code> object and defining:</p>
+<ul class="simple">
+<li><p>A custom <code class="docutils literal notranslate"><span class="pre">call(self,</span> <span class="pre">inputs,</span> <span class="pre">states)</span></code> method that defines the forward pass
+of the RNN. The call method will return the output and the updated states of
+the <code class="docutils literal notranslate"><span class="pre">FORCELayer</span></code> instance, which by default are a list of 3 tensors of shape
+<code class="docutils literal notranslate"><span class="pre">1</span></code> x <code class="docutils literal notranslate"><span class="pre">self.units</span></code>, <code class="docutils literal notranslate"><span class="pre">1</span></code> x <code class="docutils literal notranslate"><span class="pre">self.units</span></code>, and <code class="docutils literal notranslate"><span class="pre">1</span></code> x <code class="docutils literal notranslate"><span class="pre">self.output_size</span></code>.</p></li>
+<li><p>A custom <code class="docutils literal notranslate"><span class="pre">get_initial_state(self,</span> <span class="pre">inputs=None,</span> <span class="pre">batch_size=None,</span> <span class="pre">dtype=None)</span></code>
+method which returns a list of 3 tensors of shape <code class="docutils literal notranslate"><span class="pre">1</span></code> x <code class="docutils literal notranslate"><span class="pre">self.units</span></code>,
+<code class="docutils literal notranslate"><span class="pre">1</span></code> x <code class="docutils literal notranslate"><span class="pre">self.units</span></code>, and <code class="docutils literal notranslate"><span class="pre">1</span></code> x <code class="docutils literal notranslate"><span class="pre">self.output_size</span></code> containing the initial
+states of the <code class="docutils literal notranslate"><span class="pre">FORCELayer</span></code> instance.</p></li>
+</ul>
+<p>The example below is from <code class="docutils literal notranslate"><span class="pre">model.EchoStateNetwork</span></code> (note that layer states are row
+vectors for matrix multiplication):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">EchoStateNetwork</span><span class="p">(</span><span class="n">FORCELayer</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">dtdivtau</span><span class="p">,</span>
+                 <span class="n">hscale</span><span class="o">=</span><span class="mf">0.25</span><span class="p">,</span>
+                 <span class="n">initial_a</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dtdivtau</span> <span class="o">=</span> <span class="n">dtdivtau</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hscale</span> <span class="o">=</span> <span class="n">hscale</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_initial_a</span> <span class="o">=</span> <span class="n">initial_a</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">states</span><span class="p">):</span>
+        <span class="n">prev_a</span><span class="p">,</span> <span class="n">prev_h</span><span class="p">,</span> <span class="n">prev_output</span> <span class="o">=</span> <span class="n">states</span>
+        <span class="n">input_term</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_kernel</span><span class="p">)</span>
+        <span class="n">recurrent_term</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">prev_h</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">recurrent_kernel</span><span class="p">)</span>
+        <span class="n">feedback_term</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">prev_output</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">feedback_kernel</span><span class="p">)</span>
+
+        <span class="n">dadt</span> <span class="o">=</span> <span class="o">-</span><span class="n">prev_a</span> <span class="o">+</span> <span class="n">input_term</span> <span class="o">+</span> <span class="n">recurrent_term</span> <span class="o">+</span> <span class="n">feedback_term</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="n">prev_a</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">dtdivtau</span> <span class="o">*</span> <span class="n">dadt</span>
+        <span class="n">h</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">activation</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_kernel</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">output</span><span class="p">,</span> <span class="p">[</span><span class="n">a</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">output</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">get_initial_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_initial_a</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+          <span class="n">init_a</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_initial_a</span>
+        <span class="k">else</span><span class="p">:</span>
+          <span class="n">initializer</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">initializers</span><span class="o">.</span><span class="n">RandomNormal</span><span class="p">(</span><span class="n">mean</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span>
+                                                        <span class="n">stddev</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">hscale</span><span class="p">,</span>
+                                                        <span class="n">seed</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">seed_gen</span><span class="o">.</span><span class="n">uniform</span><span class="p">([</span><span class="mi">1</span><span class="p">],</span>
+                                                                                   <span class="n">minval</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                                                                                   <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">dtypes</span><span class="o">.</span><span class="n">int64</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">init_a</span> <span class="o">=</span> <span class="n">initializer</span><span class="p">((</span><span class="n">batch_size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">units</span><span class="p">))</span>
+        <span class="n">init_h</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">activation</span><span class="p">(</span><span class="n">init_a</span><span class="p">)</span>
+        <span class="n">init_out</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">init_h</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_kernel</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="p">(</span><span class="n">init_a</span><span class="p">,</span> <span class="n">init_h</span><span class="p">,</span> <span class="n">init_out</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>If needed, existing <code class="docutils literal notranslate"><span class="pre">base.FORCELayer</span></code> methods can be modified via sub-classing
+(noting the required input and output as listed in the documentation):</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">base.FORCEModel</span></code> class only implements update rules for the output
+and recurrent kernels. If a custom <code class="docutils literal notranslate"><span class="pre">FORCELayer</span></code> requires the recurrent
+kernels to be trainable, it must have an attribute <code class="docutils literal notranslate"><span class="pre">self.recurrent_nontrainable_boolean_mask</span></code>
+of shape <code class="docutils literal notranslate"><span class="pre">self.units</span></code> x <code class="docutils literal notranslate"><span class="pre">self.units</span></code> where <code class="docutils literal notranslate"><span class="pre">True</span></code> indicates that the
+weights at the corresponding indices in <code class="docutils literal notranslate"><span class="pre">self.recurrent_kernel</span></code> is not trainable.</p></li>
+<li><p>Kernel initialization methods <code class="docutils literal notranslate"><span class="pre">initialize_input_kernel(self,</span> <span class="pre">input_dim,</span> <span class="pre">input_kernel=None)</span></code>,
+<code class="docutils literal notranslate"><span class="pre">initialize_recurrent_kernel(self,</span> <span class="pre">recurrent_kernel=None)</span></code>,
+<code class="docutils literal notranslate"><span class="pre">initialize_feedback_kernel(self,</span> <span class="pre">feedback_kernel=None)</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">initialize_output_kernel(self,</span> <span class="pre">output_kernel=None)</span></code> may be modified if a different initialization
+scheme is required. See code example below.</p>
+<ul>
+<li><p>Custom initialized kernels must have names <cite>input_kernel</cite>, <cite>recurrent_kernel</cite>,
+<cite>feedback_kernel</cite>, and <cite>output_kernel</cite> respectively.</p></li>
+<li><p>If a seed is desired during kernel initialization, then the <code class="docutils literal notranslate"><span class="pre">self.seed_gen</span></code> attribute,
+the <code class="docutils literal notranslate"><span class="pre">FORCELayer</span></code> instance’s <a class="reference external" href="https://www.tensorflow.org/api_docs/python/tf/random/Generator">Tensorflow random generator object</a>, can be used to generate
+a deterministic seed to pass into the Keras initializer.</p></li>
+<li><p>Alternatively, one can use the <code class="docutils literal notranslate"><span class="pre">from_weights(self,</span> <span class="pre">...)</span></code> method to create a layer object with
+pre-initialized weights.</p></li>
+</ul>
+</li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">initialize_recurrent_kernel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">recurrent_kernel</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="c1">#####</span>
+    <span class="c1">#</span>
+    <span class="c1"># Code to initialize kernel and save result in a variable named `recurrent_kernel`</span>
+    <span class="c1">#</span>
+    <span class="c1">#####</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">recurrent_kernel</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_weight</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">units</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">units</span><span class="p">),</span>
+                                            <span class="n">initializer</span><span class="o">=</span><span class="n">keras</span><span class="o">.</span><span class="n">initializers</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="n">recurrent_kernel</span><span class="p">),</span>
+                                            <span class="n">trainable</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_recurrent_kernel_trainable</span><span class="p">,</span>
+                                            <span class="n">name</span><span class="o">=</span><span class="s1">&#39;recurrent_kernel&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>The <code class="docutils literal notranslate"><span class="pre">build(self,</span> <span class="pre">input_shape)</span></code> method which calls the kernel initialization methods may need
+to be modified if kernels are added or removed, as well as initializing any other
+required variables (i.e. <code class="docutils literal notranslate"><span class="pre">self.recurrent_nontrainable_boolean_mask</span></code>).</p></li>
+<li><p>The classmethod <code class="docutils literal notranslate"><span class="pre">from_weights(self,</span> <span class="pre">...)</span></code> may need to be modified if different (number of) kernels are
+required and / or if pre-initialized weights are desired to be loaded in.</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">state_size(self)</span></code> property may be modified if the default state definition needs to be changed.
+By default (below), the states of a <code class="docutils literal notranslate"><span class="pre">FORCELayer</span></code> are 3 tensors of shape <code class="docutils literal notranslate"><span class="pre">1</span></code> x <code class="docutils literal notranslate"><span class="pre">self.units</span></code>,
+<code class="docutils literal notranslate"><span class="pre">1</span></code> x <code class="docutils literal notranslate"><span class="pre">self.units</span></code>, and <code class="docutils literal notranslate"><span class="pre">1</span></code> x <code class="docutils literal notranslate"><span class="pre">self.output_size</span></code>:</p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@property</span>
+<span class="k">def</span> <span class="nf">state_size</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">units</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">units</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_size</span><span class="p">]</span>
+</pre></div>
+</div>
+<section id="creating-new-spiking-layers">
+<h3>Creating New Spiking Layers<a class="headerlink" href="#creating-new-spiking-layers" title="Permalink to this headline"></a></h3>
+<p>Creating new spiking layers require sub-classing <code class="docutils literal notranslate"><span class="pre">spiking.SpikingNN</span></code> or
+<code class="docutils literal notranslate"><span class="pre">spiking.OptimizedSpikingNN</span></code> and defining the following methods:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">initialize_voltage(self,</span> <span class="pre">batch_size)</span></code>: Returns a tensor of shape <code class="docutils literal notranslate"><span class="pre">batch_size</span></code> x
+<code class="docutils literal notranslate"><span class="pre">self.units</span></code> of initial voltages for the neurons in the network.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">update_voltage(self,</span> <span class="pre">I,</span> <span class="pre">states)</span></code>: Returns a list of 3 tensors each of shape
+<code class="docutils literal notranslate"><span class="pre">1</span></code> x <code class="docutils literal notranslate"><span class="pre">self.units</span></code>. The first result is the voltage trace of each
+neuron, the second an auxillary storage variable that may be unused, and the last
+a 1-0 tensor where 1 in the i-th position indicates that the voltage of the i-th
+neuron exceeded the peak voltage <code class="docutils literal notranslate"><span class="pre">self.v_peak</span></code>.</p></li>
+</ul>
+</section>
+</section>
+<section id="creating-new-model-classes">
+<h2>Creating New Model Classes<a class="headerlink" href="#creating-new-model-classes" title="Permalink to this headline"></a></h2>
+<p>Custom FORCE Model classes can be created using Keras style sub-classing of <code class="docutils literal notranslate"><span class="pre">base.FORCEModel</span></code>.</p>
+<section id="customizing-train-step">
+<h3>Customizing <code class="docutils literal notranslate"><span class="pre">train_step</span></code><a class="headerlink" href="#customizing-train-step" title="Permalink to this headline"></a></h3>
+<p>See <a class="reference external" href="https://keras.io/guides/customizing_what_happens_in_fit/">the Keras guide</a> for details on customizing
+train_step in a Keras model. The <code class="docutils literal notranslate"><span class="pre">train_step(self,</span> <span class="pre">data)</span></code> method from <code class="docutils literal notranslate"><span class="pre">base.FORCEModel</span></code> is reproduced below.
+By default, the method performs the forward pass for one time step and performs weight updates
+for the output and recurrent kernels in <code class="docutils literal notranslate"><span class="pre">self.force_layer</span></code> if those two kernels are
+set to be trainable. Below is the default <code class="docutils literal notranslate"><span class="pre">train_step(self,</span> <span class="pre">data)</span></code> method in <code class="docutils literal notranslate"><span class="pre">FORCEModel</span></code> class:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">train_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+    <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">data</span>
+    <span class="n">z</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">reset_states</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">force_layer</span><span class="o">.</span><span class="n">return_sequences</span><span class="p">:</span>
+      <span class="n">z</span> <span class="o">=</span> <span class="n">z</span><span class="p">[:,</span><span class="mi">0</span><span class="p">,:]</span>
+
+    <span class="n">trainable_vars</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">trainable_variables</span>
+
+    <span class="c1"># Update the output kernel</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_output_kernel_idx</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">update_output_kernel</span><span class="p">(</span><span class="n">h</span><span class="p">,</span>
+                                <span class="n">z</span><span class="p">,</span>
+                                <span class="n">y</span><span class="p">[:,</span><span class="mi">0</span><span class="p">,:],</span>
+                                <span class="n">trainable_vars</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_P_output_idx</span><span class="p">],</span>
+                                <span class="n">trainable_vars</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_output_kernel_idx</span><span class="p">])</span>
+
+    <span class="c1"># Update the recurrent kernel</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_recurrent_kernel_idx</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">update_recurrent_kernel</span><span class="p">(</span><span class="n">h</span><span class="p">,</span>
+                                   <span class="n">z</span><span class="p">,</span>
+                                   <span class="n">y</span><span class="p">[:,</span><span class="mi">0</span><span class="p">,:],</span>
+                                   <span class="n">trainable_vars</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_P_GG_idx</span><span class="p">],</span>
+                                   <span class="n">trainable_vars</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_recurrent_kernel_idx</span><span class="p">])</span>
+
+    <span class="c1"># Update metrics (includes the metric that tracks the loss)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">compiled_metrics</span><span class="o">.</span><span class="n">update_state</span><span class="p">(</span><span class="n">y</span><span class="p">[:,</span><span class="mi">0</span><span class="p">,:],</span> <span class="n">z</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">{</span><span class="n">m</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">m</span><span class="o">.</span><span class="n">result</span><span class="p">()</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">metrics</span><span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="customizing-force-layer-call">
+<h3>Customizing <code class="docutils literal notranslate"><span class="pre">force_layer_call</span></code><a class="headerlink" href="#customizing-force-layer-call" title="Permalink to this headline"></a></h3>
+<p>The default <cite>force_layer_call</cite> method calls <code class="docutils literal notranslate"><span class="pre">self.force_layer</span></code> of the <code class="docutils literal notranslate"><span class="pre">FORCEModel</span></code> instance
+as below:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">force_layer_call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">training</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">force_layer</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>To be compatible with the default <cite>train_step</cite>, the <cite>force_layer_call</cite> method
+of <code class="docutils literal notranslate"><span class="pre">base.FORCEModel</span></code> must return 4 tensors, the first of which is <code class="docutils literal notranslate"><span class="pre">self.force_layer</span></code>’s
+network output after the forward pass, and the third must be the post-activation firing rates of
+the layer’s neurons (and thus a <code class="docutils literal notranslate"><span class="pre">1</span></code> x <code class="docutils literal notranslate"><span class="pre">self.units</span></code> tensor). By default, it is assumed
+that the call method of <code class="docutils literal notranslate"><span class="pre">self.force_layer</span></code> meets these requirements. If
+this is not the case, then <cite>force_layer_call</cite> can be adjusted like the example below:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">SpikingNNModel</span><span class="p">(</span><span class="n">FORCEModel</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">force_layer_call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">training</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">output</span><span class="p">,</span> <span class="n">t_step</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">_</span> <span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">out</span> <span class="o">=</span>  <span class="bp">self</span><span class="o">.</span><span class="n">force_layer</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">output</span><span class="p">,</span> <span class="n">t_step</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">out</span>
+</pre></div>
+</div>
+<p>Alternatively, the indicated line below from the default <cite>train_step</cite> method can be adjusted
+to accomodate different output during calling the model in training.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">train_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+    <span class="o">...</span>
+    <span class="n">z</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">reset_states</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="o">...</span>
+</pre></div>
+</div>
+</section>
+<section id="customizing-pseudogradient-updates">
+<h3>Customizing Pseudogradient Updates<a class="headerlink" href="#customizing-pseudogradient-updates" title="Permalink to this headline"></a></h3>
+<p>For updating the output kernel, <cite>pseudogradient_P</cite> and <cite>pseudogradient_wO</cite> methods return
+the pseudogradient updates for the P matrix and output kernel respectively. See documentation
+for the required input and outputs.</p>
+<p>For updating the recurrent kernel, <cite>pseudogradient_P_Gx</cite> and <cite>pseudogradient_wR</cite> methods return
+the pseudogradient updates for the P matrix corresponding to the recurrent kernel and the
+recurrent kernel respectively.  See documentation for the required input and outputs.</p>
+</section>
+</section>
+<section id="callbacks">
+<h2>Callbacks<a class="headerlink" href="#callbacks" title="Permalink to this headline"></a></h2>
+<p>Callbacks can be passed into a model’s <cite>fit</cite>, <cite>predict</cite>, and <cite>evaluate</cite> methods
+like with a typical Keras model. See <a class="reference external" href="https://www.tensorflow.org/guide/keras/custom_callback">the custom callbacks article</a>
+for instructions on writing custom Keras callbacks. Inside the callback object, the layer
+states as a list of tensors can be accessed via <code class="docutils literal notranslate"><span class="pre">self.model.force_layer.states</span></code>.</p>
+</section>
+<section id="gpu-support">
+<h2>GPU Support<a class="headerlink" href="#gpu-support" title="Permalink to this headline"></a></h2>
+<p>See <a class="reference external" href="https://www.tensorflow.org/guide/gpu">Tensorflow documentation</a> for GPU support for Tensorflow.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="installation.html" class="btn btn-neutral float-left" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="layers.html" class="btn btn-neutral float-right" title="FORCE Layers" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Zhenrui Liao and Lu Bin Liu.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
