@@ -1,5 +1,6 @@
 Installation
 ============
+
 To use TENSION, clone the repo
 
 .. code-block:: console
