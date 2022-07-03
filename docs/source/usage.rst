@@ -433,6 +433,7 @@ states as a list of tensors can be accessed via ``self.model.force_layer.states`
 GPU Support
 -----------
 
+TENSION models can use GPU like any normal Keras model. 
 See `Tensorflow documentation <https://www.tensorflow.org/guide/gpu>`_ 
 for GPU support for Tensorflow.
 

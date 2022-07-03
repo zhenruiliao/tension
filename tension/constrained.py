@@ -9,6 +9,8 @@ class ConstrainedNoFeedbackESN(FORCELayer):
     """ 
     Constrained ESN without feedback as described in `Hadjiabadi et al. <https://pubmed.ncbi.nlm.nih.gov/34197732/>`_. 
 
+    **Note:** The target must have dimension equal to the number of neurons. 
+
     :param dtdivtau: dt divided by network dynamic time scale.
     :type dtdivtau: float
     :param structural_connectivity: ``self.units x self.units`` structural connectivity matrix
@@ -16,27 +18,34 @@ class ConstrainedNoFeedbackESN(FORCELayer):
     :param noise_param: Tuple of length 2 containing (in order) the mean and standard deviation
         for the white noise in the forward pass. 
     :type noise_param: tuple[float]
-    :param noise_seed: The seed parameter for white noise. (*Default : None*)
-    :type noise_seed: int or None
     :param initial_a: An optional ``1 x self.units`` tensor or numpy array specifying
         the initial neuron pre-activation firing rates. (*Default: None*)
     :type initial_a: Tensor[2D float] or None
-    :param kwargs: See ``base.FORCELayer`` for additional args.
+    :param recurrent_kernel_trainable: Boolean on whether or not to train 
+        recurrent kernel. Note that this is the only kernel that can be trained
+        for this layer. (*Default: True*)
+    :type recurrent_kernel_trainable: bool
+    :param kwargs: See :class:`.FORCELayer` for additional required args. This layer 
+        has no output weights and therefore the ``output_size`` and 
+        ``output_kernel_trainable`` parameters are not supported.
     """
     
     def __init__(self, 
     	         dtdivtau,
                  structural_connectivity,
                  noise_param,
-                 noise_seed=None, 
                  initial_a=None,
+                 recurrent_kernel_trainable=True,
                  **kwargs):
+        super().__init__(output_size=kwargs['units'], 
+                         output_kernel_trainable=False, 
+                         recurrent_kernel_trainable=recurrent_kernel_trainable, 
+                         **kwargs)
         self.dtdivtau = dtdivtau
         self.structural_connectivity = structural_connectivity
         self.noise_param = noise_param
-        self._noise_seed = noise_seed
+        self._noise_seed = None if self._seed is None else self._seed + 1
         self._initial_a = initial_a
-        super().__init__(output_size=kwargs['units'], output_kernel_trainable=False, recurrent_kernel_trainable=True, **kwargs)
 
     def initialize_recurrent_kernel(self, recurrent_kernel=None):
         if recurrent_kernel is None:        
@@ -58,7 +67,7 @@ class ConstrainedNoFeedbackESN(FORCELayer):
     def call(self, inputs, states):
         prev_a, prev_h, _ = states      
         z = backend.dot(prev_h, self.recurrent_kernel)
-        white_noise = tf.random.normal(shape=(1, self.units), 
+        white_noise = tf.random.normal(shape=(inputs.shape[0], self.units), 
                                        mean=self.noise_param[0], 
                                        stddev=self.noise_param[1],
                                        seed=self._noise_seed)
@@ -81,6 +90,9 @@ class ConstrainedNoFeedbackESN(FORCELayer):
     def from_weights(cls, weights, recurrent_nontrainable_boolean_mask, **kwargs):
         """
         Creates a ConstrainedNoFeedbackESN object with pre-initialized weights. 
+        
+        **Note:** ``p_recurr`` parameter is not supported in this method. ``units`` parameter
+        is inferred from the input weights. 
 
         :param weights: Two 2D Tensors containing the input and recurrent kernels  
         :type weights: tuple[Tensor[2D float]] of length 2
@@ -88,8 +100,9 @@ class ConstrainedNoFeedbackESN(FORCELayer):
             the same shape as the recurrent kernel, where True indicates that
             the corresponding weight in the recurrent kernel is not trainable. 
         :type recurrent_nontrainable_boolean_mask: Tensor[2D bool]
+        :param kwargs: Additional parameters required to initialize the layer. 
 
-        :returns: A ``ConstrainedNoFeedbackESN`` object initialized with the input weights
+        :returns: A :class:`.ConstrainedNoFeedbackESN` object initialized with the input weights
         """
         input_kernel, recurrent_kernel = weights 
         input_shape, input_units = input_kernel.shape 
@@ -102,7 +115,7 @@ class ConstrainedNoFeedbackESN(FORCELayer):
         if tf.math.count_nonzero(tf.boolean_mask(recurrent_kernel, recurrent_nontrainable_boolean_mask)).numpy() != 0:
             print("Warning: Recurrent kernel has non-zero weights (indicating neuron connection) that are not trainable") 
 
-        self = cls(units=units, output_size=units, p_recurr=None, **kwargs)
+        self = cls(units=units, p_recurr=None, **kwargs)
         self.recurrent_nontrainable_boolean_mask = tf.convert_to_tensor(recurrent_nontrainable_boolean_mask)
         self.initialize_input_kernel(input_shape, input_kernel)
         self.initialize_recurrent_kernel(recurrent_kernel)

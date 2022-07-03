@@ -17,6 +17,7 @@ class EchoStateNetwork(FORCELayer):
     :param initial_a: An optional ``1 x self.units`` tensor or numpy array specifying
         the initial neuron pre-activation firing rates. (*Default: None*)
     :type initial_a: Tensor[2D float] or None
+    :param kwargs: See :class:`.FORCELayer` for additional required args.
     """
 
     def __init__(self, 
@@ -48,11 +49,11 @@ class EchoStateNetwork(FORCELayer):
         See: https://www.tensorflow.org/api_docs/python/tf/keras/layers/RNN
 
         :returns:
-            - **a** (*Tensor[2D float]*) - ``1 x self.units`` tensor containing 
+            - **a** (*Tensor[2D float]*) - ``batch_size x self.units`` tensor containing 
               the pre-activation neuron firing rates.
-            - **h** (*Tensor[2D float]*) - ``1 x self.units`` tensor containing 
+            - **h** (*Tensor[2D float]*) - ``batch_size x self.units`` tensor containing 
               the neuron firing rates.
-            - **output** (*Tensor[2D float]*) - ``1 x self.output_size`` tensor 
+            - **output** (*Tensor[2D float]*) - ``batch_size x self.output_size`` tensor 
               containing the predicted output.  
         """
         if self._initial_a is not None:
@@ -78,8 +79,8 @@ class NoFeedbackESN(EchoStateNetwork):
     :param recurrent_kernel_trainable: Boolean on whether or not to train 
         recurrent kernel. (*Default: True*)
     :type recurrent_kernel_trainable: bool
-    :param kwargs: See ``base.FORCELayer`` and ``models.EchoStateNetwork`` 
-        for additional args.
+    :param kwargs: See :class:`.FORCELayer`  and :class:`.EchoStateNetwork` 
+        for additional required args.
     """
 
     def __init__(self, 
@@ -114,14 +115,18 @@ class NoFeedbackESN(EchoStateNetwork):
         """
         Creates a NoFeedbackESN object with pre-initialized weights. 
 
+        **Note:** ``p_recurr`` parameter is not supported in this method. ``units`` and 
+        ``output_size`` parameters are inferred from the input weights. 
+
         :param weights: tuple of tensors containing the input, recurrent, and output kernels  
         :type weights: tuple[Tensor[2D float]] of length 3
         :param recurrent_nontrainable_boolean_mask: A 2D boolean array with
             the same shape as the recurrent kernel, where True indicates that
             the corresponding weight in the recurrent kernel is not trainable. 
         :type recurrent_nontrainable_boolean_mask: Tensor[2D bool]
+        :param kwargs: Additional parameters required to initialize the layer. 
 
-        :returns: A ``NoFeedbackESN`` object initialized with the input weights
+        :returns: A :class:`.NoFeedbackESN` object initialized with the input weights
         """
         input_kernel, recurrent_kernel, output_kernel = weights 
         input_shape, input_units = input_kernel.shape 

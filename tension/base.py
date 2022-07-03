@@ -16,8 +16,9 @@ class FORCELayer(keras.layers.AbstractRNNCell, metaclass=abc.ABCMeta):
     :type activation: str or function
     :param seed: Seed for random initialization (i.e. weights and initial states). (*Default: None*)
     :type seed: int or None
-    :param g: Factor that scales the strengths of the recurrent connections within the network. (*Default: 1.5*)
-    :type g: int
+    :param g: Gain parameter that controls the chaos (by default, only scales the strengths of the 
+        recurrent connections within the network at initialization). (*Default: 1.5*)
+    :type g: float
     :param input_kernel_trainable: If True, sets the input kernel to be a trainable variable. (*Default: False*)
     :type input_kernel_trainable: bool
     :param recurrent_kernel_trainable: If True, sets the recurrent kernel to be a trainable variable. (*Default: False*)
@@ -187,6 +188,9 @@ class FORCELayer(keras.layers.AbstractRNNCell, metaclass=abc.ABCMeta):
         """
         Creates a layer object with pre-initialized weights. 
 
+        **Note:** ``p_recurr`` parameter is not supported in this method. ``units`` and 
+        ``output_size`` parameters are inferred from the input weights. 
+
         :param weights: Four 2D Tensors containing, respectively, the input, 
             recurrent, feedback, and output kernels  
         :type weights: tuple[Tensor[2D float]] of length 4
@@ -194,6 +198,7 @@ class FORCELayer(keras.layers.AbstractRNNCell, metaclass=abc.ABCMeta):
             the same shape as the recurrent kernel, where True indicates that
             the corresponding weight in the recurrent kernel is not trainable. 
         :type recurrent_nontrainable_boolean_mask: Tensor[2D bool]
+        :param kwargs: Additional parameters required to initialize the layer. 
 
         :returns: A sub-classed ``FORCELayer`` object initialized with the input weights
         """
@@ -204,8 +209,7 @@ class FORCELayer(keras.layers.AbstractRNNCell, metaclass=abc.ABCMeta):
         output_units, output_size = output_kernel.shape 
         units = input_units 
 
-        assert np.all(np.array([input_units, recurrent_units1, recurrent_units2, 
-                            feedback_units, output_units]) == units)
+        assert np.all(np.array([input_units, recurrent_units1, recurrent_units2, feedback_units, output_units]) == units)
         assert feedback_output_size == output_size, 'feedback and output kernel dimensions are inconsistent' 
         assert 'p_recurr' not in kwargs.keys(), 'p_recurr not supported in this method'
         assert recurrent_kernel.shape == recurrent_nontrainable_boolean_mask.shape, "Boolean mask and recurrent kernel shape mis-match"
@@ -638,7 +642,7 @@ class FORCEModel(keras.Model):
         """
         A wrapper around `tensorflow.keras.Model.compile`.
 
-        **Note:** The *optimizer* parameter is not supported
+        **Note:** The *optimizer* and *loss* parameters are not supported. 
 
         :param metrics: Same as in `tensorflow.keras.Model.compile`.
         :type metrics: list[str] 
@@ -808,7 +812,7 @@ class FORCEModel(keras.Model):
         :param x: Tensor of input signal of shape ``timesteps x input dimensions``.
         :type x: Tensor[2D float]
 
-        :returns: (*Tensor[2D float]*) - Tensor of predictions
+        :returns: (*Array[2D float]*) - Numpy array of predictions
         """
         x = self._coerce_input_shape(inp=x, inp_type='x', method='predict', **kwargs)
         x, _ = self.coerce_input_data(x=x, y=None, method='predict', **kwargs)
@@ -830,6 +834,8 @@ class FORCEModel(keras.Model):
         :type x: Tensor[2D float]
         :param y: Tensor of target signal of shape ``timesteps x output dimensions``.
         :type y: Tensor[2D float]
+
+        :returns: (*List[float]*) - List of error / metrics on input data
         """
         if 'batch_size' not in kwargs.keys() or kwargs['batch_size'] is None:
            kwargs['batch_size'] = 1

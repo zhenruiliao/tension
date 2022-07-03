@@ -10,9 +10,9 @@ class SpikingNN(FORCELayer):
     <https://www.nature.com/articles/s41467-017-01827-3>`_. New spiking RNN layers can 
     be created by subclassing from this class or ``spiking.OptimizedSpikingNN``. 
 
-    **Note:** The recurrent kernel is static and thus must be set to not be trainable when 
+    **Note:** The recurrent kernel is static and thus by default is set to not trainable when 
     initializing the layer. If initializing using ``from_weights``, 
-    the ``recurrent_nontrainable_boolean_mask`` is unused.  
+    the ``recurrent_nontrainable_boolean_mask`` is unused by default.  
 
     :param dt: Duration of one time step
     :type dt: float
@@ -32,13 +32,18 @@ class SpikingNN(FORCELayer):
     :type G: float
     :param Q: Scales the feedback weight matrix
     :type Q: float
+    :param activation: Activation function. Can be a string (i.e. 'tanh') or a function. 
+        This is unused by default. (*Default: None*)  
+    :type activation: str or function
     :param initial_h: An optional ``1 x self.units`` tensor or numpy array specifying
         the initial neuron firing rates. (*Default: None*)
     :type initial_h: Tensor[2D float] or None
     :param initial_voltage: An optional ``1 x self.units`` tensor or numpy array specifying
         the initial voltage. (*Default: None*)
     :type initial_voltage: Tensor[2D float] or None
-    :param kwargs: Additional parameters as outlined in ``base.FORCELayer``
+    :param kwargs: See :class:`.FORCELayer` for additional required args. The recurrent kernel
+        must be static and therefore the ``recurrent_kernel_trainable`` parameter is not 
+        supported. 
 
     :states: 
         - **t_step** - ``1 x 1`` tensor that tracks number of time steps 
@@ -61,6 +66,7 @@ class SpikingNN(FORCELayer):
                  I_bias,
                  G, 
                  Q,  
+                 activation=None,
                  initial_h=None, 
                  initial_voltage=None,
                  **kwargs):
@@ -75,7 +81,7 @@ class SpikingNN(FORCELayer):
         self.Q = Q 
         self._initial_h = initial_h
         self._initial_voltage = initial_voltage
-        super().__init__(activation=None, recurrent_kernel_trainable=False, **kwargs)
+        super().__init__(activation=activation, recurrent_kernel_trainable=False, **kwargs)
 
     @property
     def state_size(self):
@@ -124,7 +130,8 @@ class SpikingNN(FORCELayer):
         """ 
         Initializes voltage trace for each neuron
 
-        :param batch_size: The batch size
+        :param batch_size: The batch size (**Note:** for potential future batched processing support. 
+            Presently, input batch size will always be one.)
         :type batch_size: int
 
         :returns: (*Tensor[2D float]*) A ``batch_size x self.units`` tensor of initial voltages
