@@ -152,7 +152,7 @@ states are <strong>not</strong> reset at the end of the execution.</p>
 <dt class="sig sig-object py" id="base.FORCEModel.compile">
 <span class="sig-name descname"><span class="pre">compile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">metrics</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#base.FORCEModel.compile" title="Permalink to this definition"></a></dt>
 <dd><p>A wrapper around <cite>tensorflow.keras.Model.compile</cite>.</p>
-<p><strong>Note:</strong> The <em>optimizer</em> parameter is not supported</p>
+<p><strong>Note:</strong> The <em>optimizer</em> and <em>loss</em> parameters are not supported.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>metrics</strong> (<em>list</em><em>[</em><em>str</em><em>]</em>) – Same as in <cite>tensorflow.keras.Model.compile</cite>.</p>
@@ -171,6 +171,9 @@ states are <strong>not</strong> reset at the end of the execution.</p>
 <li><p><strong>x</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – Tensor of input signal of shape <code class="docutils literal notranslate"><span class="pre">timesteps</span> <span class="pre">x</span> <span class="pre">input</span> <span class="pre">dimensions</span></code>.</p></li>
 <li><p><strong>y</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – Tensor of target signal of shape <code class="docutils literal notranslate"><span class="pre">timesteps</span> <span class="pre">x</span> <span class="pre">output</span> <span class="pre">dimensions</span></code>.</p></li>
 </ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>(<em>List[float]</em>) - List of error / metrics on input data</p>
 </dd>
 </dl>
 </dd></dl>
@@ -234,7 +237,7 @@ states are <strong>not</strong> reset at the end of the execution.</p>
 <dd class="field-odd"><p><strong>x</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – Tensor of input signal of shape <code class="docutils literal notranslate"><span class="pre">timesteps</span> <span class="pre">x</span> <span class="pre">input</span> <span class="pre">dimensions</span></code>.</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>(<em>Tensor[2D float]</em>) - Tensor of predictions</p>
+<dd class="field-even"><p>(<em>Array[2D float]</em>) - Numpy array of predictions</p>
 </dd>
 </dl>
 </dd></dl>
