@@ -2,8 +2,9 @@ import numpy as np
 import tensorflow as tf
 import tensorflow.keras as keras
 from tensorflow.keras import backend, activations
+import abc
 
-class FORCELayer(keras.layers.AbstractRNNCell):
+class FORCELayer(keras.layers.AbstractRNNCell, metaclass=abc.ABCMeta):
     """ 
     Base class for FORCE layers
 
@@ -13,10 +14,11 @@ class FORCELayer(keras.layers.AbstractRNNCell):
     :type output_size: int
     :param activation: Activation function. Can be a string (i.e. 'tanh') or a function.  
     :type activation: str or function
-    :param seed: Seed for random weight initialization. (*Default: None*)
+    :param seed: Seed for random initialization (i.e. weights and initial states). (*Default: None*)
     :type seed: int or None
-    :param g: Factor that scales the strengths of the recurrent connections within the network. (*Default: 1.5*)
-    :type g: int
+    :param g: Gain parameter that controls the chaos (by default, only scales the strengths of the 
+        recurrent connections within the network at initialization). (*Default: 1.5*)
+    :type g: float
     :param input_kernel_trainable: If True, sets the input kernel to be a trainable variable. (*Default: False*)
     :type input_kernel_trainable: bool
     :param recurrent_kernel_trainable: If True, sets the recurrent kernel to be a trainable variable. (*Default: False*)
@@ -25,14 +27,14 @@ class FORCELayer(keras.layers.AbstractRNNCell):
     :type output_kernel_trainable: bool
     :param feedback_kernel_trainable: If True, sets the feedback kernel to be a trainable variable. (*Default: False*)
     :type feedback_kernel_trainable: bool
-    :param p_recurr: Density of the recurrent kernel, larger values means denser (more non-zero) 
-        connections. Value must be in (0,1]. (*Default: 1*)
+    :param p_recurr: Recurrent kernel initialization parameter where larger values means denser  
+        connections (more non-zero weights). Value must be in (0,1]. (*Default: 1*)
     :type p_recurr: float 
 
     :states:
-        - **a** - ``1`` x ``self.units`` tensor containing the pre-activation neuron firing rates
-        - **h** - ``1`` x ``self.units`` tensor containing the neuron firing rates
-        - **output** - ``1`` x ``self.output_size`` tensor containing the predicted output  
+        - **a** - ``1 x self.units`` tensor containing the pre-activation neuron firing rates
+        - **h** - ``1 x self.units`` tensor containing the neuron firing rates
+        - **output** - ``1 x self.output_size`` tensor containing the predicted output  
     """
 
     def __init__(self, 
@@ -56,7 +58,8 @@ class FORCELayer(keras.layers.AbstractRNNCell):
           self.seed_gen = tf.random.Generator.from_non_deterministic_state()
         else:
           self.seed_gen = tf.random.Generator.from_seed(seed)
-        
+
+        self._seed = seed
         self._g = g
         self._input_kernel_trainable = input_kernel_trainable
         self._recurrent_kernel_trainable = recurrent_kernel_trainable
@@ -112,8 +115,8 @@ class FORCELayer(keras.layers.AbstractRNNCell):
                                                                                       minval=None, 
                                                                                       dtype=tf.dtypes.int64)[0])
         
-            recurrent_kernel = self._p_recurr*keras.layers.Dropout(1 - self._p_recurr)(initializer(shape=(self.units, self.units)), 
-                                                                                       training=True)
+            recurrent_kernel = self._p_recurr * keras.layers.Dropout(1 - self._p_recurr)(initializer(shape=(self.units, self.units)), 
+                                                                                         training=True)
 
         self.recurrent_kernel = self.add_weight(shape=(self.units, self.units),
                                                 initializer=keras.initializers.constant(recurrent_kernel),
@@ -172,20 +175,32 @@ class FORCELayer(keras.layers.AbstractRNNCell):
         """
         self.initialize_input_kernel(input_shape[-1])
         self.initialize_recurrent_kernel()
-        self.initialize_feedback_kernel()
         self.initialize_output_kernel() 
+        self.initialize_feedback_kernel()
+        if self._p_recurr == 1:
+            self.recurrent_nontrainable_boolean_mask = None
+        else:
+            self.recurrent_nontrainable_boolean_mask = (self.recurrent_kernel == 0)
         self.built = True
 
     @classmethod
-    def from_weights(cls, weights, **kwargs):
+    def from_weights(cls, weights, recurrent_nontrainable_boolean_mask, **kwargs):
         """
-        Creates a FORCELayer object with pre-initialized weights. 
+        Creates a layer object with pre-initialized weights. 
 
-        :param weights: Four 2D Tensors containing, respectively, the input, recurrent, feedback, 
-            and output kernels  
+        **Note:** ``p_recurr`` parameter is not supported in this method. ``units`` and 
+        ``output_size`` parameters are inferred from the input weights. 
+
+        :param weights: Four 2D Tensors containing, respectively, the input, 
+            recurrent, feedback, and output kernels  
         :type weights: tuple[Tensor[2D float]] of length 4
+        :param recurrent_nontrainable_boolean_mask: A 2D boolean array with
+            the same shape as the recurrent kernel, where True indicates that
+            the corresponding weight in the recurrent kernel is not trainable. 
+        :type recurrent_nontrainable_boolean_mask: Tensor[2D bool]
+        :param kwargs: Additional parameters required to initialize the layer. 
 
-        :returns: A FORCELayer object initialized with the input weights
+        :returns: A sub-classed ``FORCELayer`` object initialized with the input weights
         """
         input_kernel, recurrent_kernel, feedback_kernel, output_kernel = weights 
         input_shape, input_units = input_kernel.shape 
@@ -194,12 +209,15 @@ class FORCELayer(keras.layers.AbstractRNNCell):
         output_units, output_size = output_kernel.shape 
         units = input_units 
 
-        assert np.all(np.array([input_units, recurrent_units1, recurrent_units2, 
-                            feedback_units, output_units]) == units)
+        assert np.all(np.array([input_units, recurrent_units1, recurrent_units2, feedback_units, output_units]) == units)
         assert feedback_output_size == output_size, 'feedback and output kernel dimensions are inconsistent' 
         assert 'p_recurr' not in kwargs.keys(), 'p_recurr not supported in this method'
+        assert recurrent_kernel.shape == recurrent_nontrainable_boolean_mask.shape, "Boolean mask and recurrent kernel shape mis-match"
+        if tf.math.count_nonzero(tf.boolean_mask(recurrent_kernel, recurrent_nontrainable_boolean_mask)).numpy() != 0:
+            print("Warning: Recurrent kernel has non-zero weights (indicating neuron connection) that are not trainable")  
 
         self = cls(units=units, output_size=output_size, p_recurr=None, **kwargs)
+        self.recurrent_nontrainable_boolean_mask = tf.convert_to_tensor(recurrent_nontrainable_boolean_mask)
         self.initialize_input_kernel(input_shape, input_kernel)
         self.initialize_recurrent_kernel(recurrent_kernel)
         self.initialize_feedback_kernel(feedback_kernel)
@@ -207,6 +225,34 @@ class FORCELayer(keras.layers.AbstractRNNCell):
         self.built = True
 
         return self
+
+    @abc.abstractmethod
+    def call(self, inputs, states):
+        """
+        Implements forward pass of the layer. 
+
+        :param inputs: Input tensor of shape *(1, input dimensions)*.
+        :type inputs: Tensor[2D float]
+        :param states: List of tensors corresponding to the states of the layer.
+        :type states: list[Tensor[2D float]]
+
+        :returns:
+            - **output** (*Tensor[2D float]*) - ``1 x self.output_size`` tensor containing the 
+              output of the forward pass.
+            - **updated states** (*list[Tensor[2D float]]*) - List of tensors containing the
+              updated states of the layer.
+        """
+        return
+
+    @abc.abstractmethod
+    def get_initial_state(self, inputs=None, batch_size=None, dtype=None):
+        """
+        Initializes the states of the layer (called implicitly during layer build). 
+        See: https://www.tensorflow.org/api_docs/python/tf/keras/layers/RNN
+
+        :returns: A list of tensors containing the initial layer states 
+        """
+        return
 
 class FORCEModel(keras.Model):
     """ 
@@ -431,11 +477,11 @@ class FORCEModel(keras.Model):
         """ 
         Performs pseudogradient updates for output kernel and its corresponding P tensor.
             
-        :param h: An ``1`` x ``self.units`` tensor of firing ratings for each recurrent neuron.
+        :param h: An ``1 x self.units`` tensor of firing ratings for each recurrent neuron.
         :type h: Tensor[2D float]
-        :param z: An ``1`` x output dimensions tensor of predictions. 
+        :param z: An ``1 x output dimensions`` tensor of predictions. 
         :type z: Tensor[2D float]
-        :param y: An ``1`` x output dimensions tensor of ground truth target.
+        :param y: An ``1 x output dimensions`` tensor of ground truth target.
         :type y: Tensor[2D float]
         :param trainable_vars_P_output: The FORCE P tensor corresponding to the output kernel.
         :type trainable_vars_P_output: Tensor[2D float]
@@ -457,23 +503,23 @@ class FORCEModel(keras.Model):
 
         Example array shapes: 
 
-        | h : ``1`` x ``self.units``
-        | P : ``self.units`` x ``self.units``
-        | k : ``self.units`` x ``1`` 
-        | hPht : ``1`` x ``1``
-        | dP : ``self.units`` x ``self.units``
+        | h : ``1 x self.units``
+        | P : ``self.units x self.units``
+        | k : ``self.units x 1`` 
+        | hPht : ``1 x 1``
+        | dP : ``self.units x self.units``
 
         :param P: The FORCE P tensor.
         :type P: Tensor[2D float]
-        :param h: An ``1`` x ``self.units`` tensor of firing ratings for each recurrent neuron.
+        :param h: An ``1 x self.units`` tensor of firing ratings for each recurrent neuron.
         :type h: Tensor[2D float]
 
         :returns:
-            - **dP** (*Tensor[2D float]*) - A ``self.units`` x ``self.units`` pseudogradient 
+            - **dP** (*Tensor[2D float]*) - A ``self.units x self.units`` pseudogradient 
               of the FORCE P tensor.
-            - **Pht** (*Tensor[2D float]*) - ``self.units`` x ``1`` intermediate tensor from 
+            - **Pht** (*Tensor[2D float]*) - ``self.units x 1`` intermediate tensor from 
               pseudogradient computation.
-            - **hPht** (*Tensor[2D float]*) - ``1`` x ``1`` intermediate tensor from pseudogradient 
+            - **hPht** (*Tensor[2D float]*) - ``1 x 1`` intermediate tensor from pseudogradient 
               computation.
         """
         Pht = backend.dot(P, tf.transpose(h))
@@ -490,22 +536,22 @@ class FORCEModel(keras.Model):
 
         Example array shapes:
 
-        | P : ``self.units`` x ``self.units``
-        | h : ``1`` x ``self.units``
-        | z, y : ``1`` x output dimension
+        | P : ``self.units x self.units``
+        | h : ``1 x self.units``
+        | z, y : ``1 x output dimension``
 
         :param P: The FORCE P tensor corresponding to output kernel.
         :type P: Tensor[2D float]
-        :param h: An ``1`` x ``self.units`` tensor of firing ratings for each recurrent neuron.
+        :param h: An ``1 x self.units`` tensor of firing ratings for each recurrent neuron.
         :type h: Tensor[2D float]
-        :param z: An ``1`` x output dimensions tensor of predictions.
+        :param z: An ``1 x output dimensions`` tensor of predictions.
         :type z: Tensor[2D float]
-        :param y: An ``1`` x output dimensions tensor of ground truth target.
+        :param y: An ``1 x output dimensions`` tensor of ground truth target.
         :type y: Tensor[2D float]
-        :param Pht: ``self.units`` x ``1`` intermediate tensor from pseudogradient computation 
+        :param Pht: ``self.units x 1`` intermediate tensor from pseudogradient computation 
             in the `pseudogradient_P` method (unused by default).
         :type Pht: Tensor[2D float]
-        :param hPht: ``1`` x ``1`` intermediate tensor from pseudogradient computation
+        :param hPht: ``1 x 1`` intermediate tensor from pseudogradient computation
             in the `pseudogradient_P` method (unused by default).
         :type hPht: Tensor[2D float]
 
@@ -521,16 +567,16 @@ class FORCEModel(keras.Model):
         """ 
         Performs pseudogradient updates for recurrent kernel and its corresponding P tensor
             
-        :param h: An ``1`` x ``self.units`` tensor of firing ratings for each recurrent neuron
+        :param h: An ``1 x self.units`` tensor of firing ratings for each recurrent neuron
         :type h: Tensor[2D float]
-        :param z: An ``1`` x output dimensions tensor of predictions  
+        :param z: An ``1 x output dimensions`` tensor of predictions  
         :type z: Tensor[2D float]
-        :param y: An ``1`` x output dimensions tensor of ground truth target
+        :param y: An ``1 x output dimensions`` tensor of ground truth target
         :type y: Tensor[2D float]
-        :param trainable_vars_P_Gx: A ``self.units`` x ``self.units`` x ``self.units`` P tensor 
+        :param trainable_vars_P_Gx: A ``self.units x self.units x self.units`` P tensor 
             corresponding to the recurrent kernel 
         :type trainable_vars_P_Gx: Tensor[3D float]
-        :param trainable_vars_recurrent_kernel: A ``self.units`` x ``self.units`` tensor 
+        :param trainable_vars_recurrent_kernel: A ``self.units x self.units`` tensor 
             corresponding to the force layer's recurrent kernel
         :type trainable_vars_recurrent_kernel: Tensor[2D float]
         """
@@ -546,14 +592,14 @@ class FORCEModel(keras.Model):
         """ 
         Returns pseudogradient for P corresponding to recurrent kernel
 
-        :param P_Gx: A ``self.units`` x ``self.units`` x ``self.units``  P tensor corresponding to
+        :param P_Gx: A ``self.units x self.units x self.units``  P tensor corresponding to
             the recurrent kernel. 
         :type P_Gx: Tensor[3D float]
-        :param h: An ``1`` x ``self.units`` tensor of firing ratings for each recurrent neuron
+        :param h: An ``1 x self.units`` tensor of firing ratings for each recurrent neuron
         :type h: Tensor[2D float] 
 
         :returns:
-            - **dP_Gx** (*Tensor[3D float]*) - A ``self.units`` x ``self.units`` x ``self.units``  tensor
+            - **dP_Gx** (*Tensor[3D float]*) - A ``self.units x self.units x self.units``  tensor
               that is the pseudogradient of the FORCE P tensor corresponding to the recurrent
               kernel.
             - **Ph** (*Tensor[2D float]*) - Intermediate tensor from pseudogradient computation.
@@ -569,14 +615,14 @@ class FORCEModel(keras.Model):
         """ 
         Return pseudogradient for wR
 
-        :param P_Gx: A ``self.units`` x ``self.units`` x ``self.units`` P tensor corresponding to
+        :param P_Gx: A ``self.units x self.units x self.units`` P tensor corresponding to
             the recurrent kernel. 
         :type P_Gx: Tensor[3D float]
-        :param h: A ``1`` x ``self.units`` tensor of firing ratings for each recurrent neuron. 
+        :param h: A ``1 x self.units`` tensor of firing ratings for each recurrent neuron. 
         :type h: Tensor[2D float]
-        :param z: A ``1`` x ``1`` tensor of predictions.
+        :param z: A ``1 x 1`` tensor of predictions.
         :type z: Tensor[2D float]
-        :param y: A ``1`` x ``1`` tensor of ground truth target.
+        :param y: A ``1 x 1`` tensor of ground truth target.
         :type y: Tensor[2D float]
         :param Ph: Intended to match output from the `pseudogradient_P_Gx` method (unused by default).
         :type Ph: Tensor[2D float]
@@ -596,7 +642,7 @@ class FORCEModel(keras.Model):
         """
         A wrapper around `tensorflow.keras.Model.compile`.
 
-        **Note:** The *optimizer* parameter is not supported
+        **Note:** The *optimizer* and *loss* parameters are not supported. 
 
         :param metrics: Same as in `tensorflow.keras.Model.compile`.
         :type metrics: list[str] 
@@ -608,9 +654,9 @@ class FORCEModel(keras.Model):
     #     A wrapper around ``tensorflow.keras.Model.fit``. Note that the *batch_size*, 
     #     *validation_batch_size*, and *shuffle* parameters are not supported. 
 
-    #     :param x: Tensor of input signal of shape timesteps x input dimensions.
+    #     :param x: Tensor of input signal of shape ``timesteps x input dimensions``.
     #     :type x: Tensor[2D float]
-    #     :param y: Tensor of target signal of shape timesteps x output dimensions.
+    #     :param y: Tensor of target signal of shape ``timesteps x output dimensions``.
     #     :type y: Tensor[2D float]
     #     :param epoch: Number of epochs to train. 
     #     :type epoch: int
@@ -710,9 +756,9 @@ class FORCEModel(keras.Model):
         Coerces the input data to a desired shape based on method used 
         (`fit`, `predict`, `evaluate`). 
 
-        :param x: Tensor of shape *(timestep, 1, input dimensions)*
+        :param x: Tensor of shape ``timestep x 1 x input dimensions``
         :type x: Tensor[3D float]
-        :param y: Tensor of shape *(timestep, 1, target dimensions)* 
+        :param y: Tensor of shape ``timestep x 1 x target dimensions``
         :type y: Tensor[3D float]
         :param method: One of *fit*, *validation*, *predict*, or *evaluate* 
         :type method: str
@@ -728,9 +774,9 @@ class FORCEModel(keras.Model):
         **Note:** the *batch_size*, *validation_batch_size*,  *shuffle*, 
         *steps_per_epoch*, and *validation_steps* parameters are not supported. 
 
-        :param x: Tensor of input signal of shape *timesteps x input dimensions*.
+        :param x: Tensor of input signal of shape ``timesteps x input dimensions``.
         :type x: Tensor[2D float]
-        :param y: Tensor of target signal of shape *timesteps x output dimensions*.
+        :param y: Tensor of target signal of shape ``timesteps x output dimensions``.
         :type y: Tensor[2D float]
         :param epoch: Number of epochs to train. 
         :type epoch: int
@@ -763,10 +809,10 @@ class FORCEModel(keras.Model):
         A wrapper around `tensorflow.keras.Model.predict`. 
         **Note**: the *batch_size* and *steps* parameter are not supported.  
 
-        :param x: Tensor of input signal of shape *timesteps x input dimensions*.
+        :param x: Tensor of input signal of shape ``timesteps x input dimensions``.
         :type x: Tensor[2D float]
 
-        :returns: (*Tensor[2D float]*) - Tensor of predictions
+        :returns: (*Array[2D float]*) - Numpy array of predictions
         """
         x = self._coerce_input_shape(inp=x, inp_type='x', method='predict', **kwargs)
         x, _ = self.coerce_input_data(x=x, y=None, method='predict', **kwargs)
@@ -784,10 +830,12 @@ class FORCEModel(keras.Model):
         A wrapper around `tensorflow.keras.Model.evaluate`. 
         **Note**: the *batch_size* and *steps* parameter are not supported.  
 
-        :param x: Tensor of input signal of shape *timesteps x input dimensions*.
+        :param x: Tensor of input signal of shape ``timesteps x input dimensions``.
         :type x: Tensor[2D float]
-        :param y: Tensor of target signal of shape *timesteps x output dimensions*.
+        :param y: Tensor of target signal of shape ``timesteps x output dimensions``.
         :type y: Tensor[2D float]
+
+        :returns: (*List[float]*) - List of error / metrics on input data
         """
         if 'batch_size' not in kwargs.keys() or kwargs['batch_size'] is None:
            kwargs['batch_size'] = 1

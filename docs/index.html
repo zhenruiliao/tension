@@ -38,9 +38,10 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="examples.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="layers.html">FORCE Layers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="models.html">FORCE Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
 </ul>
 
         </div>
@@ -82,26 +83,30 @@ Controlled Error) training chaotic recurrent neural networks.</p>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="examples.html">Usage</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="examples.html#quick-start">Quick Start</a></li>
-<li class="toctree-l2"><a class="reference internal" href="examples.html#layer-and-model-class-compatibilities">Layer and Model Class Compatibilities</a></li>
-<li class="toctree-l2"><a class="reference internal" href="examples.html#accessing-key-attributes">Accessing Key Attributes</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="examples.html#forcelayer-classes"><code class="docutils literal notranslate"><span class="pre">FORCELayer</span></code> Classes</a></li>
-<li class="toctree-l3"><a class="reference internal" href="examples.html#forcemodel-classes"><code class="docutils literal notranslate"><span class="pre">FORCEModel</span></code> Classes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="usage.html#quick-start">Quick Start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage.html#layer-and-model-class-compatibilities">Layer and Model Class Compatibilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage.html#accessing-key-attributes">Accessing Key Attributes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="usage.html#forcelayer-classes"><code class="docutils literal notranslate"><span class="pre">FORCELayer</span></code> Classes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="usage.html#forcemodel-classes"><code class="docutils literal notranslate"><span class="pre">FORCEModel</span></code> Classes</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="examples.html#creating-new-layers">Creating New Layers</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="examples.html#creating-new-spiking-layers">Creating New Spiking Layers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage.html#creating-new-layers">Creating New Layers</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="usage.html#custom-state-size">Custom State Size</a></li>
+<li class="toctree-l3"><a class="reference internal" href="usage.html#custom-kernel-initialization">Custom Kernel Initialization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="usage.html#custom-build">Custom Build</a></li>
+<li class="toctree-l3"><a class="reference internal" href="usage.html#custom-from-weights">Custom <code class="docutils literal notranslate"><span class="pre">from_weights</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="usage.html#creating-new-spiking-layers">Creating New Spiking Layers</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="examples.html#creating-new-model-classes">Creating New Model Classes</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="examples.html#customizing-train-step">Customizing <code class="docutils literal notranslate"><span class="pre">train_step</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="examples.html#customizing-force-layer-call">Customizing <code class="docutils literal notranslate"><span class="pre">force_layer_call</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="examples.html#customizing-pseudogradient-updates">Customizing Pseudogradient Updates</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage.html#creating-new-model-classes">Creating New Model Classes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="usage.html#customizing-train-step">Customizing <code class="docutils literal notranslate"><span class="pre">train_step</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="usage.html#customizing-force-layer-call">Customizing <code class="docutils literal notranslate"><span class="pre">force_layer_call</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="usage.html#customizing-pseudogradient-updates">Customizing Pseudogradient Updates</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="examples.html#callbacks">Callbacks</a></li>
-<li class="toctree-l2"><a class="reference internal" href="examples.html#gpu-support">GPU Support</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage.html#callbacks">Callbacks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage.html#gpu-support">GPU Support</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="layers.html">FORCE Layers</a><ul>
@@ -113,6 +118,12 @@ Controlled Error) training chaotic recurrent neural networks.</p>
 <li class="toctree-l1"><a class="reference internal" href="models.html">FORCE Model</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="models.html#base-force-model">Base FORCE Model</a></li>
 <li class="toctree-l2"><a class="reference internal" href="models.html#inherited-force-model">Inherited FORCE Model</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="examples.html#force-and-full-force-training-of-echo-state-networks-on-sum-of-sinusoids">FORCE and full-FORCE Training of Echo State Networks on Sum of Sinusoids</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples.html#training-force-with-zebrafish-neural-data">Training FORCE with Zebrafish Neural Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples.html#force-training-of-theta-spiking-network-on-lorenz-attractor">FORCE Training of Theta Spiking Network on Lorenz Attractor</a></li>
 </ul>
 </li>
 </ul>

@@ -8,7 +8,11 @@ class SpikingNN(FORCELayer):
     """
     Parent class part of the spiking neural networks as described in `Nicola and Clopath 
     <https://www.nature.com/articles/s41467-017-01827-3>`_. New spiking RNN layers can 
-    be created by subclassing from this class or ``spiking.OptimizedSpikingNN``.
+    be created by subclassing from this class or ``spiking.OptimizedSpikingNN``. 
+
+    **Note:** The recurrent kernel is static and thus by default is set to not trainable when 
+    initializing the layer. If initializing using ``from_weights``, 
+    the ``recurrent_nontrainable_boolean_mask`` is unused by default.  
 
     :param dt: Duration of one time step
     :type dt: float
@@ -28,23 +32,28 @@ class SpikingNN(FORCELayer):
     :type G: float
     :param Q: Scales the feedback weight matrix
     :type Q: float
-    :param initial_h: An optional ``1`` x ``self.units`` tensor or numpy array specifying
+    :param activation: Activation function. Can be a string (i.e. 'tanh') or a function. 
+        This is unused by default. (*Default: None*)  
+    :type activation: str or function
+    :param initial_h: An optional ``1 x self.units`` tensor or numpy array specifying
         the initial neuron firing rates. (*Default: None*)
     :type initial_h: Tensor[2D float] or None
-    :param initial_voltage: An optional ``1`` x ``self.units`` tensor or numpy array specifying
+    :param initial_voltage: An optional ``1 x self.units`` tensor or numpy array specifying
         the initial voltage. (*Default: None*)
     :type initial_voltage: Tensor[2D float] or None
-    :param kwargs: Additional parameters as outlined in ``base.FORCELayer``
+    :param kwargs: See :class:`.FORCELayer` for additional required args. The recurrent kernel
+        must be static and therefore the ``recurrent_kernel_trainable`` parameter is not 
+        supported. 
 
     :states: 
-        - **t_step** - ``1`` x ``1`` tensor that tracks number of time steps 
-        - **v** - ``1`` x ``self.units`` tensor containing voltage traces of each neuron
-        - **u** - ``1`` x ``self.units`` tensor, auxillary storage variable (may be unused) 
-        - **h** - ``1`` x ``self.units`` tensor containing neuron firing rates (r in paper)
-        - **hr** - ``1`` x ``self.units`` tensor, storage variable for double exponential filter (h in paper)
-        - **ipsc** - ``1`` x ``self.units`` tensor, Post synaptic current storage variable
-        - **hr_ipsc** - ``1`` x ``self.units`` tensor, storage variable for ipsc
-        - **out** - ``1`` x ``self.output_size`` tensor containing predicted output
+        - **t_step** - ``1 x 1`` tensor that tracks number of time steps 
+        - **v** - ``1 x self.units`` tensor containing voltage traces of each neuron
+        - **u** - ``1 x self.units`` tensor, auxillary storage variable (may be unused) 
+        - **h** - ``1 x self.units`` tensor containing neuron firing rates (r in paper)
+        - **hr** - ``1 x self.units`` tensor, storage variable for double exponential filter (h in paper)
+        - **ipsc** - ``1 x self.units`` tensor, Post synaptic current storage variable
+        - **hr_ipsc** - ``1 x self.units`` tensor, storage variable for ipsc
+        - **out** - ``1 x self.output_size`` tensor containing predicted output
     """
 
     def __init__(self, 
@@ -57,6 +66,7 @@ class SpikingNN(FORCELayer):
                  I_bias,
                  G, 
                  Q,  
+                 activation=None,
                  initial_h=None, 
                  initial_voltage=None,
                  **kwargs):
@@ -71,7 +81,7 @@ class SpikingNN(FORCELayer):
         self.Q = Q 
         self._initial_h = initial_h
         self._initial_voltage = initial_voltage
-        super().__init__(activation=None, recurrent_kernel_trainable=False, **kwargs)
+        super().__init__(activation=activation, recurrent_kernel_trainable=False, **kwargs)
 
     @property
     def state_size(self):
@@ -85,8 +95,8 @@ class SpikingNN(FORCELayer):
                                                                                       minval=None, 
                                                                                       dtype=tf.dtypes.int64)[0])
         
-            recurrent_kernel = self._p_recurr * keras.layers.Dropout(1-self._p_recurr)(initializer(shape=(self.units, self.units)), 
-                                                                                       training=True)
+            recurrent_kernel = self._p_recurr * keras.layers.Dropout(1 - self._p_recurr)(initializer(shape=(self.units, self.units)), 
+                                                                                         training=True)
 
         self.recurrent_kernel = self.add_weight(shape=(self.units, self.units),
                                                 initializer=keras.initializers.constant(self.G * recurrent_kernel),
@@ -120,10 +130,11 @@ class SpikingNN(FORCELayer):
         """ 
         Initializes voltage trace for each neuron
 
-        :param batch_size: The batch size
+        :param batch_size: The batch size (**Note:** for potential future batched processing support. 
+            Presently, input batch size will always be one.)
         :type batch_size: int
 
-        :returns: (*Tensor[2D float]*) A ``batch_size`` x ``self.units`` tensor of initial voltages
+        :returns: (*Tensor[2D float]*) A ``batch_size x self.units`` tensor of initial voltages
         """
         return tf.zeros((batch_size, self.units))
 
@@ -131,15 +142,15 @@ class SpikingNN(FORCELayer):
         """ 
         Updates the voltage of each neuron
 
-        :param I: ``1`` x ``self.units`` tensor of neuron currents
+        :param I: ``1 x self.units`` tensor of neuron currents
         :type I: Tensor[2D float]
         :param states: A tuple of tensors containing the layer states
         :type states: tuple[Tensor[2D float]]
 
         :returns:  
-            - **v** (*Tensor[2D float]*) - ``1`` x ``self.units`` tensor, updated ``v`` state
-            - **u** (*Tensor[2D float]*) - ``1`` x ``self.units`` tensor, updated ``u`` state
-            - **v_mask** (*Tensor[2D float]*) - ``1`` x ``self.units`` zero-one mask where 
+            - **v** (*Tensor[2D float]*) - ``1 x self.units`` tensor, updated ``v`` state
+            - **u** (*Tensor[2D float]*) - ``1 x self.units`` tensor, updated ``u`` state
+            - **v_mask** (*Tensor[2D float]*) - ``1 x self.units`` zero-one mask where 
               one indicates that the neuron voltage exceeded ``self.v_peak``
         """
         return states[1], states[2], tf.zeros(states[1].shape)
@@ -148,17 +159,17 @@ class SpikingNN(FORCELayer):
         """ 
         Updates the firing rate of each neuron
 
-        :param v_mask: ``1`` x ``self.units`` zero-one mask where one indicates that the  
+        :param v_mask: ``1 x self.units`` zero-one mask where one indicates that the  
             neuron voltage exceeded ``self.v_peak``
         :type v_mask: Tensor[2D float]
         :param states: A tuple of tensors containing the layer states
         :type states: tuple[Tensor[2D float]]
 
         :returns:  
-            - **h** (*Tensor[2D float]*) - ``1`` x ``self.units`` tensor, updated ``h`` state 
-            - **hr** (*Tensor[2D float]*) - ``1`` x ``self.units`` tensor, updated ``hr`` state
-            - **ipsc** (*Tensor[2D float]*) - ``1`` x ``self.units`` tensor, updated ``ipsc`` state
-            - **hr_ipsc** (*Tensor[2D float]*) - ``1`` x ``self.units`` tensor, updated ``hr_ipsc`` state
+            - **h** (*Tensor[2D float]*) - ``1 x self.units`` tensor, updated ``h`` state 
+            - **hr** (*Tensor[2D float]*) - ``1 x self.units`` tensor, updated ``hr`` state
+            - **ipsc** (*Tensor[2D float]*) - ``1 x `self.units`` tensor, updated ``ipsc`` state
+            - **hr_ipsc** (*Tensor[2D float]*) - ``1 x self.units`` tensor, updated ``hr_ipsc`` state
         """
         _, _, _, h, hr, ipsc, hr_ipsc, _ = states
         if self.tau_rise == 0:
@@ -178,7 +189,7 @@ class SpikingNN(FORCELayer):
         :param states: A tuple of tensors containing the layer states
         :type states: tuple[Tensor[2D]]
 
-        :returns: (*Tensor[2D float]*) - ``1`` x ``self.units`` tensor of neuron currents  
+        :returns: (*Tensor[2D float]*) - ``1 x self.units`` tensor of neuron currents  
         """
         _, _, _, h, _, _, _, out = states
 
@@ -187,20 +198,6 @@ class SpikingNN(FORCELayer):
                 + backend.dot(out, self.feedback_kernel) + backend.dot(inputs, self.input_kernel)
      
     def call(self, inputs, states):
-        """
-        Implements forward pass of the layer. 
-
-        :param inputs: Input tensor of shape *(1, input dimensions)*.
-        :type inputs: Tensor[2D float]
-        :param states: List of tensors corresponding to the states of the layer.
-        :type states: list[Tensor[2D float]]
-
-        :returns:
-            - **output** (*Tensor[2D float]*) - ``1`` x ``self.output_size`` tensor containing the 
-              output of the forward pass.
-            - **updated states** (*list[Tensor[2D float]]*) - List of tensors containing the
-              updated states of the layer.
-        """
         prev_t_step, prev_v, prev_u, prev_h, prev_hr, prev_ipsc, prev_hr_ipsc, prev_out = states
 
         I = self.compute_current(inputs, states)
@@ -214,12 +211,6 @@ class SpikingNN(FORCELayer):
         return output, [t_step, v, u, h, hr, ipsc, hr_ipsc, output]
 
     def get_initial_state(self, inputs=None, batch_size=None, dtype=None):
-        """
-        Initializes the states of the layer (applied implicitly during layer build). See:
-        https://www.tensorflow.org/api_docs/python/tf/keras/layers/RNN
-
-        :returns: A list of tensors containing the initial states of the layer
-        """
         if self._initial_h is not None:
           init_h = self._initial_h
         else:

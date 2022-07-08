@@ -14,9 +14,10 @@ class EchoStateNetwork(FORCELayer):
     :param hscale: A scaling factor for randomly initializing the initial network activities.
         (*Default: 0.25*)
     :type hscale: float
-    :param initial_a: An optional ``1`` x ``self.units`` tensor or numpy array specifying
+    :param initial_a: An optional ``1 x self.units`` tensor or numpy array specifying
         the initial neuron pre-activation firing rates. (*Default: None*)
     :type initial_a: Tensor[2D float] or None
+    :param kwargs: See :class:`.FORCELayer` for additional required args.
     """
 
     def __init__(self, 
@@ -30,20 +31,6 @@ class EchoStateNetwork(FORCELayer):
         super().__init__(**kwargs)        
 
     def call(self, inputs, states):
-        """
-        Implements forward pass of the layer. 
-
-        :param inputs: Input tensor of shape *(1, input dimensions)*.
-        :type inputs: Tensor[2D float]
-        :param states: List of tensors corresponding to the states of the layer.
-        :type states: list[Tensor[2D float]]
-
-        :returns:
-            - **output** (*Tensor[2D float]*) - ``1`` x ``self.output_size`` tensor containing the 
-              output of the forward pass.
-            - **updated states** (*list[Tensor[2D float]]*) - List of tensors containing the
-              updated states of the layer.
-        """
         prev_a, prev_h, prev_output = states      
         input_term = backend.dot(inputs, self.input_kernel)
         recurrent_term = backend.dot(prev_h, self.recurrent_kernel)
@@ -58,13 +45,16 @@ class EchoStateNetwork(FORCELayer):
 
     def get_initial_state(self, inputs=None, batch_size=None, dtype=None):
         """
-        Initializes the states of the layer (applied implicitly during layer build). See:
-        https://www.tensorflow.org/api_docs/python/tf/keras/layers/RNN
+        Initializes the states of the layer (called implicitly during layer build). 
+        See: https://www.tensorflow.org/api_docs/python/tf/keras/layers/RNN
 
         :returns:
-            - **a** (*Tensor[2D float]*) - ``1`` x ``self.units`` tensor containing the pre-activation neuron firing rates
-            - **h** (*Tensor[2D float]*) - ``1`` x ``self.units`` tensor containing the neuron firing rates
-            - **output** (*Tensor[2D float]*) - ``1`` x ``self.output_size`` tensor containing the predicted output  
+            - **a** (*Tensor[2D float]*) - ``batch_size x self.units`` tensor containing 
+              the pre-activation neuron firing rates.
+            - **h** (*Tensor[2D float]*) - ``batch_size x self.units`` tensor containing 
+              the neuron firing rates.
+            - **output** (*Tensor[2D float]*) - ``batch_size x self.output_size`` tensor 
+              containing the predicted output.  
         """
         if self._initial_a is not None:
           init_a = self._initial_a
@@ -83,11 +73,14 @@ class EchoStateNetwork(FORCELayer):
 
 class NoFeedbackESN(EchoStateNetwork):
     """ 
-    Implements the no feedback echo state network. See ``base.FORCELayer`` for states. 
+    Implements the no feedback echo state network. See ``base.FORCELayer`` 
+    for states. 
 
-    :param recurrent_kernel_trainable: Boolean on whether or not to train recurrent kernel. (*Default: True*)
+    :param recurrent_kernel_trainable: Boolean on whether or not to train 
+        recurrent kernel. (*Default: True*)
     :type recurrent_kernel_trainable: bool
-    :param kwargs: See ``models.EchoStateNetwork`` and ``base.FORCELayer`` for additional args.
+    :param kwargs: See :class:`.FORCELayer`  and :class:`.EchoStateNetwork` 
+        for additional required args.
     """
 
     def __init__(self, 
@@ -111,7 +104,10 @@ class NoFeedbackESN(EchoStateNetwork):
         self.initialize_input_kernel(input_shape[-1])
         self.initialize_recurrent_kernel()
         self.initialize_output_kernel()
-        self.recurrent_nontrainable_boolean_mask = None
+        if self._p_recurr == 1:
+            self.recurrent_nontrainable_boolean_mask = None
+        else:
+            self.recurrent_nontrainable_boolean_mask = (self.recurrent_kernel == 0)
         self.built = True
 
     @classmethod
@@ -119,16 +115,18 @@ class NoFeedbackESN(EchoStateNetwork):
         """
         Creates a NoFeedbackESN object with pre-initialized weights. 
 
+        **Note:** ``p_recurr`` parameter is not supported in this method. ``units`` and 
+        ``output_size`` parameters are inferred from the input weights. 
+
         :param weights: tuple of tensors containing the input, recurrent, and output kernels  
         :type weights: tuple[Tensor[2D float]] of length 3
         :param recurrent_nontrainable_boolean_mask: A 2D boolean array with
             the same shape as the recurrent kernel, where True indicates that
             the corresponding weight in the recurrent kernel is not trainable. 
-            NOTE: The recurrent kernel must have no connection (weight of zero)
-            at indices where recurrent_nontrainable_boolean_mask is True.
         :type recurrent_nontrainable_boolean_mask: Tensor[2D bool]
+        :param kwargs: Additional parameters required to initialize the layer. 
 
-        :returns: A NoFeedbackESN object initialized with the input weights
+        :returns: A :class:`.NoFeedbackESN` object initialized with the input weights
         """
         input_kernel, recurrent_kernel, output_kernel = weights 
         input_shape, input_units = input_kernel.shape 
@@ -139,9 +137,10 @@ class NoFeedbackESN(EchoStateNetwork):
         assert np.all(np.array([input_units, recurrent_units1, recurrent_units2, output_units]) == units)
         assert 'p_recurr' not in kwargs.keys(), 'p_recurr not supported in this method'
         assert recurrent_kernel.shape == recurrent_nontrainable_boolean_mask.shape, "Boolean mask and recurrent kernel shape mis-match"
-        assert tf.math.count_nonzero(tf.boolean_mask(recurrent_kernel, recurrent_nontrainable_boolean_mask)).numpy() == 0, "Invalid boolean mask"  
+        if tf.math.count_nonzero(tf.boolean_mask(recurrent_kernel, recurrent_nontrainable_boolean_mask)).numpy() != 0:
+            print("Warning: Recurrent kernel has non-zero weights (indicating neuron connection) that are not trainable") 
 
-        self = cls(units=units, output_size=output_size, p_recurr = None, **kwargs)
+        self = cls(units=units, output_size=output_size, p_recurr=None, **kwargs)
         self.recurrent_nontrainable_boolean_mask = tf.convert_to_tensor(recurrent_nontrainable_boolean_mask)
         self.initialize_input_kernel(input_shape, input_kernel)
         self.initialize_recurrent_kernel(recurrent_kernel)
@@ -150,18 +149,21 @@ class NoFeedbackESN(EchoStateNetwork):
 
         return self
     
-class TargetGeneratingNetwork(EchoStateNetwork):
+class TargetGeneratingNetwork(FORCELayer):
     """ 
     For internal use in FullFORCEModel
     """
 
     def __init__(self, 
-                 hint_dim, 
+                 dtdivtau, 
+                 hint_dim,
+                 hscale=0.25, 
                  **kwargs): 
-
-        super().__init__(**kwargs)  
+        self.dtdivtau = dtdivtau 
+        self.hscale = hscale
         self._hint_dim = hint_dim
-
+        super().__init__(**kwargs)  
+        
     def build(self, input_shape):
         input_shape = input_shape[:-1] + (input_shape[-1] - self.output_size - self._hint_dim,)
         super().build(input_shape)
@@ -199,26 +201,23 @@ class TargetGeneratingNetwork(EchoStateNetwork):
         return output, [a, h, feedback_hint_term]
     
     def get_initial_state(self, inputs=None, batch_size=None, dtype=None):
-        if self._initial_a is not None:
-          init_a = self._initial_a
-        else:
-          initializer = keras.initializers.RandomNormal(mean=0., 
-                                                        stddev=self.hscale , 
-                                                        seed=self.seed_gen.uniform([1], 
-                                                                                   minval=None, 
-                                                                                   dtype=tf.dtypes.int64)[0])
-          init_a = initializer((batch_size, self.units))  
-        init_h =  self.activation(init_a)
+        initializer = keras.initializers.RandomNormal(mean=0., 
+                                                      stddev=self.hscale, 
+                                                      seed=self.seed_gen.uniform([1], 
+                                                                                 minval=None, 
+                                                                                 dtype=tf.dtypes.int64)[0])
+        init_a = initializer((batch_size, self.units))  
+        init_h = self.activation(init_a)
 
         return (init_a, init_h, init_h)
-
 
 class FullFORCEModel(FORCEModel):
     """ 
     Subclassed from FORCEModel, implements full FORCE learning by `DePasquale et al. 
     <https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0191527>`_. 
 
-    Target to the model should be of shape (timesteps, 1). 
+    Target to the model should be of shape *(timesteps, 1)*. Presently this class does not support
+    masking out recurrent weights during training (all recurrent weights must be trainable).
 
     **Note** - Input shapes during training and inference differ:
     During training, input to the model should be of shape *(timesteps, input dimensions + hint dimensions)*.
@@ -261,11 +260,15 @@ class FullFORCEModel(FORCEModel):
         :param input_shape: Input shape
         :type input_shape: tuple
         """
-        self._target_network = TargetGeneratingNetwork(dtdivtau=self.original_force_layer.dtdivtau, 
-                                                       units=self.units, 
+        target_seed = None
+        if self.original_force_layer._seed is not None:
+           target_seed = self.original_force_layer._seed + 1
+        self._target_network = TargetGeneratingNetwork(units=self.units, 
                                                        output_size=self._output_dim, 
                                                        activation=self.original_force_layer.activation,
                                                        output_kernel_trainable=self._target_output_kernel_trainable,
+                                                       dtdivtau=self.original_force_layer.dtdivtau,
+                                                       seed=target_seed,
                                                        hint_dim=self._hint_dim) 
         self.target_network = keras.layers.RNN(self._target_network, 
                                                stateful=True, 
@@ -282,7 +285,6 @@ class FullFORCEModel(FORCEModel):
                                              shape=(self.units, self.units), 
                                              initializer=keras.initializers.Identity(gain=self.alpha_P), 
                                              trainable=True)
-
         if self._target_output_kernel_trainable:
             self.target_P_output = self.add_weight(name='target_P_output', 
                                                    shape=(self.units, self.units), 
@@ -370,11 +372,11 @@ class FullFORCEModel(FORCEModel):
         """
         Performs pseudogradient updates for recurrent kernel and its corresponding P tensor.
 
-        :param h_task: ``1`` x ``self.units`` tensor of neuron firing rates for task network
+        :param h_task: ``1 x self.units`` tensor of neuron firing rates for task network
         :type h_task: Tensor[2D float]
-        :param h_target: ``1`` x ``self.units`` tensor of neuron firing rates for target network
+        :param h_target: ``1 x self.units`` tensor of neuron firing rates for target network
         :type h_target: Tensor[2D float]
-        :param fb_hint_sum: ``1`` x ``self.units`` tensor of sum of inputs from feedback and hint
+        :param fb_hint_sum: ``1 x self.units`` tensor of sum of inputs from feedback and hint
             components
         :type fb_hint_sum: Tensor[2D float]  
         :param trainable_vars: List of the model's trainable variable
@@ -397,17 +399,17 @@ class FullFORCEModel(FORCEModel):
         """
         Return pseudogradient for wR for the task network. 
 
-        :param P_task: ``self.units`` x ``self.units`` P matrix of the task network
+        :param P_task: ``self.units x self.units`` P matrix of the task network
         :type P_task: Tensor[2D floats]
-        :param wR_task: ``self.units`` x ``self.units`` recurrent kernel of the task network
+        :param wR_task: ``self.units x self.units`` recurrent kernel of the task network
         :type wR_task: Tensor[2D floats]
-        :param h_task: ``1`` x ``self.units`` tensor of neuron firing rates for task network
+        :param h_task: ``1 x self.units`` tensor of neuron firing rates for task network
         :type h_task: Tensor[2D floats]
-        :param wR_target: ``self.units`` x ``self.units`` recurrent kernel of the target network 
+        :param wR_target: ``self.units x self.units`` recurrent kernel of the target network 
         :type wR_target: Tensor[2D floats]
-        :param h_target: ``1`` x ``self.units`` tensor of neuron firing rates for target network
+        :param h_target: ``1 x self.units`` tensor of neuron firing rates for target network
         :type h_target: Tensor[2D floats]
-        :param fb_hint_sum: ``1`` x ``self.units`` tensor of sum of inputs from feedback and hint
+        :param fb_hint_sum: ``1 x self.units`` tensor of sum of inputs from feedback and hint
             components
         :type fb_hint_sum: Tensor[2D floats]
         """
@@ -469,5 +471,4 @@ class OptimizedFORCEModel(FORCEModel):
     def pseudogradient_P_Gx(self, P_Gx, h):
         if len(P_Gx.shape) == 2:
             return self.pseudogradient_P(P_Gx, h)
-
         return super().pseudogradient_P_Gx(P_Gx, h)

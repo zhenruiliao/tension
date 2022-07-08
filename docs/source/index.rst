@@ -16,7 +16,7 @@ Controlled Error) training chaotic recurrent neural networks.
    This project is under active development.
 
 .. toctree::
-   :maxdepth: 3
+   :maxdepth: 2
    :caption: Contents:
 
 
@@ -26,6 +26,7 @@ Contents
 .. toctree::
 
 	installation
-        examples
+        usage
         layers
         models
+	examples
