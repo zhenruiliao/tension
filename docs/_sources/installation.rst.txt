@@ -1,9 +1,18 @@
 Installation
 ============
 
-To use TENSION, clone the repo
+To use TENSION, first create a new virtual environment using conda:
 
 .. code-block:: console
 
-   (.venv) $ git clone https://github.com/zhenruiliao/tension.git
-   (.venv) $ pip install -e
+   (.venv) $ conda create -n tension python=3.7
+   (.venv) $ conda activate tension
+
+then ``cd`` to a desired directory, clone the repo, and install using pip
+
+.. code-block:: console
+
+   (tension) $ cd [path to directory]
+   (tension) $ git clone https://github.com/zhenruiliao/tension.git
+   (tension) $ cd tension/
+   (tension) $ pip install -e .

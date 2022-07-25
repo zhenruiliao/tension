@@ -329,6 +329,7 @@ class FullFORCEModel(FORCEModel):
         else:
             return self.force_layer(x, **kwargs) 
 
+    @tf.function
     def train_step(self, data):
         x, y = data
         output_task, h_task, output_target, h_target, fb_hint_sum = self(tf.concat([x, y], axis=-1), 
@@ -339,29 +340,31 @@ class FullFORCEModel(FORCEModel):
             output_task = output_task[:,0,:]
         if self.target_network.return_sequences:
             output_target = output_target[:, 0, :]
+
         trainable_vars = self.trainable_variables
 
-        if self._task_output_kernel_idx is not None:
-            # Inherited from FORCEModel base class
-            self.update_output_kernel(h_task, 
-                                      output_task, 
-                                      y[:,0,:], 
-                                      trainable_vars[self._task_P_output_idx],
-                                      trainable_vars[self._task_output_kernel_idx])
+        if tf.cond(self.update_kernel_condition(), lambda : True, lambda : False):
+            if self._task_output_kernel_idx is not None:
+                # Inherited from FORCEModel base class
+                self.update_output_kernel(h_task, 
+                                          output_task, 
+                                          y[:,0,:], 
+                                          trainable_vars[self._task_P_output_idx],
+                                          trainable_vars[self._task_output_kernel_idx])
 
-        if self._task_recurrent_kernel_idx is not None:
-            self.update_recurrent_kernel(h_task, 
-                                         h_target, 
-                                         fb_hint_sum, 
-                                         trainable_vars)
+            if self._task_recurrent_kernel_idx is not None:
+                self.update_recurrent_kernel(h_task, 
+                                             h_target, 
+                                             fb_hint_sum, 
+                                             trainable_vars)
                 
-        if self._target_output_kernel_idx is not None:
-             # Inherited from FORCEModel base class
-             self.update_output_kernel(h_target, 
-                                       output_target, 
-                                       y[:,0,:], 
-                                       trainable_vars[self._target_P_output_idx], 
-                                       trainable_vars[self._target_output_kernel_idx])
+            if self._target_output_kernel_idx is not None:
+                # Inherited from FORCEModel base class
+                self.update_output_kernel(h_target, 
+                                           output_target, 
+                                           y[:,0,:], 
+                                           trainable_vars[self._target_P_output_idx], 
+                                           trainable_vars[self._target_output_kernel_idx])
                 
         # Update metrics (includes the metric that tracks the loss)
         self.compiled_metrics.update_state(y[:,0,:], output_task)

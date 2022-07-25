@@ -30,3 +30,4 @@ Contents
         layers
         models
 	examples
+	notes

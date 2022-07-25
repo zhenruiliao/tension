@@ -19,8 +19,10 @@ TENSION uses the Keras interface for training models via the following steps:
 * Not all input parameters from the Keras model fit/predict/evaluate 
   are supported (see :ref:`base-forcemodel` for details).  
 
-* Batching is not supported. Batch size parameters are set to 1 and each timestep is processed
-  as an individual batch. 
+* Batching is not supported. Batch size parameters are set to 1 and each 
+  timestep is processed as an individual batch. See :ref:`notes`. If the 
+  input has shape ``batch size x timestep x dimensions``, the input is 
+  flattened by stacking each batch along the timestep dimension. 
 
 Quick Start
 -----------
@@ -128,43 +130,44 @@ vectors for matrix multiplication):
 .. code-block:: python
 
    class EchoStateNetwork(FORCELayer):
-       def __init__(self, 
-                    dtdivtau, 
-                    hscale=0.25, 
-                    initial_a=None, 
-                    **kwargs):
-           self.dtdivtau = dtdivtau 
-           self.hscale = hscale
-           self._initial_a = initial_a
-           super().__init__(**kwargs)        
+    def __init__(self, 
+                 dtdivtau, 
+                 hscale=0.25, 
+                 initial_a=None, 
+                 **kwargs):
+        self.dtdivtau = dtdivtau 
+        self.hscale = hscale
+        self._initial_a = initial_a
+        super().__init__(**kwargs)        
 
-       def call(self, inputs, states):
-           prev_a, prev_h, prev_output = states      
-           input_term = backend.dot(inputs, self.input_kernel)
-           recurrent_term = backend.dot(prev_h, self.recurrent_kernel)
-           feedback_term = backend.dot(prev_output, self.feedback_kernel)
+    def call(self, inputs, states):
+        prev_a, prev_h, prev_output = states      
+        input_term = backend.dot(inputs, self.input_kernel)
+        recurrent_term = backend.dot(prev_h, self.recurrent_kernel)
+        feedback_term = backend.dot(prev_output, self.feedback_kernel)
 
-           dadt = -prev_a + input_term + recurrent_term + feedback_term 
-           a = prev_a + self.dtdivtau * dadt
-           h = self.activation(a)
-           output = backend.dot(h, self.output_kernel)
+        dadt = -prev_a + input_term + recurrent_term + feedback_term 
+        a = prev_a + self.dtdivtau * dadt
+        h = self.activation(a)
+        output = backend.dot(h, self.output_kernel)
 
-           return output, [a, h, output]
+        return output, [a, h, output]
 
-       def get_initial_state(self, inputs=None, batch_size=None, dtype=None):
-           if self._initial_a is not None:
-             init_a = self._initial_a
-           else:
-             initializer = keras.initializers.RandomNormal(mean=0., 
-                                                           stddev=self.hscale, 
-                                                           seed=self.seed_gen.uniform([1], 
-                                                                                      minval=None, 
-                                                                                      dtype=tf.dtypes.int64)[0])
-           init_a = initializer((batch_size, self.units))  
-           init_h = self.activation(init_a)
-           init_out = backend.dot(init_h, self.output_kernel) 
+    def get_initial_state(self, inputs=None, batch_size=None, dtype=None):
+        if self._initial_a is not None:
+          init_a = self._initial_a
+        else:
+          initializer = keras.initializers.RandomNormal(mean=0., 
+                                                        stddev=self.hscale, 
+                                                        seed=self.seed_gen.uniform([1], 
+                                                                                   minval=None, 
+                                                                                   dtype=tf.dtypes.int64)[0])
+          init_a = initializer((batch_size, self.units))  
 
-           return (init_a, init_h, init_out)
+        init_h = self.activation(init_a)
+        init_out = backend.dot(init_h, self.output_kernel) 
+
+        return (init_a, init_h, init_out)
 
 If needed, existing ``base.FORCELayer`` methods can be also modified when sub-classing
 (noting the required input and output as listed in the documentation). 
@@ -335,37 +338,54 @@ set to be trainable). Below is the default ``train_step`` method from ``base.FOR
 
 .. code-block:: python
 
+    @tf.function
     def train_step(self, data):
         x, y = data
         z, _, h, _ = self(x, training=True, reset_states=False)
 
         if self.force_layer.return_sequences:
-          z = z[:,0,:]
+            z = z[:,0,:]
 
         trainable_vars = self.trainable_variables
 
-        # Update the output kernel
-        if self._output_kernel_idx is not None:
-          self.update_output_kernel(h, 
-                                    z, 
-                                    y[:,0,:], 
-                                    trainable_vars[self._P_output_idx], 
-                                    trainable_vars[self._output_kernel_idx])
+        if tf.cond(self.update_kernel_condition(), lambda : True, lambda : False):
+            # Update the output kernel
+            if self._output_kernel_idx is not None:
+                self.update_output_kernel(h, 
+                                          z, 
+                                          y[:,0,:], 
+                                          trainable_vars[self._P_output_idx], 
+                                          trainable_vars[self._output_kernel_idx])
           
-        # Update the recurrent kernel
-        if self._recurrent_kernel_idx is not None:
-          self.update_recurrent_kernel(h, 
-                                       z, 
-                                       y[:,0,:],
-                                       trainable_vars[self._P_GG_idx],
-                                       trainable_vars[self._recurrent_kernel_idx])
+            # Update the recurrent kernel
+            if self._recurrent_kernel_idx is not None:
+                self.update_recurrent_kernel(h, 
+                                             z, 
+                                             y[:,0,:],
+                                             trainable_vars[self._P_GG_idx],
+                                             trainable_vars[self._recurrent_kernel_idx])
           
         # Update metrics (includes the metric that tracks the loss)
         self.compiled_metrics.update_state(y[:,0,:], z)
 
         return {m.name: m.result() for m in self.metrics}
 
+By default, weights are updated after each time step. The ``update_kernel_condition`` 
+method can be modified via subclassing to have different update interval for the 
+weights. In the example below, weight updates are performed every pre-defined
+number of timesteps:
 
+.. code-block:: python
+
+    class CustomSpikingNNModel(SpikingNNModel):
+        def __init__(self, step=50, **kwargs):
+            super().__init__(**kwargs)
+            self.num_step = tf.Variable(0.)
+            self.step = step
+
+        def update_kernel_condition(self):
+            self.num_step.assign_add(1.0, read_value=False)
+            return self.num_step % self.step == 0
 
 Customizing ``force_layer_call``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

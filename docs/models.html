@@ -47,6 +47,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes.html">Notes</a></li>
 </ul>
 
         </div>
@@ -82,12 +83,15 @@
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">base.</span></span><span class="sig-name descname"><span class="pre">FORCEModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#base.FORCEModel" title="Permalink to this definition"></a></dt>
 <dd><p>Base class for FORCE model per <a class="reference external" href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2756108/">Sussillo and Abbott</a>.</p>
 <p>Input to the model during <code class="docutils literal notranslate"><span class="pre">FORCEModel</span></code>’s <cite>fit</cite>, <cite>predict</cite>, or <cite>evaluate</cite> methods  
-should be of shape <em>(timesteps, input dimensions)</em>.</p>
-<p>Target to the model during <cite>fit</cite> or <cite>evaluate</cite> should be of shape <em>(timesteps, output dimensions)</em>.</p>
-<p>Input to the model when calling the model should be of shape <em>(1, timesteps, input dimensions)</em>.</p>
+should be of shape <code class="docutils literal notranslate"><span class="pre">timesteps</span> <span class="pre">x</span> <span class="pre">input</span> <span class="pre">dimension</span></code> or <code class="docutils literal notranslate"><span class="pre">batch</span> <span class="pre">size</span> <span class="pre">x</span> <span class="pre">timesteps</span> <span class="pre">x</span> <span class="pre">input</span> <span class="pre">dimension</span></code>.
+If the latter is used, the batches are stacked.</p>
+<p>Target to the model during <cite>fit</cite> or <cite>evaluate</cite> should be of shape <code class="docutils literal notranslate"><span class="pre">timesteps</span> <span class="pre">x</span> <span class="pre">output</span> <span class="pre">dimension</span></code>
+or <code class="docutils literal notranslate"><span class="pre">batch</span> <span class="pre">size</span> <span class="pre">x</span> <span class="pre">timesteps</span> <span class="pre">x</span> <span class="pre">output</span> <span class="pre">dimension</span></code>.</p>
 <p>If validation data is to be passed to <cite>fit</cite>, input and target of the validation 
-data should be of shape <em>(timesteps, input dimensions)</em> and <em>(timesteps, output dimensions)</em> 
-respectively.</p>
+data should be of shape <code class="docutils literal notranslate"><span class="pre">timesteps</span> <span class="pre">x</span> <span class="pre">input</span> <span class="pre">dimension</span></code> and <code class="docutils literal notranslate"><span class="pre">timesteps</span> <span class="pre">x</span> <span class="pre">output</span> <span class="pre">dimension</span></code> 
+respectively or <code class="docutils literal notranslate"><span class="pre">batch</span> <span class="pre">size</span> <span class="pre">x</span> <span class="pre">timesteps</span> <span class="pre">x</span> <span class="pre">input</span> <span class="pre">dimensions</span></code> and 
+<code class="docutils literal notranslate"><span class="pre">batch</span> <span class="pre">size</span> <span class="pre">x</span> <span class="pre">timesteps</span> <span class="pre">x</span> <span class="pre">output</span> <span class="pre">dimension</span></code> respectively.</p>
+<p>Input to the model when calling the model should be of shape <code class="docutils literal notranslate"><span class="pre">1</span> <span class="pre">x</span> <span class="pre">timesteps</span> <span class="pre">x</span> <span class="pre">input</span> <span class="pre">dimensions</span></code>.</p>
 <p>If the recurrent kernel is to be trained, then the target must be one dimensional.</p>
 <p>Use <code class="docutils literal notranslate"><span class="pre">self.force_layer.states</span></code> to access the states of <code class="docutils literal notranslate"><span class="pre">self.force_layer</span></code>.</p>
 <dl class="field-list simple">
@@ -96,7 +100,8 @@ respectively.</p>
 <li><p><strong>force_layer</strong> (<em>class</em><em>[</em><a class="reference internal" href="layers.html#base.FORCELayer" title="base.FORCELayer"><em>FORCELayer</em></a><em>] or </em><em>equiv.</em>) – A FORCE Layer object or one of its subclasses.</p></li>
 <li><p><strong>alpha_P</strong> (<em>float</em>) – Constant parameter for initializing the P matrix. (<em>Default: 1.0</em>)</p></li>
 <li><p><strong>return_sequences</strong> (<em>bool</em>) – If True, target is returned as a sequence of the same 
-length as the number of time steps in the input. (<em>Default: True</em>)</p></li>
+length as the number of time steps in the input. (<em>Default: True</em>) <strong>Note:</strong>
+must be <code class="docutils literal notranslate"><span class="pre">True</span></code> for compatibility with existing layers of this package.</p></li>
 </ul>
 </dd>
 </dl>
@@ -168,12 +173,14 @@ states are <strong>not</strong> reset at the end of the execution.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>x</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – Tensor of input signal of shape <code class="docutils literal notranslate"><span class="pre">timesteps</span> <span class="pre">x</span> <span class="pre">input</span> <span class="pre">dimensions</span></code>.</p></li>
-<li><p><strong>y</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – Tensor of target signal of shape <code class="docutils literal notranslate"><span class="pre">timesteps</span> <span class="pre">x</span> <span class="pre">output</span> <span class="pre">dimensions</span></code>.</p></li>
+<li><p><strong>x</strong> (<em>Tensor</em><em>[</em><em>2D</em><em> or </em><em>3D float</em><em>]</em>) – Tensor of input signal of shape <code class="docutils literal notranslate"><span class="pre">timesteps</span> <span class="pre">x</span> <span class="pre">input</span> <span class="pre">dimensions</span></code> or
+<code class="docutils literal notranslate"><span class="pre">batch</span> <span class="pre">size</span> <span class="pre">x</span> <span class="pre">timesteps</span> <span class="pre">x</span> <span class="pre">input</span> <span class="pre">dimensions</span></code>.</p></li>
+<li><p><strong>y</strong> (<em>Tensor</em><em>[</em><em>2D</em><em> or </em><em>3D float</em><em>]</em>) – Tensor of target signal of shape <code class="docutils literal notranslate"><span class="pre">timesteps</span> <span class="pre">x</span> <span class="pre">output</span> <span class="pre">dimensions</span></code>  or
+<code class="docutils literal notranslate"><span class="pre">batch</span> <span class="pre">size</span> <span class="pre">x</span> <span class="pre">timesteps</span> <span class="pre">x</span> <span class="pre">input</span> <span class="pre">dimensions</span></code>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>(<em>List[float]</em>) - List of error / metrics on input data</p>
+<dd class="field-even"><p>(<em>List[float]</em>) - List of error / metrics evaluated on the input</p>
 </dd>
 </dl>
 </dd></dl>
@@ -187,8 +194,10 @@ states are <strong>not</strong> reset at the end of the execution.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>x</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – Tensor of input signal of shape <code class="docutils literal notranslate"><span class="pre">timesteps</span> <span class="pre">x</span> <span class="pre">input</span> <span class="pre">dimensions</span></code>.</p></li>
-<li><p><strong>y</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – Tensor of target signal of shape <code class="docutils literal notranslate"><span class="pre">timesteps</span> <span class="pre">x</span> <span class="pre">output</span> <span class="pre">dimensions</span></code>.</p></li>
+<li><p><strong>x</strong> (<em>Tensor</em><em>[</em><em>2D</em><em> or </em><em>3D float</em><em>]</em>) – Tensor of input signal of shape <code class="docutils literal notranslate"><span class="pre">timesteps</span> <span class="pre">x</span> <span class="pre">input</span> <span class="pre">dimensions</span></code> or
+<code class="docutils literal notranslate"><span class="pre">batch</span> <span class="pre">size</span> <span class="pre">x</span> <span class="pre">timesteps</span> <span class="pre">x</span> <span class="pre">input</span> <span class="pre">dimensions</span></code>.</p></li>
+<li><p><strong>y</strong> (<em>Tensor</em><em>[</em><em>2D</em><em> or </em><em>3D float</em><em>]</em>) – Tensor of target signal of shape <code class="docutils literal notranslate"><span class="pre">timesteps</span> <span class="pre">x</span> <span class="pre">output</span> <span class="pre">dimensions</span></code> or
+<code class="docutils literal notranslate"><span class="pre">batch</span> <span class="pre">size</span> <span class="pre">x</span> <span class="pre">timesteps</span> <span class="pre">x</span> <span class="pre">input</span> <span class="pre">dimensions</span></code>.</p></li>
 <li><p><strong>epoch</strong> (<em>int</em>) – Number of epochs to train.</p></li>
 <li><p><strong>verbose</strong> (<em>str</em>) – Same as from <cite>tensorflow.keras.Model.fit</cite>.</p></li>
 <li><p><strong>kwargs</strong> – Other key word arguments as needed.</p></li>
@@ -234,10 +243,11 @@ states are <strong>not</strong> reset at the end of the execution.</p>
 <strong>Note</strong>: the <em>batch_size</em> and <em>steps</em> parameter are not supported.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>x</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – Tensor of input signal of shape <code class="docutils literal notranslate"><span class="pre">timesteps</span> <span class="pre">x</span> <span class="pre">input</span> <span class="pre">dimensions</span></code>.</p>
+<dd class="field-odd"><p><strong>x</strong> (<em>Tensor</em><em>[</em><em>2D</em><em> or </em><em>3D float</em><em>]</em>) – Tensor of input signal of shape <code class="docutils literal notranslate"><span class="pre">timesteps</span> <span class="pre">x</span> <span class="pre">input</span> <span class="pre">dimensions</span></code> or
+<code class="docutils literal notranslate"><span class="pre">batch</span> <span class="pre">size</span> <span class="pre">x</span> <span class="pre">timesteps</span> <span class="pre">x</span> <span class="pre">input</span> <span class="pre">dimensions</span></code>.</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>(<em>Array[2D float]</em>) - Numpy array of predictions</p>
+<dd class="field-even"><p>(<em>Array[2D or 3D float]</em>) - Numpy array of predictions</p>
 </dd>
 </dl>
 </dd></dl>
@@ -515,15 +525,6 @@ components</p></li>
 </ul>
 </dd>
 </dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="models.FullFORCEModel.train_step">
-<span class="sig-name descname"><span class="pre">train_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#models.FullFORCEModel.train_step" title="Permalink to this definition"></a></dt>
-<dd><p>Inherited and serves the same function as from <cite>tensorflow.keras.Model.train_step</cite>. Performs
-weight updates for the output and recurrent kernels.</p>
-<p>Intended to be customized via Keras style sub-classing. For more details see:
-<a class="reference external" href="https://keras.io/guides/customizing_what_happens_in_fit/">https://keras.io/guides/customizing_what_happens_in_fit/</a></p>
 </dd></dl>
 
 <dl class="py method">
