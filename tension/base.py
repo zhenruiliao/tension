@@ -260,15 +260,18 @@ class FORCEModel(keras.Model):
     <https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2756108/>`_. 
     
     Input to the model during ``FORCEModel``'s `fit`, `predict`, or `evaluate` methods  
-    should be of shape *(timesteps, input dimensions)*. 
+    should be of shape ``timesteps x input dimension`` or ``batch size x timesteps x input dimension``.
+    If the latter is used, the batches are stacked. 
 
-    Target to the model during `fit` or `evaluate` should be of shape *(timesteps, output dimensions)*.
-
-    Input to the model when calling the model should be of shape *(1, timesteps, input dimensions)*.
+    Target to the model during `fit` or `evaluate` should be of shape ``timesteps x output dimension``
+    or ``batch size x timesteps x output dimension``.
 
     If validation data is to be passed to `fit`, input and target of the validation 
-    data should be of shape *(timesteps, input dimensions)* and *(timesteps, output dimensions)* 
-    respectively.
+    data should be of shape ``timesteps x input dimension`` and ``timesteps x output dimension`` 
+    respectively or ``batch size x timesteps x input dimensions`` and 
+    ``batch size x timesteps x output dimension`` respectively.
+
+    Input to the model when calling the model should be of shape ``1 x timesteps x input dimensions``.
 
     If the recurrent kernel is to be trained, then the target must be one dimensional. 
 
@@ -279,7 +282,8 @@ class FORCEModel(keras.Model):
     :param alpha_P: Constant parameter for initializing the P matrix. (*Default: 1.0*)
     :type alpha_P: float
     :param return_sequences: If True, target is returned as a sequence of the same 
-        length as the number of time steps in the input. (*Default: True*)
+        length as the number of time steps in the input. (*Default: True*) **Note:**
+        must be ``True`` for compatibility with existing layers of this package. 
     :type return_sequences: bool
     """
 
@@ -436,6 +440,16 @@ class FORCEModel(keras.Model):
         """
         return self.force_layer(x, **kwargs) 
 
+    def update_kernel_condition(self):
+        """
+        Returns a scalar boolean tensor indicating whether weight updates should be performed or not. 
+        This is called once per ``train_step``. 
+
+        :returns: (*Tensor[bool]*) - If ``True``, perform weight updates. (*Default : tf.constant(True)*)
+        """
+        return tf.constant(True)
+
+    @tf.function
     def train_step(self, data):
         """
         Inherited and serves the same function as from `tensorflow.keras.Model.train_step`. Performs
@@ -448,25 +462,26 @@ class FORCEModel(keras.Model):
         z, _, h, _ = self(x, training=True, reset_states=False)
 
         if self.force_layer.return_sequences:
-          z = z[:,0,:]
+            z = z[:,0,:]
 
         trainable_vars = self.trainable_variables
 
-        # Update the output kernel
-        if self._output_kernel_idx is not None:
-          self.update_output_kernel(h, 
-                                    z, 
-                                    y[:,0,:], 
-                                    trainable_vars[self._P_output_idx], 
-                                    trainable_vars[self._output_kernel_idx])
+        if tf.cond(self.update_kernel_condition(), lambda : True, lambda : False):
+            # Update the output kernel
+            if self._output_kernel_idx is not None:
+                self.update_output_kernel(h, 
+                                          z, 
+                                          y[:,0,:], 
+                                          trainable_vars[self._P_output_idx], 
+                                          trainable_vars[self._output_kernel_idx])
           
-        # Update the recurrent kernel
-        if self._recurrent_kernel_idx is not None:
-          self.update_recurrent_kernel(h, 
-                                       z, 
-                                       y[:,0,:],
-                                       trainable_vars[self._P_GG_idx],
-                                       trainable_vars[self._recurrent_kernel_idx])
+            # Update the recurrent kernel
+            if self._recurrent_kernel_idx is not None:
+                self.update_recurrent_kernel(h, 
+                                             z, 
+                                             y[:,0,:],
+                                             trainable_vars[self._P_GG_idx],
+                                             trainable_vars[self._recurrent_kernel_idx])
           
         # Update metrics (includes the metric that tracks the loss)
         self.compiled_metrics.update_state(y[:,0,:], z)
@@ -649,100 +664,15 @@ class FORCEModel(keras.Model):
         """
         super().compile(optimizer=keras.optimizers.SGD(learning_rate=1), loss='mae', metrics=metrics, **kwargs)
 
-    # def fit(self, x, y=None, epochs=1, verbose='auto', **kwargs):
-    #     """
-    #     A wrapper around ``tensorflow.keras.Model.fit``. Note that the *batch_size*, 
-    #     *validation_batch_size*, and *shuffle* parameters are not supported. 
-
-    #     :param x: Tensor of input signal of shape ``timesteps x input dimensions``.
-    #     :type x: Tensor[2D float]
-    #     :param y: Tensor of target signal of shape ``timesteps x output dimensions``.
-    #     :type y: Tensor[2D float]
-    #     :param epoch: Number of epochs to train. 
-    #     :type epoch: int
-    #     :param verbose: Same as from ``tensorflow.keras.Model.fit``.
-    #     :type verbose: str
-    #     :param kwargs: Other key word arguments as needed.        
-    #     """
-    #     if len(x.shape) < 2 or len(x.shape) > 3:
-    #         raise ValueError('Shape of x is invalid')
-
-    #     if len(y.shape) < 2 or len(y.shape) > 3:
-    #         raise ValueError('Shape of y is invalid')
-        
-    #     if len(x.shape) == 2:
-    #         x = tf.expand_dims(x, axis=1)
-        
-    #     if len(y.shape) == 2:
-    #         y = tf.expand_dims(y, axis=1)
-        
-    #     if x.shape[1] != 1:
-    #         raise ValueError("Dim 1 of x must be 1")
-
-    #     if y.shape[1] != 1:
-    #         raise ValueError("Dim 1 of y must be 1")
-        
-    #     if x.shape[0] != y.shape[0]: 
-    #         raise ValueError('Timestep dimension of inputs must match')     
-
-    #     return super().fit(x=x, 
-    #                        y=y, 
-    #                        epochs=epochs, 
-    #                        batch_size=1, 
-    #                        shuffle=False, 
-    #                        verbose=verbose, 
-    #                        validation_batch_size=1,
-    #                        **kwargs)
-
-    # def predict(self, x, **kwargs):
-    #     """
-    #     A wrapper around ``tensorflow.keras.Model.predict``. **Note: parameters batch_size 
-    #     and callbacks are not supported**.
-
-    #     :param x: Tensor of input signal of shape timesteps x input dimensions.
-    #     :type x: Tensor[2D float]
-
-    #     :returns: (*Tensor[2D float]*) - Tensor of predictions
-    #     """
-    #     if len(x.shape) == 3 and x.shape[0] != 1:
-    #         raise ValueError('Dim 0 must be 1')
-        
-    #     if len(x.shape) < 2 or len(x.shape) > 3:
-    #         raise ValueError('')
-
-    #     if len(x.shape) == 2:
-    #         x = tf.expand_dims(x, axis=0)
-            
-    #     return super().predict(x=x, batch_size=1, **kwargs)[0]
-
-    # def evaluate(self, x, y, **kwargs):
-    #     """
-    #     A wrapper around ``tensorflow.keras.Model.evaluate``. 
-
-    #     :param x: Tensor of input signal of shape timesteps x input dimensions.
-    #     :type x: Tensor[2D float]
-    #     :param y: Tensor of target signal of shape timesteps x output dimensions.
-    #     :type y: Tensor[2D float]
-    #     """
-    #     if len(x.shape) < 2 or len(x.shape) > 3:
-    #         raise ValueError('')
-
-    #     if len(y.shape) < 2 or len(y.shape) > 3:
-    #         raise ValueError('')
-
-    #     if len(x.shape) == 2:
-    #         x = tf.expand_dims(x, axis=0)
-
-    #     if len(y.shape) == 2:
-    #         y = tf.expand_dims(y, axis=0)
-
-    #     return super().evaluate(x=x, y=y, **kwargs)
-
-
     def _coerce_input_shape(self, inp, inp_type, method, **kwargs):
+        """
+        """
         if len(inp.shape) < 2 or len(inp.shape) > 3:
             raise ValueError(f'Shape of {inp_type} is invalid')
         
+        if len(inp.shape) == 3:
+            inp = tf.reshape(inp, shape=(-1, inp.shape[-1]))
+
         if len(inp.shape) == 2:
             inp = tf.expand_dims(inp, axis=1)
         
@@ -774,26 +704,35 @@ class FORCEModel(keras.Model):
         **Note:** the *batch_size*, *validation_batch_size*,  *shuffle*, 
         *steps_per_epoch*, and *validation_steps* parameters are not supported. 
 
-        :param x: Tensor of input signal of shape ``timesteps x input dimensions``.
-        :type x: Tensor[2D float]
-        :param y: Tensor of target signal of shape ``timesteps x output dimensions``.
-        :type y: Tensor[2D float]
+        :param x: Tensor of input signal of shape ``timesteps x input dimensions`` or
+            ``batch size x timesteps x input dimensions``. 
+        :type x: Tensor[2D or 3D float]
+        :param y: Tensor of target signal of shape ``timesteps x output dimensions`` or
+            ``batch size x timesteps x input dimensions``. 
+        :type y: Tensor[2D or 3D float]
         :param epoch: Number of epochs to train. 
         :type epoch: int
         :param verbose: Same as from `tensorflow.keras.Model.fit`.
         :type verbose: str
         :param kwargs: Other key word arguments as needed.        
         """
+        if y is not None:
+            assert len(x.shape) == len(y.shape), 'Input x and y shape are mismatched'
+            assert x.shape[0] == y.shape[0], 'Leading input dimension are mismatched'
         x = self._coerce_input_shape(inp=x, inp_type='x', method='fit', **kwargs)
         y = self._coerce_input_shape(inp=y, inp_type='y', method='fit', **kwargs)
         x, y = self.coerce_input_data(x=x, y=y, method='fit', **kwargs)
 
         if 'validation_data' in kwargs.keys() and kwargs['validation_data'] is not None:
-           val_x, val_y = kwargs['validation_data']
-           val_x = self._coerce_input_shape(inp=val_x, inp_type='val_x', method='validation', **kwargs)
-           val_y = self._coerce_input_shape(inp=val_y, inp_type='val_y', method='validation', **kwargs)
-           val_x, val_y = self.coerce_input_data(x=val_x, y=val_y, method='validation', **kwargs)
-           kwargs['validation_data'] = (val_x, val_y)
+            val_x, val_y = kwargs['validation_data']
+            if val_y is not None:
+                assert len(val_x.shape) == len(val_y.shape), 'Validation input shapes are mismatched'
+                assert val_x.shape[0] == val_y.shape[0], 'Leading input dimension are mismatched'
+
+            val_x = self._coerce_input_shape(inp=val_x, inp_type='val_x', method='validation', **kwargs)
+            val_y = self._coerce_input_shape(inp=val_y, inp_type='val_y', method='validation', **kwargs)
+            val_x, val_y = self.coerce_input_data(x=val_x, y=val_y, method='validation', **kwargs)
+            kwargs['validation_data'] = (val_x, val_y)
 
         return super().fit(x=x, 
                            y=y, 
@@ -809,11 +748,13 @@ class FORCEModel(keras.Model):
         A wrapper around `tensorflow.keras.Model.predict`. 
         **Note**: the *batch_size* and *steps* parameter are not supported.  
 
-        :param x: Tensor of input signal of shape ``timesteps x input dimensions``.
-        :type x: Tensor[2D float]
+        :param x: Tensor of input signal of shape ``timesteps x input dimensions`` or
+            ``batch size x timesteps x input dimensions``. 
+        :type x: Tensor[2D or 3D float]
 
-        :returns: (*Array[2D float]*) - Numpy array of predictions
+        :returns: (*Array[2D or 3D float]*) - Numpy array of predictions
         """
+        x_shape = x.shape
         x = self._coerce_input_shape(inp=x, inp_type='x', method='predict', **kwargs)
         x, _ = self.coerce_input_data(x=x, y=None, method='predict', **kwargs)
 
@@ -823,6 +764,9 @@ class FORCEModel(keras.Model):
         for i, state in enumerate(self.force_layer.states):
             state.assign(original_state[i], read_value=False)
 
+        if len(x_shape) == 3:
+        	output = tf.reshape(output, shape=(x_shape[0], x_shape[1], -1))
+
         return output
 
     def evaluate(self, x, y, **kwargs):
@@ -830,18 +774,23 @@ class FORCEModel(keras.Model):
         A wrapper around `tensorflow.keras.Model.evaluate`. 
         **Note**: the *batch_size* and *steps* parameter are not supported.  
 
-        :param x: Tensor of input signal of shape ``timesteps x input dimensions``.
-        :type x: Tensor[2D float]
-        :param y: Tensor of target signal of shape ``timesteps x output dimensions``.
-        :type y: Tensor[2D float]
+        :param x: Tensor of input signal of shape ``timesteps x input dimensions`` or
+            ``batch size x timesteps x input dimensions``. 
+        :type x: Tensor[2D or 3D float]
+        :param y: Tensor of target signal of shape ``timesteps x output dimensions``  or
+            ``batch size x timesteps x input dimensions``. 
+        :type y: Tensor[2D or 3D float]
 
-        :returns: (*List[float]*) - List of error / metrics on input data
+        :returns: (*List[float]*) - List of error / metrics evaluated on the input
         """
         if 'batch_size' not in kwargs.keys() or kwargs['batch_size'] is None:
            kwargs['batch_size'] = 1
         elif kwargs['batch_size'] != 1:
            raise ValueError('Batch size must be 1')
 
+        if y is not None:
+            assert len(x.shape) == len(y.shape), 'Input x and y shape are mismatched'
+            assert x.shape[0] == y.shape[0], 'Leading input dimension are mismatched'
         x = self._coerce_input_shape(inp=x, inp_type='x', method='evaluate', **kwargs)
         y = self._coerce_input_shape(inp=y, inp_type='y', method='evaluate', **kwargs)
         x, y = self.coerce_input_data(x=x, y=y, method='evaluate', **kwargs)

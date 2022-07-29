@@ -68,6 +68,7 @@
 <li class="toctree-l1"><a class="reference internal" href="layers.html">FORCE Layers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="models.html">FORCE Model</a></li>
 <li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notes.html">Notes</a></li>
 </ul>
 
         </div>
@@ -109,8 +110,10 @@ training the layer object.</p></li>
 <ul class="simple">
 <li><p>Not all input parameters from the Keras model fit/predict/evaluate
 are supported (see <a class="reference internal" href="models.html#base-forcemodel"><span class="std std-ref">Base FORCE Model</span></a> for details).</p></li>
-<li><p>Batching is not supported. Batch size parameters are set to 1 and each timestep is processed
-as an individual batch.</p></li>
+<li><p>Batching is not supported. Batch size parameters are set to 1 and each
+timestep is processed as an individual batch. See <a class="reference internal" href="notes.html#notes"><span class="std std-ref">Notes</span></a>. If the
+input has shape <code class="docutils literal notranslate"><span class="pre">batch</span> <span class="pre">size</span> <span class="pre">x</span> <span class="pre">timestep</span> <span class="pre">x</span> <span class="pre">dimensions</span></code>, the input is
+flattened by stacking each batch along the timestep dimension.</p></li>
 </ul>
 <section id="quick-start">
 <h2>Quick Start<a class="headerlink" href="#quick-start" title="Permalink to this headline"></a></h2>
@@ -204,43 +207,44 @@ This may be changed by sub-classing and modifying the <code class="docutils lite
 <p>The example below is from <code class="docutils literal notranslate"><span class="pre">model.EchoStateNetwork</span></code> (note that layer states are row
 vectors for matrix multiplication):</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">EchoStateNetwork</span><span class="p">(</span><span class="n">FORCELayer</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
-                 <span class="n">dtdivtau</span><span class="p">,</span>
-                 <span class="n">hscale</span><span class="o">=</span><span class="mf">0.25</span><span class="p">,</span>
-                 <span class="n">initial_a</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                 <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">dtdivtau</span> <span class="o">=</span> <span class="n">dtdivtau</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">hscale</span> <span class="o">=</span> <span class="n">hscale</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_initial_a</span> <span class="o">=</span> <span class="n">initial_a</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+ <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+              <span class="n">dtdivtau</span><span class="p">,</span>
+              <span class="n">hscale</span><span class="o">=</span><span class="mf">0.25</span><span class="p">,</span>
+              <span class="n">initial_a</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+              <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+     <span class="bp">self</span><span class="o">.</span><span class="n">dtdivtau</span> <span class="o">=</span> <span class="n">dtdivtau</span>
+     <span class="bp">self</span><span class="o">.</span><span class="n">hscale</span> <span class="o">=</span> <span class="n">hscale</span>
+     <span class="bp">self</span><span class="o">.</span><span class="n">_initial_a</span> <span class="o">=</span> <span class="n">initial_a</span>
+     <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">states</span><span class="p">):</span>
-        <span class="n">prev_a</span><span class="p">,</span> <span class="n">prev_h</span><span class="p">,</span> <span class="n">prev_output</span> <span class="o">=</span> <span class="n">states</span>
-        <span class="n">input_term</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_kernel</span><span class="p">)</span>
-        <span class="n">recurrent_term</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">prev_h</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">recurrent_kernel</span><span class="p">)</span>
-        <span class="n">feedback_term</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">prev_output</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">feedback_kernel</span><span class="p">)</span>
+ <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">states</span><span class="p">):</span>
+     <span class="n">prev_a</span><span class="p">,</span> <span class="n">prev_h</span><span class="p">,</span> <span class="n">prev_output</span> <span class="o">=</span> <span class="n">states</span>
+     <span class="n">input_term</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_kernel</span><span class="p">)</span>
+     <span class="n">recurrent_term</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">prev_h</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">recurrent_kernel</span><span class="p">)</span>
+     <span class="n">feedback_term</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">prev_output</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">feedback_kernel</span><span class="p">)</span>
 
-        <span class="n">dadt</span> <span class="o">=</span> <span class="o">-</span><span class="n">prev_a</span> <span class="o">+</span> <span class="n">input_term</span> <span class="o">+</span> <span class="n">recurrent_term</span> <span class="o">+</span> <span class="n">feedback_term</span>
-        <span class="n">a</span> <span class="o">=</span> <span class="n">prev_a</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">dtdivtau</span> <span class="o">*</span> <span class="n">dadt</span>
-        <span class="n">h</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">activation</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
-        <span class="n">output</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_kernel</span><span class="p">)</span>
+     <span class="n">dadt</span> <span class="o">=</span> <span class="o">-</span><span class="n">prev_a</span> <span class="o">+</span> <span class="n">input_term</span> <span class="o">+</span> <span class="n">recurrent_term</span> <span class="o">+</span> <span class="n">feedback_term</span>
+     <span class="n">a</span> <span class="o">=</span> <span class="n">prev_a</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">dtdivtau</span> <span class="o">*</span> <span class="n">dadt</span>
+     <span class="n">h</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">activation</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+     <span class="n">output</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_kernel</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">output</span><span class="p">,</span> <span class="p">[</span><span class="n">a</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">output</span><span class="p">]</span>
+     <span class="k">return</span> <span class="n">output</span><span class="p">,</span> <span class="p">[</span><span class="n">a</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">output</span><span class="p">]</span>
 
-    <span class="k">def</span> <span class="nf">get_initial_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_initial_a</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-          <span class="n">init_a</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_initial_a</span>
-        <span class="k">else</span><span class="p">:</span>
-          <span class="n">initializer</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">initializers</span><span class="o">.</span><span class="n">RandomNormal</span><span class="p">(</span><span class="n">mean</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span>
-                                                        <span class="n">stddev</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">hscale</span><span class="p">,</span>
-                                                        <span class="n">seed</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">seed_gen</span><span class="o">.</span><span class="n">uniform</span><span class="p">([</span><span class="mi">1</span><span class="p">],</span>
-                                                                                   <span class="n">minval</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                                                                                   <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">dtypes</span><span class="o">.</span><span class="n">int64</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
-        <span class="n">init_a</span> <span class="o">=</span> <span class="n">initializer</span><span class="p">((</span><span class="n">batch_size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">units</span><span class="p">))</span>
-        <span class="n">init_h</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">activation</span><span class="p">(</span><span class="n">init_a</span><span class="p">)</span>
-        <span class="n">init_out</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">init_h</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_kernel</span><span class="p">)</span>
+ <span class="k">def</span> <span class="nf">get_initial_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_initial_a</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+       <span class="n">init_a</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_initial_a</span>
+     <span class="k">else</span><span class="p">:</span>
+       <span class="n">initializer</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">initializers</span><span class="o">.</span><span class="n">RandomNormal</span><span class="p">(</span><span class="n">mean</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span>
+                                                     <span class="n">stddev</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">hscale</span><span class="p">,</span>
+                                                     <span class="n">seed</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">seed_gen</span><span class="o">.</span><span class="n">uniform</span><span class="p">([</span><span class="mi">1</span><span class="p">],</span>
+                                                                                <span class="n">minval</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                                                                                <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">dtypes</span><span class="o">.</span><span class="n">int64</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+       <span class="n">init_a</span> <span class="o">=</span> <span class="n">initializer</span><span class="p">((</span><span class="n">batch_size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">units</span><span class="p">))</span>
 
-        <span class="k">return</span> <span class="p">(</span><span class="n">init_a</span><span class="p">,</span> <span class="n">init_h</span><span class="p">,</span> <span class="n">init_out</span><span class="p">)</span>
+     <span class="n">init_h</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">activation</span><span class="p">(</span><span class="n">init_a</span><span class="p">)</span>
+     <span class="n">init_out</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">init_h</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_kernel</span><span class="p">)</span>
+
+     <span class="k">return</span> <span class="p">(</span><span class="n">init_a</span><span class="p">,</span> <span class="n">init_h</span><span class="p">,</span> <span class="n">init_out</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>If needed, existing <code class="docutils literal notranslate"><span class="pre">base.FORCELayer</span></code> methods can be also modified when sub-classing
@@ -389,35 +393,52 @@ neuron exceeded the peak voltage <code class="docutils literal notranslate"><spa
 By default, the method performs the forward pass for one time step and performs weight updates
 for the output and recurrent kernels in <code class="docutils literal notranslate"><span class="pre">self.force_layer</span></code> (if those two kernels are
 set to be trainable). Below is the default <code class="docutils literal notranslate"><span class="pre">train_step</span></code> method from <code class="docutils literal notranslate"><span class="pre">base.FORCEModel</span></code>:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">train_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@tf</span><span class="o">.</span><span class="n">function</span>
+<span class="k">def</span> <span class="nf">train_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
     <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">data</span>
     <span class="n">z</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">reset_states</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">force_layer</span><span class="o">.</span><span class="n">return_sequences</span><span class="p">:</span>
-      <span class="n">z</span> <span class="o">=</span> <span class="n">z</span><span class="p">[:,</span><span class="mi">0</span><span class="p">,:]</span>
+        <span class="n">z</span> <span class="o">=</span> <span class="n">z</span><span class="p">[:,</span><span class="mi">0</span><span class="p">,:]</span>
 
     <span class="n">trainable_vars</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">trainable_variables</span>
 
-    <span class="c1"># Update the output kernel</span>
-    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_output_kernel_idx</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-      <span class="bp">self</span><span class="o">.</span><span class="n">update_output_kernel</span><span class="p">(</span><span class="n">h</span><span class="p">,</span>
-                                <span class="n">z</span><span class="p">,</span>
-                                <span class="n">y</span><span class="p">[:,</span><span class="mi">0</span><span class="p">,:],</span>
-                                <span class="n">trainable_vars</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_P_output_idx</span><span class="p">],</span>
-                                <span class="n">trainable_vars</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_output_kernel_idx</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">tf</span><span class="o">.</span><span class="n">cond</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">update_kernel_condition</span><span class="p">(),</span> <span class="k">lambda</span> <span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="k">lambda</span> <span class="p">:</span> <span class="kc">False</span><span class="p">):</span>
+        <span class="c1"># Update the output kernel</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_output_kernel_idx</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update_output_kernel</span><span class="p">(</span><span class="n">h</span><span class="p">,</span>
+                                      <span class="n">z</span><span class="p">,</span>
+                                      <span class="n">y</span><span class="p">[:,</span><span class="mi">0</span><span class="p">,:],</span>
+                                      <span class="n">trainable_vars</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_P_output_idx</span><span class="p">],</span>
+                                      <span class="n">trainable_vars</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_output_kernel_idx</span><span class="p">])</span>
 
-    <span class="c1"># Update the recurrent kernel</span>
-    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_recurrent_kernel_idx</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-      <span class="bp">self</span><span class="o">.</span><span class="n">update_recurrent_kernel</span><span class="p">(</span><span class="n">h</span><span class="p">,</span>
-                                   <span class="n">z</span><span class="p">,</span>
-                                   <span class="n">y</span><span class="p">[:,</span><span class="mi">0</span><span class="p">,:],</span>
-                                   <span class="n">trainable_vars</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_P_GG_idx</span><span class="p">],</span>
-                                   <span class="n">trainable_vars</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_recurrent_kernel_idx</span><span class="p">])</span>
+        <span class="c1"># Update the recurrent kernel</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_recurrent_kernel_idx</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update_recurrent_kernel</span><span class="p">(</span><span class="n">h</span><span class="p">,</span>
+                                         <span class="n">z</span><span class="p">,</span>
+                                         <span class="n">y</span><span class="p">[:,</span><span class="mi">0</span><span class="p">,:],</span>
+                                         <span class="n">trainable_vars</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_P_GG_idx</span><span class="p">],</span>
+                                         <span class="n">trainable_vars</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_recurrent_kernel_idx</span><span class="p">])</span>
 
     <span class="c1"># Update metrics (includes the metric that tracks the loss)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">compiled_metrics</span><span class="o">.</span><span class="n">update_state</span><span class="p">(</span><span class="n">y</span><span class="p">[:,</span><span class="mi">0</span><span class="p">,:],</span> <span class="n">z</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="p">{</span><span class="n">m</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">m</span><span class="o">.</span><span class="n">result</span><span class="p">()</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">metrics</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>By default, weights are updated after each time step. The <code class="docutils literal notranslate"><span class="pre">update_kernel_condition</span></code>
+method can be modified via subclassing to have different update interval for the
+weights. In the example below, weight updates are performed every pre-defined
+number of timesteps:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">CustomSpikingNNModel</span><span class="p">(</span><span class="n">SpikingNNModel</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_step</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="mf">0.</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">step</span> <span class="o">=</span> <span class="n">step</span>
+
+    <span class="k">def</span> <span class="nf">update_kernel_condition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_step</span><span class="o">.</span><span class="n">assign_add</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">read_value</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_step</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">step</span> <span class="o">==</span> <span class="mi">0</span>
 </pre></div>
 </div>
 </section>
