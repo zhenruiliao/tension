@@ -216,16 +216,19 @@ class FullFORCEModel(FORCEModel):
     Subclassed from FORCEModel, implements full FORCE learning by `DePasquale et al. 
     <https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0191527>`_. 
 
-    Target to the model should be of shape *(timesteps, 1)*. Presently this class does not support
-    masking out recurrent weights during training (all recurrent weights must be trainable).
+    Target to the model should be of shape ``timesteps x 1`` or ``batch size x timesteps x 1``. 
+    Presently this class does not support masking out recurrent weights during 
+    training (all recurrent weights must be trainable).
 
     **Note** - Input shapes during training and inference differ:
-    During training, input to the model should be of shape *(timesteps, input dimensions + hint dimensions)*.
-    During inference, input to the model should be of shape *(timesteps, input dimensions)*.
+    During training, input to the model should be of shape ``timesteps x input dimensions + hint dimensions``
+    or ``batch size x timesteps x input dimensions + hint dimensions``. 
+    During inference, input to the model should be of shape ``timesteps x input dimensions`` or 
+    ``batch size x timesteps x input dimensions``.
     During model call when ``training=True``, input to the call should have shape 
-    *(1, timesteps, input dimensions + hint dimensions + output dimensions)*.
+    ``1 x timesteps x input dimensions + hint dimensions + output dimensions``.
     During model call when ``training=False``, input to the call should have shape 
-    *(1, timesteps, input dimensions)*.
+    ``1 x timesteps x input dimensions``.
 
     :param hint_dim: Dimension of the hint input
     :type hint_dim: int

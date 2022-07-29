@@ -417,15 +417,18 @@ corresponding to the force layer’s recurrent kernel</p></li>
 <dt class="sig sig-object py" id="models.FullFORCEModel">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">models.</span></span><span class="sig-name descname"><span class="pre">FullFORCEModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#models.FullFORCEModel" title="Permalink to this definition"></a></dt>
 <dd><p>Subclassed from FORCEModel, implements full FORCE learning by <a class="reference external" href="https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0191527">DePasquale et al.</a>.</p>
-<p>Target to the model should be of shape <em>(timesteps, 1)</em>. Presently this class does not support
-masking out recurrent weights during training (all recurrent weights must be trainable).</p>
+<p>Target to the model should be of shape <code class="docutils literal notranslate"><span class="pre">timesteps</span> <span class="pre">x</span> <span class="pre">1</span></code> or <code class="docutils literal notranslate"><span class="pre">batch</span> <span class="pre">size</span> <span class="pre">x</span> <span class="pre">timesteps</span> <span class="pre">x</span> <span class="pre">1</span></code>. 
+Presently this class does not support masking out recurrent weights during 
+training (all recurrent weights must be trainable).</p>
 <p><strong>Note</strong> - Input shapes during training and inference differ:
-During training, input to the model should be of shape <em>(timesteps, input dimensions + hint dimensions)</em>.
-During inference, input to the model should be of shape <em>(timesteps, input dimensions)</em>.
+During training, input to the model should be of shape <code class="docutils literal notranslate"><span class="pre">timesteps</span> <span class="pre">x</span> <span class="pre">input</span> <span class="pre">dimensions</span> <span class="pre">+</span> <span class="pre">hint</span> <span class="pre">dimensions</span></code>
+or <code class="docutils literal notranslate"><span class="pre">batch</span> <span class="pre">size</span> <span class="pre">x</span> <span class="pre">timesteps</span> <span class="pre">x</span> <span class="pre">input</span> <span class="pre">dimensions</span> <span class="pre">+</span> <span class="pre">hint</span> <span class="pre">dimensions</span></code>. 
+During inference, input to the model should be of shape <code class="docutils literal notranslate"><span class="pre">timesteps</span> <span class="pre">x</span> <span class="pre">input</span> <span class="pre">dimensions</span></code> or 
+<code class="docutils literal notranslate"><span class="pre">batch</span> <span class="pre">size</span> <span class="pre">x</span> <span class="pre">timesteps</span> <span class="pre">x</span> <span class="pre">input</span> <span class="pre">dimensions</span></code>.
 During model call when <code class="docutils literal notranslate"><span class="pre">training=True</span></code>, input to the call should have shape 
-<em>(1, timesteps, input dimensions + hint dimensions + output dimensions)</em>.
+<code class="docutils literal notranslate"><span class="pre">1</span> <span class="pre">x</span> <span class="pre">timesteps</span> <span class="pre">x</span> <span class="pre">input</span> <span class="pre">dimensions</span> <span class="pre">+</span> <span class="pre">hint</span> <span class="pre">dimensions</span> <span class="pre">+</span> <span class="pre">output</span> <span class="pre">dimensions</span></code>.
 During model call when <code class="docutils literal notranslate"><span class="pre">training=False</span></code>, input to the call should have shape 
-<em>(1, timesteps, input dimensions)</em>.</p>
+<code class="docutils literal notranslate"><span class="pre">1</span> <span class="pre">x</span> <span class="pre">timesteps</span> <span class="pre">x</span> <span class="pre">input</span> <span class="pre">dimensions</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
