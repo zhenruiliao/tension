@@ -22,4 +22,4 @@ FORCE Training of Theta Spiking Network on Lorenz Attractor
 
 FORCE Training of LIF Spiking Network on GO-NO GO with Random Starts
 --------------------------------------------------------------------
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://githubtocolab.com/zhenruiliao/tension/blob/main/examples/)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://githubtocolab.com/zhenruiliao/tension/blob/main/examples/FORCE_Training_of_LIF_Spiking_Network_on_GO_NO_GO_with_Random_Starts.ipynb)

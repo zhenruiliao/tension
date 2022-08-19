@@ -88,7 +88,7 @@
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>units</strong> (<em>int</em>) – Number of recurrent units.</p></li>
 <li><p><strong>output_size</strong> (<em>int</em>) – Dimension of the target.</p></li>
-<li><p><strong>activation</strong> (<em>str</em><em> or </em><em>function</em>) – Activation function. Can be a string (i.e. ‘tanh’) or a function.</p></li>
+<li><p><strong>activation</strong> (<em>str</em><em> or </em><em>function</em>) – Activation function applied to the state updates. Can be a string (i.e. ‘tanh’) or a function.</p></li>
 <li><p><strong>seed</strong> (<em>int</em><em> or </em><em>None</em>) – Seed for random initialization (i.e. weights and initial states). (<em>Default: None</em>)</p></li>
 <li><p><strong>g</strong> (<em>float</em>) – Gain parameter that controls the chaos (by default, only scales the strengths of the 
 recurrent connections within the network at initialization). (<em>Default: 1.5</em>)</p></li>
@@ -181,7 +181,8 @@ See: <a class="reference external" href="https://www.tensorflow.org/api_docs/pyt
 <dl class="py method">
 <dt class="sig sig-object py" id="base.FORCELayer.initialize_feedback_kernel">
 <span class="sig-name descname"><span class="pre">initialize_feedback_kernel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">feedback_kernel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#base.FORCELayer.initialize_feedback_kernel" title="Permalink to this definition"></a></dt>
-<dd><p>Initializes the feedback kernel.</p>
+<dd><p>Initializes the feedback kernel. Called in the layer object’s <code class="docutils literal notranslate"><span class="pre">build</span></code> and <code class="docutils literal notranslate"><span class="pre">from_weights</span></code>
+methods.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>feedback_kernel</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – Tensor array containing the pre-initialized kernel. 
@@ -193,7 +194,8 @@ If none, the kernel will be randomly initialized. (<em>Default: None</em>)</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="base.FORCELayer.initialize_input_kernel">
 <span class="sig-name descname"><span class="pre">initialize_input_kernel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_dim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_kernel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#base.FORCELayer.initialize_input_kernel" title="Permalink to this definition"></a></dt>
-<dd><p>Initializes the input kernel.</p>
+<dd><p>Initializes the input kernel. Called in the layer object’s <code class="docutils literal notranslate"><span class="pre">build</span></code> and <code class="docutils literal notranslate"><span class="pre">from_weights</span></code>
+methods.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -208,7 +210,8 @@ If none, the kernel will be randomly initialized. (<em>Default: None</em>)</p></
 <dl class="py method">
 <dt class="sig sig-object py" id="base.FORCELayer.initialize_output_kernel">
 <span class="sig-name descname"><span class="pre">initialize_output_kernel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_kernel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#base.FORCELayer.initialize_output_kernel" title="Permalink to this definition"></a></dt>
-<dd><p>Initializes the output kernel.</p>
+<dd><p>Initializes the output kernel. Called in the layer object’s <code class="docutils literal notranslate"><span class="pre">build</span></code> and <code class="docutils literal notranslate"><span class="pre">from_weights</span></code>
+methods.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>output_kernel</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – Tensor or numpy array containing the pre-initialized kernel. 
@@ -220,7 +223,8 @@ If none, the kernel will be randomly initialized. (<em>Default: None</em>)</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="base.FORCELayer.initialize_recurrent_kernel">
 <span class="sig-name descname"><span class="pre">initialize_recurrent_kernel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">recurrent_kernel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#base.FORCELayer.initialize_recurrent_kernel" title="Permalink to this definition"></a></dt>
-<dd><p>Initializes the recurrent kernel.</p>
+<dd><p>Initializes the recurrent kernel. Called in the layer object’s <code class="docutils literal notranslate"><span class="pre">build</span></code> and <code class="docutils literal notranslate"><span class="pre">from_weights</span></code>
+methods.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>recurrent_kernel</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – Tensor containing the pre-initialized kernel. 
@@ -472,7 +476,8 @@ the output of each neuron</p></li>
 <dl class="py method">
 <dt class="sig sig-object py" id="constrained.ConstrainedNoFeedbackESN.initialize_recurrent_kernel">
 <span class="sig-name descname"><span class="pre">initialize_recurrent_kernel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">recurrent_kernel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#constrained.ConstrainedNoFeedbackESN.initialize_recurrent_kernel" title="Permalink to this definition"></a></dt>
-<dd><p>Initializes the recurrent kernel.</p>
+<dd><p>Initializes the recurrent kernel. Called in the layer object’s <code class="docutils literal notranslate"><span class="pre">build</span></code> and <code class="docutils literal notranslate"><span class="pre">from_weights</span></code>
+methods.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>recurrent_kernel</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – Tensor containing the pre-initialized kernel. 
@@ -582,7 +587,8 @@ See: <a class="reference external" href="https://www.tensorflow.org/api_docs/pyt
 <dl class="py method">
 <dt class="sig sig-object py" id="spiking.SpikingNN.initialize_feedback_kernel">
 <span class="sig-name descname"><span class="pre">initialize_feedback_kernel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">feedback_kernel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spiking.SpikingNN.initialize_feedback_kernel" title="Permalink to this definition"></a></dt>
-<dd><p>Initializes the feedback kernel.</p>
+<dd><p>Initializes the feedback kernel. Called in the layer object’s <code class="docutils literal notranslate"><span class="pre">build</span></code> and <code class="docutils literal notranslate"><span class="pre">from_weights</span></code>
+methods.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>feedback_kernel</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – Tensor array containing the pre-initialized kernel. 
@@ -594,7 +600,8 @@ If none, the kernel will be randomly initialized. (<em>Default: None</em>)</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="spiking.SpikingNN.initialize_output_kernel">
 <span class="sig-name descname"><span class="pre">initialize_output_kernel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_kernel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spiking.SpikingNN.initialize_output_kernel" title="Permalink to this definition"></a></dt>
-<dd><p>Initializes the output kernel.</p>
+<dd><p>Initializes the output kernel. Called in the layer object’s <code class="docutils literal notranslate"><span class="pre">build</span></code> and <code class="docutils literal notranslate"><span class="pre">from_weights</span></code>
+methods.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>output_kernel</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – Tensor or numpy array containing the pre-initialized kernel. 
@@ -606,7 +613,8 @@ If none, the kernel will be randomly initialized. (<em>Default: None</em>)</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="spiking.SpikingNN.initialize_recurrent_kernel">
 <span class="sig-name descname"><span class="pre">initialize_recurrent_kernel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">recurrent_kernel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spiking.SpikingNN.initialize_recurrent_kernel" title="Permalink to this definition"></a></dt>
-<dd><p>Initializes the recurrent kernel.</p>
+<dd><p>Initializes the recurrent kernel. Called in the layer object’s <code class="docutils literal notranslate"><span class="pre">build</span></code> and <code class="docutils literal notranslate"><span class="pre">from_weights</span></code>
+methods.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>recurrent_kernel</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – Tensor containing the pre-initialized kernel. 
