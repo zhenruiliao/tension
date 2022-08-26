@@ -380,7 +380,7 @@ number of timesteps:
     class CustomSpikingNNModel(SpikingNNModel):
         def __init__(self, step=50, **kwargs):
             super().__init__(**kwargs)
-            self.num_step = tf.Variable(0.)
+            self.num_step = tf.Variable(0., trainable=False)
             self.step = step
 
         def update_kernel_condition(self):
