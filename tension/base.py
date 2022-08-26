@@ -12,7 +12,7 @@ class FORCELayer(keras.layers.AbstractRNNCell, metaclass=abc.ABCMeta):
     :type units: int
     :param output_size: Dimension of the target. 
     :type output_size: int
-    :param activation: Activation function. Can be a string (i.e. 'tanh') or a function.  
+    :param activation: Activation function applied to the state updates. Can be a string (i.e. 'tanh') or a function.  
     :type activation: str or function
     :param seed: Seed for random initialization (i.e. weights and initial states). (*Default: None*)
     :type seed: int or None
@@ -78,7 +78,8 @@ class FORCELayer(keras.layers.AbstractRNNCell, metaclass=abc.ABCMeta):
 
     def initialize_input_kernel(self, input_dim, input_kernel=None):
         """
-        Initializes the input kernel. 
+        Initializes the input kernel. Called in the layer object's ``build`` and ``from_weights``
+        methods.
 
         :param input_dim: Dimension of input
         :type input_dim: int
@@ -102,7 +103,8 @@ class FORCELayer(keras.layers.AbstractRNNCell, metaclass=abc.ABCMeta):
         
     def initialize_recurrent_kernel(self, recurrent_kernel=None):
         """
-        Initializes the recurrent kernel. 
+        Initializes the recurrent kernel. Called in the layer object's ``build`` and ``from_weights``
+        methods.
 
         :param recurrent_kernel: Tensor containing the pre-initialized kernel. 
             If none, the kernel will be randomly initialized. (*Default: None*)
@@ -125,7 +127,8 @@ class FORCELayer(keras.layers.AbstractRNNCell, metaclass=abc.ABCMeta):
     
     def initialize_feedback_kernel(self, feedback_kernel=None):
         """
-        Initializes the feedback kernel. 
+        Initializes the feedback kernel. Called in the layer object's ``build`` and ``from_weights``
+        methods.
 
         :param feedback_kernel: Tensor array containing the pre-initialized kernel. 
             If none, the kernel will be randomly initialized. (*Default: None*)
@@ -146,7 +149,8 @@ class FORCELayer(keras.layers.AbstractRNNCell, metaclass=abc.ABCMeta):
                                             
     def initialize_output_kernel(self, output_kernel=None):
         """
-        Initializes the output kernel.
+        Initializes the output kernel. Called in the layer object's ``build`` and ``from_weights``
+        methods.
 
         :param output_kernel: Tensor or numpy array containing the pre-initialized kernel. 
             If none, the kernel will be randomly initialized. (*Default: None*)
