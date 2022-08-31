@@ -3,7 +3,7 @@ import tensorflow as tf
 import tensorflow.keras as keras
 from tensorflow.keras import backend, activations
 
-from base import FORCELayer, FORCEModel
+from .base import FORCELayer, FORCEModel
 
 class EchoStateNetwork(FORCELayer):
     """ 
