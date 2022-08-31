@@ -50,3 +50,4 @@ Bug reports, feature requests, and pull requests are welcome and encouraged! Use
 Based on work by David Sussillo and Larry Abbott
 https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2756108/
 
+With thanks to James Priestley for the package name.
