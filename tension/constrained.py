@@ -3,7 +3,7 @@ import tensorflow.keras as keras
 from tensorflow.keras import backend, activations
 import numpy as np
 
-from base import FORCEModel, FORCELayer
+from .base import FORCEModel, FORCELayer
 
 class ConstrainedNoFeedbackESN(FORCELayer):
     """ 
