@@ -7,6 +7,7 @@ install_requires = [
 	'tensorflow>=2.5.0',
 	'numpy',
 	'matplotlib', 
+	'seaborn'
 ]
 
 setuptools.setup(
