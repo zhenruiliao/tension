@@ -8,7 +8,7 @@ FORCE Model
 
 Base FORCE Model
 ----------------
-.. autoclass:: base.FORCEModel
+.. autoclass:: tension.base.FORCEModel
    :members: build, initialize_P, initialize_train_idx, call, 
              force_layer_call, train_step, update_output_kernel,
              pseudogradient_P, pseudogradient_wO, update_recurrent_kernel,
@@ -17,11 +17,11 @@ Base FORCE Model
 
 Inherited FORCE Model
 ---------------------
-.. autoclass:: models.FullFORCEModel
+.. autoclass:: tension.models.FullFORCEModel
    :members:  
-.. autoclass:: models.OptimizedFORCEModel
+.. autoclass:: tension.models.OptimizedFORCEModel
    :members:
-.. autoclass:: constrained.BioFORCEModel
+.. autoclass:: tension.constrained.BioFORCEModel
    :members:
-.. autoclass:: spiking.SpikingNNModel
+.. autoclass:: tension.spiking.SpikingNNModel
    :members:
