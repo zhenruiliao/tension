@@ -30,6 +30,6 @@ full-FORCE Running Time Comparison Between tension and Original Paper
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://githubtocolab.com/zhenruiliao/tension/blob/main/examples/full_FORCE_Running_Time_Comparison_Between_tension_and_Original_Paper.ipynb)
 
 
-FORCE Running Time Comparison Between tension and Numpy Implementation
-----------------------------------------------------------------------
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://githubtocolab.com/zhenruiliao/tension/blob/main/examples/FORCE_Running_Time_Comparison_Between_tension_and_Numpy_Implementation.ipynb)
+FORCE Running Time Comparison Between tension and JAX Numpy Implementation
+--------------------------------------------------------------------------
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://githubtocolab.com/zhenruiliao/tension/blob/main/examples/FORCE_Running_Time_Comparison_Between_tension_and_JAX_Numpy_Implementation.ipynb)
