@@ -57,14 +57,14 @@ class EchoStateNetwork(FORCELayer):
               containing the predicted output.  
         """
         if self._initial_a is not None:
-          init_a = self._initial_a
+            init_a = self._initial_a
         else:
-          initializer = keras.initializers.RandomNormal(mean=0., 
-                                                        stddev=self.hscale, 
-                                                        seed=self.seed_gen.uniform([1], 
-                                                                                   minval=None, 
-                                                                                   dtype=tf.dtypes.int64)[0])
-          init_a = initializer((batch_size, self.units))  
+            initializer = keras.initializers.RandomNormal(mean=0., 
+                                                          stddev=self.hscale, 
+                                                          seed=self.seed_gen.uniform([1], 
+                                                                                     minval=None, 
+                                                                                     dtype=tf.dtypes.int64)[0])
+            init_a = initializer((batch_size, self.units))  
 
         init_h = self.activation(init_a)
         init_out = backend.dot(init_h, self.output_kernel) 
@@ -265,7 +265,7 @@ class FullFORCEModel(FORCEModel):
         """
         target_seed = None
         if self.original_force_layer._seed is not None:
-           target_seed = self.original_force_layer._seed + 1
+            target_seed = self.original_force_layer._seed + 1
         self._target_network = TargetGeneratingNetwork(units=self.units, 
                                                        output_size=self._output_dim, 
                                                        activation=self.original_force_layer.activation,
@@ -315,12 +315,12 @@ class FullFORCEModel(FORCEModel):
 
     def call(self, x, training=False, reset_states=False, **kwargs):
         if not reset_states:
-          output = super().call(x=x, training=training, reset_states=reset_states, **kwargs)
+            output = super().call(x=x, training=training, reset_states=reset_states, **kwargs)
         else:
-          original_state = [tf.identity(state) for state in self.target_network.states]
-          output = super().call(x=x, training=training, reset_states=reset_states, **kwargs)
-          for i, state in enumerate(self.target_network.states):
-              state.assign(original_state[i], read_value=False)      
+            original_state = [tf.identity(state) for state in self.target_network.states]
+            output = super().call(x=x, training=training, reset_states=reset_states, **kwargs)
+            for i, state in enumerate(self.target_network.states):
+                state.assign(original_state[i], read_value=False)      
 
         return output
 
@@ -446,23 +446,23 @@ class OptimizedFORCEModel(FORCEModel):
                 bool_mask = self.original_force_layer.recurrent_nontrainable_boolean_mask
 
                 if bool_mask is None or tf.math.count_nonzero(bool_mask) == 0:
-                  self.P_GG = self.add_weight(name='P_GG', 
-                                              shape=(self.units, self.units), 
-                                              initializer=keras.initializers.Identity(gain=self.alpha_P), 
-                                              trainable=True)    
+                    self.P_GG = self.add_weight(name='P_GG', 
+                                                shape=(self.units, self.units), 
+                                                initializer=keras.initializers.Identity(gain=self.alpha_P), 
+                                                trainable=True)    
                 else:
-                  identity_3d = np.zeros((self.units, self.units, self.units))
-                  idx = np.arange(self.units)
-                  identity_3d[:, idx, idx] = self.alpha_P 
+                    identity_3d = np.zeros((self.units, self.units, self.units))
+                    idx = np.arange(self.units)
+                    identity_3d[:, idx, idx] = self.alpha_P 
 
-                  I,J = np.nonzero(tf.transpose(bool_mask).numpy() == True)
-                  identity_3d[I,:,J] = 0
-                  identity_3d[I,J,:] = 0
+                    I,J = np.nonzero(tf.transpose(bool_mask).numpy() == True)
+                    identity_3d[I,:,J] = 0
+                    identity_3d[I,J,:] = 0
 
-                  self.P_GG = self.add_weight(name='P_GG', 
-                                              shape=(self.units, self.units, self.units), 
-                                              initializer=keras.initializers.constant(identity_3d), 
-                                              trainable=True)
+                    self.P_GG = self.add_weight(name='P_GG', 
+                                                shape=(self.units, self.units, self.units), 
+                                                initializer=keras.initializers.constant(identity_3d), 
+                                                trainable=True)
               
     def pseudogradient_wR(self, P_Gx, h, z, y, Ph, hPh):
         # If P is 2D, use optimized update rule

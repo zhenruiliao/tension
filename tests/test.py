@@ -1,11 +1,11 @@
 import unittest
 import sys
-sys.path.insert(0, './tension/')
+sys.path.insert(0, '../')
 
-from base import FORCEModel
-from models import EchoStateNetwork, NoFeedbackESN
-from constrained import ConstrainedNoFeedbackESN, BioFORCEModel
-from spiking import LIF, Izhikevich, Theta, SpikingNNModel 
+from tension.base import FORCEModel
+from tension.models import EchoStateNetwork, NoFeedbackESN
+from tension.constrained import ConstrainedNoFeedbackESN, BioFORCEModel
+from tension.spiking import LIF, Izhikevich, Theta, SpikingNNModel 
 import tensorflow as tf
 import numpy as np
 

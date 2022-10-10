@@ -355,44 +355,16 @@ class FORCEModel(keras.Model):
 
         # Find the index of each trainable weights in list of trainable variables
         for idx in range(len(self.trainable_variables)):
-          trainable_name = self.trainable_variables[idx].name
+            trainable_name = self.trainable_variables[idx].name
               
-          if 'output_kernel' in trainable_name:
-            self._output_kernel_idx = idx
-          elif 'P_output' in trainable_name:
-            self._P_output_idx = idx
-          elif 'P_GG' in trainable_name:
-            self._P_GG_idx = idx
-          elif 'recurrent_kernel' in trainable_name:
-            self._recurrent_kernel_idx = idx
-            
-    # def call(self, x, training=False, **kwargs):
-    #     """
-    #     Inherited and serves the same function as from ``tensorflow.keras.Model.call``. 
-    #     If ``training=False``, the ``self.force_layer``'s states are reset at the end of the execution. 
-
-    #     :param x: Input tensor.
-    #     :type x: Tensor[3D float]
-    #     :param training: If True, model is called during training. 
-    #     :type training: bool
-    #     :param kwargs: Other key word arguments as needed. 
-    #     """
-    #     if training:
-    #         return self.force_layer_call(x, training, **kwargs)
-    #     else:
-    #         initialization = all(v is None for v in self.force_layer.states)
-            
-    #         # if a state exists, store it
-    #         if not initialization:
-    #           original_state = [tf.identity(state) for state in self.force_layer.states]
-    #         output = self.force_layer_call(x, training, **kwargs)[0]
-
-    #         # reset the state
-    #         if not initialization:
-    #           for i, state in enumerate(self.force_layer.states):
-    #               state.assign(original_state[i], read_value=False)
-                  
-    #         return output
+            if 'output_kernel' in trainable_name:
+                self._output_kernel_idx = idx
+            elif 'P_output' in trainable_name:
+                self._P_output_idx = idx
+            elif 'P_GG' in trainable_name:
+                self._P_GG_idx = idx
+            elif 'recurrent_kernel' in trainable_name:
+                self._recurrent_kernel_idx = idx
 
     def call(self, x, training=False, reset_states=False, **kwargs):
         """
@@ -417,13 +389,13 @@ class FORCEModel(keras.Model):
             
             # if a state exists, store it
             if not initialization:
-              original_state = [tf.identity(state) for state in self.force_layer.states]
+                original_state = [tf.identity(state) for state in self.force_layer.states]
             output = self.force_layer_call(x, training, **kwargs)
 
             # reset the state
             if not initialization:
-              for i, state in enumerate(self.force_layer.states):
-                  state.assign(original_state[i], read_value=False)
+                for i, state in enumerate(self.force_layer.states):
+                    state.assign(original_state[i], read_value=False)
 
         if training:
             return output
@@ -699,7 +671,7 @@ class FORCEModel(keras.Model):
         :param kwargs: Other arguments as needed. 
         """
         if y is not None:
-           assert x.shape[0] == y.shape[0], 'Timestep dimension must match'
+            assert x.shape[0] == y.shape[0], 'Timestep dimension must match'
         return x, y
 
     def fit(self, x, y=None, epochs=1, verbose='auto', **kwargs):
@@ -788,9 +760,9 @@ class FORCEModel(keras.Model):
         :returns: (*List[float]*) - List of error / metrics evaluated on the input
         """
         if 'batch_size' not in kwargs.keys() or kwargs['batch_size'] is None:
-           kwargs['batch_size'] = 1
+            kwargs['batch_size'] = 1
         elif kwargs['batch_size'] != 1:
-           raise ValueError('Batch size must be 1')
+            raise ValueError('Batch size must be 1')
 
         if y is not None:
             assert len(x.shape) == len(y.shape), 'Input x and y shape are mismatched'

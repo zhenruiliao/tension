@@ -450,6 +450,20 @@ like with a typical Keras model. See `the custom callbacks article
 for instructions on writing custom Keras callbacks. Inside the callback object, the layer 
 states as a list of tensors can be accessed via ``self.model.force_layer.states``. 
 
+XLA
+---
+
+XLA may be able to speed up training on CPU. To use XLA, set `jit_compile` parameter
+to `True` when compiling the model:
+
+.. code-block:: python
+    ...
+
+    ffmodel.compile(metrics=["mae"], jit_compile=True)  
+    ...
+
+For more information, see `Tensorflow documentation <https://www.tensorflow.org/xla>`_.
+
 GPU Support
 -----------
 
