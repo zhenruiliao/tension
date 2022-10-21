@@ -33,3 +33,7 @@ full-FORCE Running Time Comparison Between tension and Original Paper
 FORCE Running Time Comparison Between tension and JAX Numpy Implementation
 --------------------------------------------------------------------------
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://githubtocolab.com/zhenruiliao/tension/blob/main/examples/FORCE_Running_Time_Comparison_Between_tension_and_JAX_Numpy_Implementation.ipynb)
+
+FORCE Running Time Comparison With and Without XLA
+--------------------------------------------------
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://githubtocolab.com/zhenruiliao/tension/blob/main/examples/FORCE_Running_Time_Comparison_With_and_Without_XLA.ipynb)

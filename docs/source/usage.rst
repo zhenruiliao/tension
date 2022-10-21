@@ -457,12 +457,12 @@ XLA may be able to speed up training on CPU. To use XLA, set `jit_compile` param
 to `True` when compiling the model:
 
 .. code-block:: python
-    ...
 
+    ...
     ffmodel.compile(metrics=["mae"], jit_compile=True)  
     ...
 
-For more information, see `Tensorflow documentation <https://www.tensorflow.org/xla>`_.
+For more information, see `Tensorflow XLA documentation <https://www.tensorflow.org/xla>`_.
 
 GPU Support
 -----------
