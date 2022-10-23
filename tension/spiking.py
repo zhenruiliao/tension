@@ -173,12 +173,12 @@ class SpikingNN(FORCELayer):
         """
         _, _, _, h, hr, ipsc, hr_ipsc, _ = states
         if self.tau_rise == 0:
-          # single exponential synpatic filter
-          h = h * tf.math.exp(-self.dt / self.tau_syn) + v_mask / self.tau_syn
+            # single exponential synpatic filter
+            h = h * tf.math.exp(-self.dt / self.tau_syn) + v_mask / self.tau_syn
         else:
-          # double exponential synpatic filter
-          h = h * tf.math.exp(-self.dt / self.tau_decay) + hr * self.dt
-          hr = hr * tf.math.exp(-self.dt / self.tau_rise) + v_mask / (self.tau_rise * self.tau_decay)
+            # double exponential synpatic filter
+            h = h * tf.math.exp(-self.dt / self.tau_decay) + hr * self.dt
+            hr = hr * tf.math.exp(-self.dt / self.tau_rise) + v_mask / (self.tau_rise * self.tau_decay)
 
         return h, hr, ipsc, hr_ipsc
 
@@ -212,14 +212,14 @@ class SpikingNN(FORCELayer):
 
     def get_initial_state(self, inputs=None, batch_size=None, dtype=None):
         if self._initial_h is not None:
-          init_h = self._initial_h
+            init_h = self._initial_h
         else:
-          init_h = tf.zeros((batch_size, self.units))  
+            init_h = tf.zeros((batch_size, self.units))  
 
         if self._initial_voltage is not None:
-          init_v = self._initial_voltage
+            init_v = self._initial_voltage
         else:
-          init_v = self.initialize_voltage(batch_size)
+            init_v = self.initialize_voltage(batch_size)
 
         init_out = backend.dot(init_h, self.output_kernel) 
         init_hr = tf.zeros((batch_size, self.units))
@@ -238,25 +238,25 @@ class OptimizedSpikingNN(SpikingNN):
     def update_firing_rate(self, v_mask, states):
         n_spike = tf.math.reduce_sum(v_mask)
         if n_spike > 0:
-          jd = tf.math.reduce_sum(self.recurrent_kernel[v_mask[0] == 1], 
-                                  axis=0,
-                                  keepdims=True)
+            jd = tf.math.reduce_sum(self.recurrent_kernel[v_mask[0] == 1], 
+                                    axis=0,
+                                    keepdims=True)
         else:
-          jd = 0.0
+            jd = 0.0
 
         _, _, _, h, hr, ipsc, hr_ipsc, _ = states
         if self.tau_rise == 0:
-          ipsc = ipsc * tf.math.exp(-self.dt / self.tau_syn) + jd / self.tau_syn 
+            ipsc = ipsc * tf.math.exp(-self.dt / self.tau_syn) + jd / self.tau_syn 
           
-          # single exponential synpatic filter 
-          h = h * tf.math.exp(-self.dt / self.tau_syn) + v_mask / self.tau_syn
+            # single exponential synpatic filter 
+            h = h * tf.math.exp(-self.dt / self.tau_syn) + v_mask / self.tau_syn
         else:
-          ipsc = ipsc * tf.math.exp(-self.dt / self.tau_decay) + hr_ipsc * self.dt
-          hr_ipsc = hr_ipsc * tf.math.exp(-self.dt / self.tau_rise) + jd / (self.tau_rise * self.tau_decay)
+            ipsc = ipsc * tf.math.exp(-self.dt / self.tau_decay) + hr_ipsc * self.dt
+            hr_ipsc = hr_ipsc * tf.math.exp(-self.dt / self.tau_rise) + jd / (self.tau_rise * self.tau_decay)
           
-          # double exponential synpatic filter
-          h = h * tf.math.exp(-self.dt / self.tau_decay) + hr * self.dt
-          hr = hr * tf.math.exp(-self.dt / self.tau_rise) + v_mask / (self.tau_rise * self.tau_decay)
+            # double exponential synpatic filter
+            h = h * tf.math.exp(-self.dt / self.tau_decay) + hr * self.dt
+            hr = hr * tf.math.exp(-self.dt / self.tau_rise) + v_mask / (self.tau_rise * self.tau_decay)
 
         return h, hr, ipsc, hr_ipsc
 

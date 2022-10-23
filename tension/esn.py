@@ -1,5 +1,5 @@
 import tensorflow as tf
-from base import FORCEModel
+from .base import FORCEModel
 
 class ESNFORCEModel(FORCEModel):
     def __init__(self, n_max, alpha_sq=1, num_skip=0, **kwargs):

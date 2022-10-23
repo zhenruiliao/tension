@@ -62,6 +62,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#callbacks">Callbacks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#xla">XLA</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#gpu-support">GPU Support</a></li>
 </ul>
 </li>
@@ -493,6 +494,17 @@ with <code class="docutils literal notranslate"><span class="pre">base.FORCEMode
 like with a typical Keras model. See <a class="reference external" href="https://www.tensorflow.org/guide/keras/custom_callback">the custom callbacks article</a>
 for instructions on writing custom Keras callbacks. Inside the callback object, the layer
 states as a list of tensors can be accessed via <code class="docutils literal notranslate"><span class="pre">self.model.force_layer.states</span></code>.</p>
+</section>
+<section id="xla">
+<h2>XLA<a class="headerlink" href="#xla" title="Permalink to this headline"></a></h2>
+<p>XLA may be able to speed up training on CPU. To use XLA, set <cite>jit_compile</cite> parameter
+to <cite>True</cite> when compiling the model:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="o">...</span>
+<span class="n">ffmodel</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">metrics</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;mae&quot;</span><span class="p">],</span> <span class="n">jit_compile</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="o">...</span>
+</pre></div>
+</div>
+<p>For more information, see <a class="reference external" href="https://www.tensorflow.org/xla">Tensorflow XLA documentation</a>.</p>
 </section>
 <section id="gpu-support">
 <h2>GPU Support<a class="headerlink" href="#gpu-support" title="Permalink to this headline"></a></h2>

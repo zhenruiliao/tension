@@ -137,9 +137,9 @@ class ConstrainedNoFeedbackESN(FORCELayer):
               the output of each neuron  
         """
         if self._initial_a is not None:
-          init_a = self._initial_a
+            init_a = self._initial_a
         else:
-          init_a = tf.zeros((batch_size, self.units))  
+            init_a = tf.zeros((batch_size, self.units))  
         init_h =  self.activation(init_a)
         init_out = backend.dot(init_h, self.recurrent_kernel) 
 

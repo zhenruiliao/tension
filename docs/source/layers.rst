@@ -6,29 +6,29 @@ FORCE Layers
 
 Base FORCE Layer
 ----------------
-.. autoclass:: base.FORCELayer
+.. autoclass:: tension.base.FORCELayer
    :members: initialize_input_kernel, initialize_recurrent_kernel, 
              initialize_feedback_kernel, initialize_output_kernel, 
              build, from_weights, call, get_initial_state
 
 Echo State Networks
 -------------------
-.. autoclass:: models.EchoStateNetwork
+.. autoclass:: tension.models.EchoStateNetwork
    :members:
-.. autoclass:: models.NoFeedbackESN
+.. autoclass:: tension.models.NoFeedbackESN
    :members:
-.. autoclass:: constrained.ConstrainedNoFeedbackESN
+.. autoclass:: tension.constrained.ConstrainedNoFeedbackESN
    :members:
 
 Spiking Networks
 ----------------
-.. autoclass:: spiking.SpikingNN
+.. autoclass:: tension.spiking.SpikingNN
    :members:
-.. autoclass:: spiking.OptimizedSpikingNN
+.. autoclass:: tension.spiking.OptimizedSpikingNN
    :members:
-.. autoclass:: spiking.LIF
+.. autoclass:: tension.spiking.LIF
    :members:
-.. autoclass:: spiking.Izhikevich
+.. autoclass:: tension.spiking.Izhikevich
    :members:
-.. autoclass:: spiking.Theta
+.. autoclass:: tension.spiking.Theta
    :members:

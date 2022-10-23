@@ -79,8 +79,8 @@
 <section id="base-force-model">
 <span id="base-forcemodel"></span><h2>Base FORCE Model<a class="headerlink" href="#base-force-model" title="Permalink to this headline"></a></h2>
 <dl class="py class">
-<dt class="sig sig-object py" id="base.FORCEModel">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">base.</span></span><span class="sig-name descname"><span class="pre">FORCEModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#base.FORCEModel" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="tension.base.FORCEModel">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tension.base.</span></span><span class="sig-name descname"><span class="pre">FORCEModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tension.base.FORCEModel" title="Permalink to this definition"></a></dt>
 <dd><p>Base class for FORCE model per <a class="reference external" href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2756108/">Sussillo and Abbott</a>.</p>
 <p>Input to the model during <code class="docutils literal notranslate"><span class="pre">FORCEModel</span></code>’s <cite>fit</cite>, <cite>predict</cite>, or <cite>evaluate</cite> methods  
 should be of shape <code class="docutils literal notranslate"><span class="pre">timesteps</span> <span class="pre">x</span> <span class="pre">input</span> <span class="pre">dimension</span></code> or <code class="docutils literal notranslate"><span class="pre">batch</span> <span class="pre">size</span> <span class="pre">x</span> <span class="pre">timesteps</span> <span class="pre">x</span> <span class="pre">input</span> <span class="pre">dimension</span></code>.
@@ -97,7 +97,7 @@ respectively or <code class="docutils literal notranslate"><span class="pre">bat
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>force_layer</strong> (<em>class</em><em>[</em><a class="reference internal" href="layers.html#base.FORCELayer" title="base.FORCELayer"><em>FORCELayer</em></a><em>] or </em><em>equiv.</em>) – A FORCE Layer object or one of its subclasses.</p></li>
+<li><p><strong>force_layer</strong> (<em>class</em><em>[</em><a class="reference internal" href="layers.html#tension.base.FORCELayer" title="tension.base.FORCELayer"><em>FORCELayer</em></a><em>] or </em><em>equiv.</em>) – A FORCE Layer object or one of its subclasses.</p></li>
 <li><p><strong>alpha_P</strong> (<em>float</em>) – Constant parameter for initializing the P matrix. (<em>Default: 1.0</em>)</p></li>
 <li><p><strong>return_sequences</strong> (<em>bool</em>) – If True, target is returned as a sequence of the same 
 length as the number of time steps in the input. (<em>Default: True</em>) <strong>Note:</strong>
@@ -106,8 +106,8 @@ must be <code class="docutils literal notranslate"><span class="pre">True</span>
 </dd>
 </dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="base.FORCEModel.build">
-<span class="sig-name descname"><span class="pre">build</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_shape</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#base.FORCEModel.build" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="tension.base.FORCEModel.build">
+<span class="sig-name descname"><span class="pre">build</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_shape</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tension.base.FORCEModel.build" title="Permalink to this definition"></a></dt>
 <dd><p>Inherited from <code class="docutils literal notranslate"><span class="pre">tensorflow.keras.Model.build</span></code>, also calls method that performs the 
 initialization of variables the model requires for training. Typically called implicitly.</p>
 <dl class="field-list simple">
@@ -118,8 +118,8 @@ initialization of variables the model requires for training. Typically called im
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="base.FORCEModel.call">
-<span class="sig-name descname"><span class="pre">call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">training</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reset_states</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#base.FORCEModel.call" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="tension.base.FORCEModel.call">
+<span class="sig-name descname"><span class="pre">call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">training</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reset_states</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tension.base.FORCEModel.call" title="Permalink to this definition"></a></dt>
 <dd><p>Inherited and serves the same function as from <cite>tensorflow.keras.Model.call</cite>.</p>
 <p><strong>Note:</strong> By default, <code class="docutils literal notranslate"><span class="pre">reset_states=False</span></code> and therefore, the <code class="docutils literal notranslate"><span class="pre">self.force_layer</span></code>’s 
 states are <strong>not</strong> reset at the end of the execution.</p>
@@ -137,8 +137,8 @@ states are <strong>not</strong> reset at the end of the execution.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="base.FORCEModel.coerce_input_data">
-<span class="sig-name descname"><span class="pre">coerce_input_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#base.FORCEModel.coerce_input_data" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="tension.base.FORCEModel.coerce_input_data">
+<span class="sig-name descname"><span class="pre">coerce_input_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tension.base.FORCEModel.coerce_input_data" title="Permalink to this definition"></a></dt>
 <dd><p>Coerces the input data to a desired shape based on method used 
 (<cite>fit</cite>, <cite>predict</cite>, <cite>evaluate</cite>).</p>
 <dl class="field-list simple">
@@ -154,8 +154,8 @@ states are <strong>not</strong> reset at the end of the execution.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="base.FORCEModel.compile">
-<span class="sig-name descname"><span class="pre">compile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">metrics</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#base.FORCEModel.compile" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="tension.base.FORCEModel.compile">
+<span class="sig-name descname"><span class="pre">compile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">metrics</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tension.base.FORCEModel.compile" title="Permalink to this definition"></a></dt>
 <dd><p>A wrapper around <cite>tensorflow.keras.Model.compile</cite>.</p>
 <p><strong>Note:</strong> The <em>optimizer</em> and <em>loss</em> parameters are not supported.</p>
 <dl class="field-list simple">
@@ -166,8 +166,8 @@ states are <strong>not</strong> reset at the end of the execution.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="base.FORCEModel.evaluate">
-<span class="sig-name descname"><span class="pre">evaluate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#base.FORCEModel.evaluate" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="tension.base.FORCEModel.evaluate">
+<span class="sig-name descname"><span class="pre">evaluate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tension.base.FORCEModel.evaluate" title="Permalink to this definition"></a></dt>
 <dd><p>A wrapper around <cite>tensorflow.keras.Model.evaluate</cite>. 
 <strong>Note</strong>: the <em>batch_size</em> and <em>steps</em> parameter are not supported.</p>
 <dl class="field-list simple">
@@ -186,8 +186,8 @@ states are <strong>not</strong> reset at the end of the execution.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="base.FORCEModel.fit">
-<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epochs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'auto'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#base.FORCEModel.fit" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="tension.base.FORCEModel.fit">
+<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epochs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'auto'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tension.base.FORCEModel.fit" title="Permalink to this definition"></a></dt>
 <dd><p>A wrapper around <cite>tensorflow.keras.Model.fit</cite>. 
 <strong>Note:</strong> the <em>batch_size</em>, <em>validation_batch_size</em>,  <em>shuffle</em>, 
 <em>steps_per_epoch</em>, and <em>validation_steps</em> parameters are not supported.</p>
@@ -207,8 +207,8 @@ states are <strong>not</strong> reset at the end of the execution.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="base.FORCEModel.force_layer_call">
-<span class="sig-name descname"><span class="pre">force_layer_call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">training</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#base.FORCEModel.force_layer_call" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="tension.base.FORCEModel.force_layer_call">
+<span class="sig-name descname"><span class="pre">force_layer_call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">training</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tension.base.FORCEModel.force_layer_call" title="Permalink to this definition"></a></dt>
 <dd><p>Calls <code class="docutils literal notranslate"><span class="pre">self.force_layer</span></code>; to be customized via sub-classing.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -225,20 +225,20 @@ states are <strong>not</strong> reset at the end of the execution.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="base.FORCEModel.initialize_P">
-<span class="sig-name descname"><span class="pre">initialize_P</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#base.FORCEModel.initialize_P" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="tension.base.FORCEModel.initialize_P">
+<span class="sig-name descname"><span class="pre">initialize_P</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tension.base.FORCEModel.initialize_P" title="Permalink to this definition"></a></dt>
 <dd><p>Initializes the P matrices corresponding to the output and recurrent kernel necessary for FORCE.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="base.FORCEModel.initialize_train_idx">
-<span class="sig-name descname"><span class="pre">initialize_train_idx</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#base.FORCEModel.initialize_train_idx" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="tension.base.FORCEModel.initialize_train_idx">
+<span class="sig-name descname"><span class="pre">initialize_train_idx</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tension.base.FORCEModel.initialize_train_idx" title="Permalink to this definition"></a></dt>
 <dd><p>Finds the indices inside <code class="docutils literal notranslate"><span class="pre">self.trainable_variables</span></code> corresponding to the relevant kernel and P tensors.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="base.FORCEModel.predict">
-<span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#base.FORCEModel.predict" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="tension.base.FORCEModel.predict">
+<span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tension.base.FORCEModel.predict" title="Permalink to this definition"></a></dt>
 <dd><p>A wrapper around <cite>tensorflow.keras.Model.predict</cite>. 
 <strong>Note</strong>: the <em>batch_size</em> and <em>steps</em> parameter are not supported.</p>
 <dl class="field-list simple">
@@ -253,8 +253,8 @@ states are <strong>not</strong> reset at the end of the execution.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="base.FORCEModel.pseudogradient_P">
-<span class="sig-name descname"><span class="pre">pseudogradient_P</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">P</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#base.FORCEModel.pseudogradient_P" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="tension.base.FORCEModel.pseudogradient_P">
+<span class="sig-name descname"><span class="pre">pseudogradient_P</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">P</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tension.base.FORCEModel.pseudogradient_P" title="Permalink to this definition"></a></dt>
 <dd><p>Returns pseudogradient for the P tensor. Can be customized as needed if different
 update rule is required.</p>
 <p>Example array shapes:</p>
@@ -287,8 +287,8 @@ computation.</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="base.FORCEModel.pseudogradient_P_Gx">
-<span class="sig-name descname"><span class="pre">pseudogradient_P_Gx</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">P_Gx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#base.FORCEModel.pseudogradient_P_Gx" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="tension.base.FORCEModel.pseudogradient_P_Gx">
+<span class="sig-name descname"><span class="pre">pseudogradient_P_Gx</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">P_Gx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tension.base.FORCEModel.pseudogradient_P_Gx" title="Permalink to this definition"></a></dt>
 <dd><p>Returns pseudogradient for P corresponding to recurrent kernel</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -312,8 +312,8 @@ kernel.</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="base.FORCEModel.pseudogradient_wO">
-<span class="sig-name descname"><span class="pre">pseudogradient_wO</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">P</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Pht</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hPht</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#base.FORCEModel.pseudogradient_wO" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="tension.base.FORCEModel.pseudogradient_wO">
+<span class="sig-name descname"><span class="pre">pseudogradient_wO</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">P</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Pht</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hPht</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tension.base.FORCEModel.pseudogradient_wO" title="Permalink to this definition"></a></dt>
 <dd><p>Return pseudogradient for wO. Can be customized as needed if different
 update rule is required.</p>
 <p>Example array shapes:</p>
@@ -342,8 +342,8 @@ in the <cite>pseudogradient_P</cite> method (unused by default).</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="base.FORCEModel.pseudogradient_wR">
-<span class="sig-name descname"><span class="pre">pseudogradient_wR</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">P_Gx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Ph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hPh</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#base.FORCEModel.pseudogradient_wR" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="tension.base.FORCEModel.pseudogradient_wR">
+<span class="sig-name descname"><span class="pre">pseudogradient_wR</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">P_Gx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Ph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hPh</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tension.base.FORCEModel.pseudogradient_wR" title="Permalink to this definition"></a></dt>
 <dd><p>Return pseudogradient for wR</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -364,8 +364,8 @@ the recurrent kernel.</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="base.FORCEModel.train_step">
-<span class="sig-name descname"><span class="pre">train_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#base.FORCEModel.train_step" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="tension.base.FORCEModel.train_step">
+<span class="sig-name descname"><span class="pre">train_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tension.base.FORCEModel.train_step" title="Permalink to this definition"></a></dt>
 <dd><p>Inherited and serves the same function as from <cite>tensorflow.keras.Model.train_step</cite>. Performs
 weight updates for the output and recurrent kernels.</p>
 <p>Intended to be customized via Keras style sub-classing. For more details see:
@@ -373,8 +373,8 @@ weight updates for the output and recurrent kernels.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="base.FORCEModel.update_output_kernel">
-<span class="sig-name descname"><span class="pre">update_output_kernel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trainable_vars_P_output</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trainable_vars_output_kernel</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#base.FORCEModel.update_output_kernel" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="tension.base.FORCEModel.update_output_kernel">
+<span class="sig-name descname"><span class="pre">update_output_kernel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trainable_vars_P_output</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trainable_vars_output_kernel</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tension.base.FORCEModel.update_output_kernel" title="Permalink to this definition"></a></dt>
 <dd><p>Performs pseudogradient updates for output kernel and its corresponding P tensor.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -390,8 +390,8 @@ weight updates for the output and recurrent kernels.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="base.FORCEModel.update_recurrent_kernel">
-<span class="sig-name descname"><span class="pre">update_recurrent_kernel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trainable_vars_P_Gx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trainable_vars_recurrent_kernel</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#base.FORCEModel.update_recurrent_kernel" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="tension.base.FORCEModel.update_recurrent_kernel">
+<span class="sig-name descname"><span class="pre">update_recurrent_kernel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trainable_vars_P_Gx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trainable_vars_recurrent_kernel</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tension.base.FORCEModel.update_recurrent_kernel" title="Permalink to this definition"></a></dt>
 <dd><p>Performs pseudogradient updates for recurrent kernel and its corresponding P tensor</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -414,8 +414,8 @@ corresponding to the force layer’s recurrent kernel</p></li>
 <section id="inherited-force-model">
 <h2>Inherited FORCE Model<a class="headerlink" href="#inherited-force-model" title="Permalink to this headline"></a></h2>
 <dl class="py class">
-<dt class="sig sig-object py" id="models.FullFORCEModel">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">models.</span></span><span class="sig-name descname"><span class="pre">FullFORCEModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#models.FullFORCEModel" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="tension.models.FullFORCEModel">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tension.models.</span></span><span class="sig-name descname"><span class="pre">FullFORCEModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tension.models.FullFORCEModel" title="Permalink to this definition"></a></dt>
 <dd><p>Subclassed from FORCEModel, implements full FORCE learning by <a class="reference external" href="https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0191527">DePasquale et al.</a>.</p>
 <p>Target to the model should be of shape <code class="docutils literal notranslate"><span class="pre">timesteps</span> <span class="pre">x</span> <span class="pre">1</span></code> or <code class="docutils literal notranslate"><span class="pre">batch</span> <span class="pre">size</span> <span class="pre">x</span> <span class="pre">timesteps</span> <span class="pre">x</span> <span class="pre">1</span></code>. 
 Presently this class does not support masking out recurrent weights during 
@@ -439,8 +439,8 @@ During model call when <code class="docutils literal notranslate"><span class="p
 </dd>
 </dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="models.FullFORCEModel.build">
-<span class="sig-name descname"><span class="pre">build</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_shape</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#models.FullFORCEModel.build" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="tension.models.FullFORCEModel.build">
+<span class="sig-name descname"><span class="pre">build</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_shape</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tension.models.FullFORCEModel.build" title="Permalink to this definition"></a></dt>
 <dd><p>Inherited from <code class="docutils literal notranslate"><span class="pre">tensorflow.keras.Model.build</span></code>, also calls method that performs the 
 initialization of variables the model requires for training. Typically called implicitly.</p>
 <dl class="field-list simple">
@@ -451,8 +451,8 @@ initialization of variables the model requires for training. Typically called im
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="models.FullFORCEModel.call">
-<span class="sig-name descname"><span class="pre">call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">training</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reset_states</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#models.FullFORCEModel.call" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="tension.models.FullFORCEModel.call">
+<span class="sig-name descname"><span class="pre">call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">training</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reset_states</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tension.models.FullFORCEModel.call" title="Permalink to this definition"></a></dt>
 <dd><p>Inherited and serves the same function as from <cite>tensorflow.keras.Model.call</cite>.</p>
 <p><strong>Note:</strong> By default, <code class="docutils literal notranslate"><span class="pre">reset_states=False</span></code> and therefore, the <code class="docutils literal notranslate"><span class="pre">self.force_layer</span></code>’s 
 states are <strong>not</strong> reset at the end of the execution.</p>
@@ -470,8 +470,8 @@ states are <strong>not</strong> reset at the end of the execution.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="models.FullFORCEModel.force_layer_call">
-<span class="sig-name descname"><span class="pre">force_layer_call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">training</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#models.FullFORCEModel.force_layer_call" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="tension.models.FullFORCEModel.force_layer_call">
+<span class="sig-name descname"><span class="pre">force_layer_call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">training</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tension.models.FullFORCEModel.force_layer_call" title="Permalink to this definition"></a></dt>
 <dd><p>Calls <code class="docutils literal notranslate"><span class="pre">self.force_layer</span></code>; to be customized via sub-classing.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -488,15 +488,15 @@ states are <strong>not</strong> reset at the end of the execution.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="models.FullFORCEModel.initialize_P">
-<span class="sig-name descname"><span class="pre">initialize_P</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#models.FullFORCEModel.initialize_P" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="tension.models.FullFORCEModel.initialize_P">
+<span class="sig-name descname"><span class="pre">initialize_P</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tension.models.FullFORCEModel.initialize_P" title="Permalink to this definition"></a></dt>
 <dd><p>Initializes the P matrices corresponding to the output kernel  necessary for FORCE for the 
 task and target generating network.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="models.FullFORCEModel.initialize_target_network">
-<span class="sig-name descname"><span class="pre">initialize_target_network</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_shape</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#models.FullFORCEModel.initialize_target_network" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="tension.models.FullFORCEModel.initialize_target_network">
+<span class="sig-name descname"><span class="pre">initialize_target_network</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_shape</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tension.models.FullFORCEModel.initialize_target_network" title="Permalink to this definition"></a></dt>
 <dd><p>Initializes the target generating network.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -506,14 +506,14 @@ task and target generating network.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="models.FullFORCEModel.initialize_train_idx">
-<span class="sig-name descname"><span class="pre">initialize_train_idx</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#models.FullFORCEModel.initialize_train_idx" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="tension.models.FullFORCEModel.initialize_train_idx">
+<span class="sig-name descname"><span class="pre">initialize_train_idx</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tension.models.FullFORCEModel.initialize_train_idx" title="Permalink to this definition"></a></dt>
 <dd><p>Finds the indices inside <code class="docutils literal notranslate"><span class="pre">self.trainable_variables</span></code> corresponding to the relevant kernel and P tensors.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="models.FullFORCEModel.pseudogradient_wR_task">
-<span class="sig-name descname"><span class="pre">pseudogradient_wR_task</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">P_task</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wR_task</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h_task</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wR_target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h_target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fb_hint_sum</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#models.FullFORCEModel.pseudogradient_wR_task" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="tension.models.FullFORCEModel.pseudogradient_wR_task">
+<span class="sig-name descname"><span class="pre">pseudogradient_wR_task</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">P_task</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wR_task</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h_task</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wR_target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h_target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fb_hint_sum</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tension.models.FullFORCEModel.pseudogradient_wR_task" title="Permalink to this definition"></a></dt>
 <dd><p>Return pseudogradient for wR for the task network.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -531,8 +531,8 @@ components</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="models.FullFORCEModel.update_recurrent_kernel">
-<span class="sig-name descname"><span class="pre">update_recurrent_kernel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h_task</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h_target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fb_hint_sum</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trainable_vars</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#models.FullFORCEModel.update_recurrent_kernel" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="tension.models.FullFORCEModel.update_recurrent_kernel">
+<span class="sig-name descname"><span class="pre">update_recurrent_kernel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h_task</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h_target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fb_hint_sum</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trainable_vars</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tension.models.FullFORCEModel.update_recurrent_kernel" title="Permalink to this definition"></a></dt>
 <dd><p>Performs pseudogradient updates for recurrent kernel and its corresponding P tensor.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -550,20 +550,20 @@ components</p></li>
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="models.OptimizedFORCEModel">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">models.</span></span><span class="sig-name descname"><span class="pre">OptimizedFORCEModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#models.OptimizedFORCEModel" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="tension.models.OptimizedFORCEModel">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tension.models.</span></span><span class="sig-name descname"><span class="pre">OptimizedFORCEModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tension.models.OptimizedFORCEModel" title="Permalink to this definition"></a></dt>
 <dd><p>Optimized version of the FORCEModel class if all recurrent weights in the
 network is trainable.</p>
 <p>If the recurrent kernel is to be trained, then the target must be one dimensional.</p>
 <dl class="py method">
-<dt class="sig sig-object py" id="models.OptimizedFORCEModel.initialize_P">
-<span class="sig-name descname"><span class="pre">initialize_P</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#models.OptimizedFORCEModel.initialize_P" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="tension.models.OptimizedFORCEModel.initialize_P">
+<span class="sig-name descname"><span class="pre">initialize_P</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tension.models.OptimizedFORCEModel.initialize_P" title="Permalink to this definition"></a></dt>
 <dd><p>Initializes the P matrices corresponding to the output and recurrent kernel necessary for FORCE.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="models.OptimizedFORCEModel.pseudogradient_P_Gx">
-<span class="sig-name descname"><span class="pre">pseudogradient_P_Gx</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">P_Gx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#models.OptimizedFORCEModel.pseudogradient_P_Gx" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="tension.models.OptimizedFORCEModel.pseudogradient_P_Gx">
+<span class="sig-name descname"><span class="pre">pseudogradient_P_Gx</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">P_Gx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tension.models.OptimizedFORCEModel.pseudogradient_P_Gx" title="Permalink to this definition"></a></dt>
 <dd><p>Returns pseudogradient for P corresponding to recurrent kernel</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -587,8 +587,8 @@ kernel.</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="models.OptimizedFORCEModel.pseudogradient_wR">
-<span class="sig-name descname"><span class="pre">pseudogradient_wR</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">P_Gx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Ph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hPh</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#models.OptimizedFORCEModel.pseudogradient_wR" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="tension.models.OptimizedFORCEModel.pseudogradient_wR">
+<span class="sig-name descname"><span class="pre">pseudogradient_wR</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">P_Gx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Ph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hPh</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tension.models.OptimizedFORCEModel.pseudogradient_wR" title="Permalink to this definition"></a></dt>
 <dd><p>Return pseudogradient for wR</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -611,12 +611,12 @@ the recurrent kernel.</p></li>
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="constrained.BioFORCEModel">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">constrained.</span></span><span class="sig-name descname"><span class="pre">BioFORCEModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#constrained.BioFORCEModel" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="tension.constrained.BioFORCEModel">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tension.constrained.</span></span><span class="sig-name descname"><span class="pre">BioFORCEModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tension.constrained.BioFORCEModel" title="Permalink to this definition"></a></dt>
 <dd><p>Trains constrained ESN without feedback based on <a class="reference external" href="https://pubmed.ncbi.nlm.nih.gov/34197732/">Hadjiabadi et al.</a>.</p>
 <dl class="py method">
-<dt class="sig sig-object py" id="constrained.BioFORCEModel.pseudogradient_wR">
-<span class="sig-name descname"><span class="pre">pseudogradient_wR</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">P_Gx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Ph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hPh</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#constrained.BioFORCEModel.pseudogradient_wR" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="tension.constrained.BioFORCEModel.pseudogradient_wR">
+<span class="sig-name descname"><span class="pre">pseudogradient_wR</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">P_Gx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Ph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hPh</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tension.constrained.BioFORCEModel.pseudogradient_wR" title="Permalink to this definition"></a></dt>
 <dd><p>Return pseudogradient for wR</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -639,12 +639,12 @@ the recurrent kernel.</p></li>
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="spiking.SpikingNNModel">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spiking.</span></span><span class="sig-name descname"><span class="pre">SpikingNNModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spiking.SpikingNNModel" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="tension.spiking.SpikingNNModel">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tension.spiking.</span></span><span class="sig-name descname"><span class="pre">SpikingNNModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tension.spiking.SpikingNNModel" title="Permalink to this definition"></a></dt>
 <dd><p>Implements FORCE training on spiking neural networks per <a class="reference external" href="https://www.nature.com/articles/s41467-017-01827-3">Nicola and Clopath</a>.</p>
 <dl class="py method">
-<dt class="sig sig-object py" id="spiking.SpikingNNModel.force_layer_call">
-<span class="sig-name descname"><span class="pre">force_layer_call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">training</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spiking.SpikingNNModel.force_layer_call" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="tension.spiking.SpikingNNModel.force_layer_call">
+<span class="sig-name descname"><span class="pre">force_layer_call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">training</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tension.spiking.SpikingNNModel.force_layer_call" title="Permalink to this definition"></a></dt>
 <dd><p>Calls <code class="docutils literal notranslate"><span class="pre">self.force_layer</span></code>; to be customized via sub-classing.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
