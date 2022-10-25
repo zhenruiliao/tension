@@ -1,6 +1,9 @@
 import unittest
 import sys
 import json
+
+with open(sys.argv[-1], 'rb') as f:
+    INPUT_DICT = json.load(f)
 sys.path.insert(0, '../')
 
 from tension.base import FORCEModel
@@ -49,9 +52,6 @@ def fullforce_oscillation_test(dt, showplots=0):
     
     return inp.astype(np.float32), targ.astype(np.float32), hints.astype(np.float32)
 
-with open('test_inputs.json', 'rb') as f:
-    INPUT_DICT = json.load(f)
-
 class TestESNwithFORCE(unittest.TestCase):
     def setUp(self):
         dt = 0.01
@@ -77,15 +77,15 @@ class TestESNwithFORCE(unittest.TestCase):
                                        verbose=0,
                                        validation_data=(self.inputs, self.target))
 
-        self.assertEqual(INPUT_DICT['TestESNwithFORCE']['mae'], history.history['mae'], 
+        self.assertEqual(np.allclose(INPUT_DICT['TestESNwithFORCE']['mae'], history.history['mae']), True, 
                          "Wrong Loss")
-        self.assertEqual(INPUT_DICT['TestESNwithFORCE']['val_mae'], history.history['val_mae'], 
+        self.assertEqual(np.allclose(INPUT_DICT['TestESNwithFORCE']['val_mae'], history.history['val_mae']), True, 
                          "Wrong Validation Loss")
-        self.assertEqual(INPUT_DICT['TestESNwithFORCE']['predict'], self.force_model.predict(self.inputs, verbose=0).tolist(), 
+        self.assertEqual(np.allclose(INPUT_DICT['TestESNwithFORCE']['predict'], self.force_model.predict(self.inputs, verbose=0).tolist()), True, 
                          "Wrong Predictions")
-        self.assertEqual(INPUT_DICT['TestESNwithFORCE']['final_output_kernel'], self.fb_esn_layer.output_kernel.numpy().tolist(), 
+        self.assertEqual(np.allclose(INPUT_DICT['TestESNwithFORCE']['final_output_kernel'], self.fb_esn_layer.output_kernel.numpy().tolist()), True, 
                          'Output kernel incorrect')
-        self.assertEqual(INPUT_DICT['TestESNwithFORCE']['final_states'], self.force_model.force_layer.states[0].numpy().tolist(),
+        self.assertEqual(np.allclose(INPUT_DICT['TestESNwithFORCE']['final_states'], self.force_model.force_layer.states[0].numpy().tolist()), True,
                          'States incorrect')
 
 class TestNoFBESNwithFORCE(unittest.TestCase):
@@ -111,17 +111,17 @@ class TestNoFBESNwithFORCE(unittest.TestCase):
                                        verbose=0,
                                        validation_data=(self.inputs, self.target))
         
-        self.assertEqual(INPUT_DICT['TestNoFBESNwithFORCE']['mae'], history.history['mae'], 
+        self.assertEqual(np.allclose(INPUT_DICT['TestNoFBESNwithFORCE']['mae'], history.history['mae']), True, 
                          "Wrong Loss")
-        self.assertEqual(INPUT_DICT['TestNoFBESNwithFORCE']['val_mae'], history.history['val_mae'], 
+        self.assertEqual(np.allclose(INPUT_DICT['TestNoFBESNwithFORCE']['val_mae'], history.history['val_mae']), True, 
                          "Wrong Validation Loss")
-        self.assertEqual(INPUT_DICT['TestNoFBESNwithFORCE']['predict'], self.force_model.predict(self.inputs, verbose=0).tolist(), 
+        self.assertEqual(np.allclose(INPUT_DICT['TestNoFBESNwithFORCE']['predict'], self.force_model.predict(self.inputs, verbose=0).tolist()), True, 
                          "Wrong Predictions")
-        self.assertEqual(INPUT_DICT['TestNoFBESNwithFORCE']['final_output_kernel'], self.no_fb_esn_layer.output_kernel.numpy().tolist(), 
+        self.assertEqual(np.allclose(INPUT_DICT['TestNoFBESNwithFORCE']['final_output_kernel'], self.no_fb_esn_layer.output_kernel.numpy().tolist()), True, 
                          'Output kernel incorrect')
-        self.assertEqual(INPUT_DICT['TestNoFBESNwithFORCE']['final_recurrent_kernel'], self.no_fb_esn_layer.recurrent_kernel.numpy().tolist(), 
+        self.assertEqual(np.allclose(INPUT_DICT['TestNoFBESNwithFORCE']['final_recurrent_kernel'], self.no_fb_esn_layer.recurrent_kernel.numpy().tolist()), True, 
                          'Recurrent kernel incorrect')
-        self.assertEqual(INPUT_DICT['TestNoFBESNwithFORCE']['final_states'], self.force_model.force_layer.states[0].numpy().tolist(),
+        self.assertEqual(np.allclose(INPUT_DICT['TestNoFBESNwithFORCE']['final_states'], self.force_model.force_layer.states[0].numpy().tolist()), True,
                          'States incorrect')
 
 class TestConstrainedNoFBESNwithFORCE(unittest.TestCase):
@@ -154,17 +154,16 @@ class TestConstrainedNoFBESNwithFORCE(unittest.TestCase):
                                        verbose=0,
                                        validation_data=(self.inputs, self.target))
         
-        self.assertEqual(INPUT_DICT['TestConstrainedNoFBESNwithFORCE']['mae'], history.history['mae'], 
+        self.assertEqual(np.allclose(INPUT_DICT['TestConstrainedNoFBESNwithFORCE']['mae'], history.history['mae']), True, 
                          "Wrong Loss")
-        self.assertEqual(INPUT_DICT['TestConstrainedNoFBESNwithFORCE']['val_mae'], history.history['val_mae'], 
+        self.assertEqual(np.allclose(INPUT_DICT['TestConstrainedNoFBESNwithFORCE']['val_mae'], history.history['val_mae']), True, 
                          "Wrong Validation Loss")
-        self.assertEqual(INPUT_DICT['TestConstrainedNoFBESNwithFORCE']['predict'], self.force_model.predict(self.inputs, verbose=0).tolist(), 
+        self.assertEqual(np.allclose(INPUT_DICT['TestConstrainedNoFBESNwithFORCE']['predict'], self.force_model.predict(self.inputs, verbose=0).tolist()), True, 
                          "Wrong Predictions")
-        self.assertEqual(INPUT_DICT['TestConstrainedNoFBESNwithFORCE']['final_recurrent_kernel'], self.no_fb_esn_layer.recurrent_kernel.numpy().tolist(), 
+        self.assertEqual(np.allclose(INPUT_DICT['TestConstrainedNoFBESNwithFORCE']['final_recurrent_kernel'], self.no_fb_esn_layer.recurrent_kernel.numpy().tolist()), True, 
                          'Recurrent kernel incorrect')
-        self.assertEqual(INPUT_DICT['TestConstrainedNoFBESNwithFORCE']['final_states'], self.force_model.force_layer.states[0].numpy().tolist(),
+        self.assertEqual(np.allclose(INPUT_DICT['TestConstrainedNoFBESNwithFORCE']['final_states'], self.force_model.force_layer.states[0].numpy().tolist()), True,
                          'States incorrect')
-
 
 class TestLIFwithFORCE(unittest.TestCase):
     def setUp(self):
@@ -212,19 +211,18 @@ class TestLIFwithFORCE(unittest.TestCase):
                                        verbose=0,
                                        validation_data=(self.inputs, self.target))
 
-        self.assertEqual(INPUT_DICT['TestLIFwithFORCE']['mae'], history.history['mae'], 
+        self.assertEqual(np.allclose(INPUT_DICT['TestLIFwithFORCE']['mae'], history.history['mae']), True, 
                          "Wrong Loss")
-        self.assertEqual(INPUT_DICT['TestLIFwithFORCE']['val_mae'], history.history['val_mae'], 
+        self.assertEqual(np.allclose(INPUT_DICT['TestLIFwithFORCE']['val_mae'], history.history['val_mae']), True, 
                          "Wrong Validation Loss")
-        self.assertEqual(INPUT_DICT['TestLIFwithFORCE']['predict'], self.force_model.predict(self.inputs, verbose=0).tolist(), 
+        self.assertEqual(np.allclose(INPUT_DICT['TestLIFwithFORCE']['predict'], self.force_model.predict(self.inputs, verbose=0).tolist()), True, 
                          "Wrong Predictions")
-        self.assertEqual(INPUT_DICT['TestLIFwithFORCE']['final_output_kernel'], self.LIF_layer.output_kernel.numpy().tolist(), 
+        self.assertEqual(np.allclose(INPUT_DICT['TestLIFwithFORCE']['final_output_kernel'], self.LIF_layer.output_kernel.numpy().tolist()), True, 
                          'Output kernel incorrect')
-        self.assertEqual(INPUT_DICT['TestLIFwithFORCE']['final_voltage'], self.force_model.force_layer.states[1].numpy().tolist(),
+        self.assertEqual(np.allclose(INPUT_DICT['TestLIFwithFORCE']['final_voltage'], self.force_model.force_layer.states[1].numpy().tolist()), True,
                          'Final voltage incorrect')    
-        self.assertEqual(INPUT_DICT['TestLIFwithFORCE']['final_h'], self.force_model.force_layer.states[3].numpy().tolist(),
+        self.assertEqual(np.allclose(INPUT_DICT['TestLIFwithFORCE']['final_h'], self.force_model.force_layer.states[3].numpy().tolist()), True,
                          'Final firing rate incorrect')  
-
 
 class TestThetawithFORCE(unittest.TestCase):
     def setUp(self):
@@ -268,17 +266,17 @@ class TestThetawithFORCE(unittest.TestCase):
                                        epochs=3,
                                        verbose=0,
                                        validation_data=(self.inputs, self.target))
-        self.assertEqual(INPUT_DICT['TestThetawithFORCE']['mae'], history.history['mae'], 
+        self.assertEqual(np.allclose(INPUT_DICT['TestThetawithFORCE']['mae'], history.history['mae']), True, 
                          "Wrong Loss")
-        self.assertEqual(INPUT_DICT['TestThetawithFORCE']['val_mae'], history.history['val_mae'], 
+        self.assertEqual(np.allclose(INPUT_DICT['TestThetawithFORCE']['val_mae'], history.history['val_mae']), True, 
                          "Wrong Validation Loss")
-        self.assertEqual(INPUT_DICT['TestThetawithFORCE']['predict'], self.force_model.predict(self.inputs, verbose=0).tolist(), 
+        self.assertEqual(np.allclose(INPUT_DICT['TestThetawithFORCE']['predict'], self.force_model.predict(self.inputs, verbose=0).tolist()), True, 
                          "Wrong Predictions")
-        self.assertEqual(INPUT_DICT['TestThetawithFORCE']['final_output_kernel'], self.Theta_layer.output_kernel.numpy().tolist(), 
+        self.assertEqual(np.allclose(INPUT_DICT['TestThetawithFORCE']['final_output_kernel'], self.Theta_layer.output_kernel.numpy().tolist()), True, 
                          "Output kernel incorrect")
-        self.assertEqual(INPUT_DICT['TestThetawithFORCE']['final_voltage'], self.force_model.force_layer.states[1].numpy().tolist(),
+        self.assertEqual(np.allclose(INPUT_DICT['TestThetawithFORCE']['final_voltage'], self.force_model.force_layer.states[1].numpy().tolist()), True,
                          "Final voltage incorrect")    
-        self.assertEqual(INPUT_DICT['TestThetawithFORCE']['final_h'], self.force_model.force_layer.states[3].numpy().tolist(),
+        self.assertEqual(np.allclose(INPUT_DICT['TestThetawithFORCE']['final_h'], self.force_model.force_layer.states[3].numpy().tolist()), True,
                          "Final firing rate incorrect")  
 
 class TestIzhikevichwithFORCE(unittest.TestCase):
@@ -338,18 +336,18 @@ class TestIzhikevichwithFORCE(unittest.TestCase):
                                        epochs=5,
                                        verbose=0,
                                        validation_data=(self.inputs, self.target))
-        self.assertEqual(INPUT_DICT['TestIzhikevichwithFORCE']['mae'], history.history['mae'], 
+        self.assertEqual(np.allclose(INPUT_DICT['TestIzhikevichwithFORCE']['mae'], history.history['mae']), True, 
                          "Wrong Loss")
-        self.assertEqual(INPUT_DICT['TestIzhikevichwithFORCE']['val_mae'], history.history['val_mae'], 
+        self.assertEqual(np.allclose(INPUT_DICT['TestIzhikevichwithFORCE']['val_mae'], history.history['val_mae']), True, 
                          "Wrong Validation Loss")
-        self.assertEqual(INPUT_DICT['TestIzhikevichwithFORCE']['predict'], self.force_model.predict(self.inputs, verbose=0).tolist(), 
+        self.assertEqual(np.allclose(INPUT_DICT['TestIzhikevichwithFORCE']['predict'], self.force_model.predict(self.inputs, verbose=0).tolist()), True, 
                          "Wrong Predictions")
-        self.assertEqual(INPUT_DICT['TestIzhikevichwithFORCE']['final_output_kernel'], self.Izhikevich_layer.output_kernel.numpy().tolist(), 
+        self.assertEqual(np.allclose(INPUT_DICT['TestIzhikevichwithFORCE']['final_output_kernel'], self.Izhikevich_layer.output_kernel.numpy().tolist()), True, 
                          "Output kernel incorrect")
-        self.assertEqual(INPUT_DICT['TestIzhikevichwithFORCE']['final_voltage'], self.force_model.force_layer.states[1].numpy().tolist(),
+        self.assertEqual(np.allclose(INPUT_DICT['TestIzhikevichwithFORCE']['final_voltage'], self.force_model.force_layer.states[1].numpy().tolist()), True,
                          "Final voltage incorrect")    
-        self.assertEqual(INPUT_DICT['TestIzhikevichwithFORCE']['final_h'], self.force_model.force_layer.states[3].numpy().tolist(),
+        self.assertEqual(np.allclose(INPUT_DICT['TestIzhikevichwithFORCE']['final_h'], self.force_model.force_layer.states[3].numpy().tolist()), True,
                          "Final firing rate incorrect")  
 
 if __name__ == "__main__":
-    unittest.main()
+    unittest.main(argv=['first-arg-is-ignored'], exit=False)

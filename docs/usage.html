@@ -62,6 +62,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#callbacks">Callbacks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#tests">Tests</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#xla">XLA</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#gpu-support">GPU Support</a></li>
 </ul>
@@ -495,13 +496,32 @@ like with a typical Keras model. See <a class="reference external" href="https:/
 for instructions on writing custom Keras callbacks. Inside the callback object, the layer
 states as a list of tensors can be accessed via <code class="docutils literal notranslate"><span class="pre">self.model.force_layer.states</span></code>.</p>
 </section>
+<section id="tests">
+<h2>Tests<a class="headerlink" href="#tests" title="Permalink to this headline"></a></h2>
+<p>Run <code class="docutils literal notranslate"><span class="pre">test.py</span></code> as follows after going into the <cite>tests</cite> directory:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">test</span><span class="o">.</span><span class="n">py</span> <span class="n">test_inputs</span><span class="o">.</span><span class="n">json</span>
+</pre></div>
+</div>
+<p>Note that all tests will fail on a Windows OS, and that on a Linux OS, some tests may also fail.</p>
+</section>
 <section id="xla">
 <h2>XLA<a class="headerlink" href="#xla" title="Permalink to this headline"></a></h2>
 <p>XLA may be able to speed up training on CPU. To use XLA, set <cite>jit_compile</cite> parameter
 to <cite>True</cite> when compiling the model:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="o">...</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">models</span> <span class="kn">import</span> <span class="n">FullFORCEModel</span><span class="p">,</span> <span class="n">NoFeedbackESN</span>
+
+<span class="n">no_fb_esn_layer</span> <span class="o">=</span> <span class="n">NoFeedbackESN</span><span class="p">(</span><span class="n">dtdivtau</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+                                <span class="n">units</span><span class="o">=</span><span class="mi">400</span><span class="p">,</span>
+                                <span class="n">output_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                                <span class="n">activation</span><span class="o">=</span><span class="s1">&#39;tanh&#39;</span><span class="p">)</span>
+<span class="n">ffmodel</span> <span class="o">=</span> <span class="n">FullFORCEModel</span><span class="p">(</span><span class="n">force_layer</span><span class="o">=</span><span class="n">no_fb_esn_layer</span><span class="p">,</span>
+                         <span class="n">target_output_kernel_trainable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                         <span class="n">hint_dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 <span class="n">ffmodel</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">metrics</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;mae&quot;</span><span class="p">],</span> <span class="n">jit_compile</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="o">...</span>
+<span class="n">history</span> <span class="o">=</span> <span class="n">ffmodel</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">inputs_with_hint</span><span class="p">,</span>
+                      <span class="n">y</span><span class="o">=</span><span class="n">target</span><span class="p">,</span>
+                      <span class="n">epochs</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<span class="n">predictions</span> <span class="o">=</span> <span class="n">ffmodel</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>For more information, see <a class="reference external" href="https://www.tensorflow.org/xla">Tensorflow XLA documentation</a>.</p>

@@ -450,6 +450,17 @@ like with a typical Keras model. See `the custom callbacks article
 for instructions on writing custom Keras callbacks. Inside the callback object, the layer 
 states as a list of tensors can be accessed via ``self.model.force_layer.states``. 
 
+Tests
+-----
+
+Run ``test.py`` as follows after going into the `tests` directory: 
+
+.. code-block:: python
+
+    python test.py test_inputs.json
+    
+Note that all tests will fail on a Windows OS, and that on a Linux OS, some tests may also fail. 
+
 XLA
 ---
 
@@ -458,9 +469,20 @@ to `True` when compiling the model:
 
 .. code-block:: python
 
-    ...
+    from models import FullFORCEModel, NoFeedbackESN
+    
+    no_fb_esn_layer = NoFeedbackESN(dtdivtau=0.1, 
+                                    units=400, 
+                                    output_size=1, 
+                                    activation='tanh')
+    ffmodel = FullFORCEModel(force_layer=no_fb_esn_layer, 
+                             target_output_kernel_trainable=False, 
+                             hint_dim=1)  
     ffmodel.compile(metrics=["mae"], jit_compile=True)  
-    ...
+    history = ffmodel.fit(x=inputs_with_hint, 
+                          y=target, 
+                          epochs=5)
+    predictions = ffmodel.predict(inputs)
 
 For more information, see `Tensorflow XLA documentation <https://www.tensorflow.org/xla>`_.
 
@@ -470,4 +492,5 @@ GPU Support
 TENSION models can use GPU like any normal Keras model. 
 See `Tensorflow documentation <https://www.tensorflow.org/guide/gpu>`_ 
 for GPU support for Tensorflow.
+
 
