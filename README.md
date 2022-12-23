@@ -25,7 +25,7 @@ conda activate tension
 #### From GitHub
 Clone this repo using
 ```
-git clone git@github.com:zhenruiliao/tension.git
+git clone https://github.com/zhenruiliao/tension.git
 ```
 Change into the `tension` directory and install using `pip`
 ```

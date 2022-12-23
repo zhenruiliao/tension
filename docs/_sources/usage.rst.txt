@@ -32,7 +32,7 @@ without feedback.
 
 .. code-block:: python
 
-    from models import FullFORCEModel, NoFeedbackESN
+    from tension.models import FullFORCEModel, NoFeedbackESN
     
     no_fb_esn_layer = NoFeedbackESN(dtdivtau=0.1, 
                                     units=400, 
@@ -469,7 +469,7 @@ to `True` when compiling the model:
 
 .. code-block:: python
 
-    from models import FullFORCEModel, NoFeedbackESN
+    from tension.models import FullFORCEModel, NoFeedbackESN
     
     no_fb_esn_layer = NoFeedbackESN(dtdivtau=0.1, 
                                     units=400, 

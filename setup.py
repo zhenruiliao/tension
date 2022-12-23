@@ -12,8 +12,8 @@ install_requires = [
 
 setuptools.setup(
     name="tension",
-    version="0.1",
-    author="Zhenrui Liao",
+    version="0.2",
+    author="Zhenrui Liao, Lu Bin Liu",
     author_email="zhenrui.liao@columbia.edu",
     description="A Python package for training chaotic Echo State and Spiking RNNs",
     long_description=long_description,
@@ -28,7 +28,8 @@ setuptools.setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
-    packages=setuptools.find_packages(where="tension"),
+    packages=setuptools.find_packages(where="src"),
+    package_dir={'' : 'src'},
     python_requires=">=3.7",
 )
 
