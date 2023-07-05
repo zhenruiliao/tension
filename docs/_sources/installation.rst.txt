@@ -8,7 +8,10 @@ To use TENSION, first create a new virtual environment using conda:
    (.venv) $ conda create -n tension python=3.7
    (.venv) $ conda activate tension
 
-then ``cd`` to a desired directory, clone the repo, and install using pip
+Installing from GitHub 
+----------------------
+
+``cd`` to a desired directory, clone the repo, and install using `pip`:
 
 .. code-block:: console
 
@@ -16,3 +19,10 @@ then ``cd`` to a desired directory, clone the repo, and install using pip
    (tension) $ git clone https://github.com/zhenruiliao/tension.git
    (tension) $ cd tension/
    (tension) $ pip install -e .
+
+Installing from PyPI
+--------------------
+
+.. code-block:: console
+
+   (tension) $ pip install tension

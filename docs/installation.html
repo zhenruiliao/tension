@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Installation &mdash; TENSION 0.1 documentation</title>
+  <title>Installation &mdash; TENSION 0.2 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -38,7 +38,11 @@
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Installation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#installing-from-github">Installing from GitHub</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#installing-from-pypi">Installing from PyPI</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="layers.html">FORCE Layers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="models.html">FORCE Model</a></li>
@@ -77,13 +81,22 @@
 <span class="gp gp-VirtualEnv">(.venv)</span> <span class="gp">$ </span>conda activate tension
 </pre></div>
 </div>
-<p>then <code class="docutils literal notranslate"><span class="pre">cd</span></code> to a desired directory, clone the repo, and install using pip</p>
+<section id="installing-from-github">
+<h2>Installing from GitHub<a class="headerlink" href="#installing-from-github" title="Permalink to this headline"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">cd</span></code> to a desired directory, clone the repo, and install using <cite>pip</cite>:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp gp-VirtualEnv">(tension)</span> <span class="gp">$ </span><span class="nb">cd</span> <span class="o">[</span>path to directory<span class="o">]</span>
 <span class="gp gp-VirtualEnv">(tension)</span> <span class="gp">$ </span>git clone https://github.com/zhenruiliao/tension.git
 <span class="gp gp-VirtualEnv">(tension)</span> <span class="gp">$ </span><span class="nb">cd</span> tension/
 <span class="gp gp-VirtualEnv">(tension)</span> <span class="gp">$ </span>pip install -e .
 </pre></div>
 </div>
+</section>
+<section id="installing-from-pypi">
+<h2>Installing from PyPI<a class="headerlink" href="#installing-from-pypi" title="Permalink to this headline"></a></h2>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp gp-VirtualEnv">(tension)</span> <span class="gp">$ </span>pip install tension
+</pre></div>
+</div>
+</section>
 </section>
 
 

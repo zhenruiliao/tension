@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>FORCE Layers &mdash; TENSION 0.1 documentation</title>
+  <title>FORCE Layers &mdash; TENSION 0.2 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -84,7 +84,7 @@
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tension.base.</span></span><span class="sig-name descname"><span class="pre">FORCELayer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tension.base.FORCELayer" title="Permalink to this definition"></a></dt>
 <dd><p>Base class for FORCE layers</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>units</strong> (<em>int</em>) – Number of recurrent units.</p></li>
 <li><p><strong>output_size</strong> (<em>int</em>) – Dimension of the target.</p></li>
@@ -100,7 +100,7 @@ recurrent connections within the network at initialization). (<em>Default: 1.5</
 connections (more non-zero weights). Value must be in (0,1]. (<em>Default: 1</em>)</p></li>
 </ul>
 </dd>
-<dt class="field-even">States</dt>
+<dt class="field-even">States<span class="colon">:</span></dt>
 <dd class="field-even"><ul class="simple">
 <li><p><strong>a</strong> - <code class="docutils literal notranslate"><span class="pre">1</span> <span class="pre">x</span> <span class="pre">self.units</span></code> tensor containing the pre-activation neuron firing rates</p></li>
 <li><p><strong>h</strong> - <code class="docutils literal notranslate"><span class="pre">1</span> <span class="pre">x</span> <span class="pre">self.units</span></code> tensor containing the neuron firing rates</p></li>
@@ -114,7 +114,7 @@ connections (more non-zero weights). Value must be in (0,1]. (<em>Default: 1</em
 <dd><p>Inherited from <code class="docutils literal notranslate"><span class="pre">tensorflow.keras.layers.Layer.build</span></code>, also calls method that performs the 
 initialization of layer kernals. Typically called implicitly.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>input_shape</strong> (<em>tuple</em>) – Shape of the input tensor.</p>
 </dd>
 </dl>
@@ -125,13 +125,13 @@ initialization of layer kernals. Typically called implicitly.</p>
 <em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">states</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tension.base.FORCELayer.call" title="Permalink to this definition"></a></dt>
 <dd><p>Implements forward pass of the layer.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>inputs</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – Input tensor of shape <em>(1, input dimensions)</em>.</p></li>
 <li><p><strong>states</strong> (<em>list</em><em>[</em><em>Tensor</em><em>[</em><em>2D float</em><em>]</em><em>]</em>) – List of tensors corresponding to the states of the layer.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
 <li><p><strong>output</strong> (<em>Tensor[2D float]</em>) - <code class="docutils literal notranslate"><span class="pre">1</span> <span class="pre">x</span> <span class="pre">self.output_size</span></code> tensor containing the 
 output of the forward pass.</p></li>
@@ -150,7 +150,7 @@ updated states of the layer.</p></li>
 <p><strong>Note:</strong> <code class="docutils literal notranslate"><span class="pre">p_recurr</span></code> parameter is not supported in this method. <code class="docutils literal notranslate"><span class="pre">units</span></code> and 
 <code class="docutils literal notranslate"><span class="pre">output_size</span></code> parameters are inferred from the input weights.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>weights</strong> (<em>tuple</em><em>[</em><em>Tensor</em><em>[</em><em>2D float</em><em>]</em><em>] </em><em>of length 4</em>) – Four 2D Tensors containing, respectively, the input, 
 recurrent, feedback, and output kernels</p></li>
@@ -160,7 +160,7 @@ the corresponding weight in the recurrent kernel is not trainable.</p></li>
 <li><p><strong>kwargs</strong> – Additional parameters required to initialize the layer.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>A sub-classed <code class="docutils literal notranslate"><span class="pre">FORCELayer</span></code> object initialized with the input weights</p>
 </dd>
 </dl>
@@ -172,7 +172,7 @@ the corresponding weight in the recurrent kernel is not trainable.</p></li>
 <dd><p>Initializes the states of the layer (called implicitly during layer build). 
 See: <a class="reference external" href="https://www.tensorflow.org/api_docs/python/tf/keras/layers/RNN">https://www.tensorflow.org/api_docs/python/tf/keras/layers/RNN</a></p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>A list of tensors containing the initial layer states</p>
 </dd>
 </dl>
@@ -184,7 +184,7 @@ See: <a class="reference external" href="https://www.tensorflow.org/api_docs/pyt
 <dd><p>Initializes the feedback kernel. Called in the layer object’s <code class="docutils literal notranslate"><span class="pre">build</span></code> and <code class="docutils literal notranslate"><span class="pre">from_weights</span></code>
 methods.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>feedback_kernel</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – Tensor array containing the pre-initialized kernel. 
 If none, the kernel will be randomly initialized. (<em>Default: None</em>)</p>
 </dd>
@@ -197,7 +197,7 @@ If none, the kernel will be randomly initialized. (<em>Default: None</em>)</p>
 <dd><p>Initializes the input kernel. Called in the layer object’s <code class="docutils literal notranslate"><span class="pre">build</span></code> and <code class="docutils literal notranslate"><span class="pre">from_weights</span></code>
 methods.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>input_dim</strong> (<em>int</em>) – Dimension of input</p></li>
 <li><p><strong>input_kernel</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – Tensor containing the pre-initialized kernel. 
@@ -213,7 +213,7 @@ If none, the kernel will be randomly initialized. (<em>Default: None</em>)</p></
 <dd><p>Initializes the output kernel. Called in the layer object’s <code class="docutils literal notranslate"><span class="pre">build</span></code> and <code class="docutils literal notranslate"><span class="pre">from_weights</span></code>
 methods.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>output_kernel</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – Tensor or numpy array containing the pre-initialized kernel. 
 If none, the kernel will be randomly initialized. (<em>Default: None</em>)</p>
 </dd>
@@ -226,7 +226,7 @@ If none, the kernel will be randomly initialized. (<em>Default: None</em>)</p>
 <dd><p>Initializes the recurrent kernel. Called in the layer object’s <code class="docutils literal notranslate"><span class="pre">build</span></code> and <code class="docutils literal notranslate"><span class="pre">from_weights</span></code>
 methods.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>recurrent_kernel</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – Tensor containing the pre-initialized kernel. 
 If none, the kernel will be randomly initialized. (<em>Default: None</em>)</p>
 </dd>
@@ -243,7 +243,7 @@ If none, the kernel will be randomly initialized. (<em>Default: None</em>)</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tension.models.</span></span><span class="sig-name descname"><span class="pre">EchoStateNetwork</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tension.models.EchoStateNetwork" title="Permalink to this definition"></a></dt>
 <dd><p>Implements the feedback echo state network. See <code class="docutils literal notranslate"><span class="pre">base.FORCELayer</span></code> for states.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>dtdivtau</strong> (<em>float</em>) – dt divided by network dynamic time scale.</p></li>
 <li><p><strong>hscale</strong> (<em>float</em>) – A scaling factor for randomly initializing the initial network activities.
@@ -259,13 +259,13 @@ the initial neuron pre-activation firing rates. (<em>Default: None</em>)</p></li
 <span class="sig-name descname"><span class="pre">call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">states</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tension.models.EchoStateNetwork.call" title="Permalink to this definition"></a></dt>
 <dd><p>Implements forward pass of the layer.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>inputs</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – Input tensor of shape <em>(1, input dimensions)</em>.</p></li>
 <li><p><strong>states</strong> (<em>list</em><em>[</em><em>Tensor</em><em>[</em><em>2D float</em><em>]</em><em>]</em>) – List of tensors corresponding to the states of the layer.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
 <li><p><strong>output</strong> (<em>Tensor[2D float]</em>) - <code class="docutils literal notranslate"><span class="pre">1</span> <span class="pre">x</span> <span class="pre">self.output_size</span></code> tensor containing the 
 output of the forward pass.</p></li>
@@ -283,7 +283,7 @@ updated states of the layer.</p></li>
 <dd><p>Initializes the states of the layer (called implicitly during layer build). 
 See: <a class="reference external" href="https://www.tensorflow.org/api_docs/python/tf/keras/layers/RNN">https://www.tensorflow.org/api_docs/python/tf/keras/layers/RNN</a></p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p><ul class="simple">
 <li><p><strong>a</strong> (<em>Tensor[2D float]</em>) - <code class="docutils literal notranslate"><span class="pre">batch_size</span> <span class="pre">x</span> <span class="pre">self.units</span></code> tensor containing 
 the pre-activation neuron firing rates.</p></li>
@@ -305,7 +305,7 @@ containing the predicted output.</p></li>
 <dd><p>Implements the no feedback echo state network. See <code class="docutils literal notranslate"><span class="pre">base.FORCELayer</span></code> 
 for states.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>recurrent_kernel_trainable</strong> (<em>bool</em>) – Boolean on whether or not to train 
 recurrent kernel. (<em>Default: True</em>)</p></li>
@@ -320,7 +320,7 @@ for additional required args.</p></li>
 <dd><p>Inherited from <code class="docutils literal notranslate"><span class="pre">tensorflow.keras.layers.Layer.build</span></code>, also calls method that performs the 
 initialization of layer kernals. Typically called implicitly.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>input_shape</strong> (<em>tuple</em>) – Shape of the input tensor.</p>
 </dd>
 </dl>
@@ -331,13 +331,13 @@ initialization of layer kernals. Typically called implicitly.</p>
 <span class="sig-name descname"><span class="pre">call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">states</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tension.models.NoFeedbackESN.call" title="Permalink to this definition"></a></dt>
 <dd><p>Implements forward pass of the layer.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>inputs</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – Input tensor of shape <em>(1, input dimensions)</em>.</p></li>
 <li><p><strong>states</strong> (<em>list</em><em>[</em><em>Tensor</em><em>[</em><em>2D float</em><em>]</em><em>]</em>) – List of tensors corresponding to the states of the layer.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
 <li><p><strong>output</strong> (<em>Tensor[2D float]</em>) - <code class="docutils literal notranslate"><span class="pre">1</span> <span class="pre">x</span> <span class="pre">self.output_size</span></code> tensor containing the 
 output of the forward pass.</p></li>
@@ -356,7 +356,7 @@ updated states of the layer.</p></li>
 <p><strong>Note:</strong> <code class="docutils literal notranslate"><span class="pre">p_recurr</span></code> parameter is not supported in this method. <code class="docutils literal notranslate"><span class="pre">units</span></code> and 
 <code class="docutils literal notranslate"><span class="pre">output_size</span></code> parameters are inferred from the input weights.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>weights</strong> (<em>tuple</em><em>[</em><em>Tensor</em><em>[</em><em>2D float</em><em>]</em><em>] </em><em>of length 3</em>) – tuple of tensors containing the input, recurrent, and output kernels</p></li>
 <li><p><strong>recurrent_nontrainable_boolean_mask</strong> (<em>Tensor</em><em>[</em><em>2D bool</em><em>]</em>) – A 2D boolean array with
@@ -365,7 +365,7 @@ the corresponding weight in the recurrent kernel is not trainable.</p></li>
 <li><p><strong>kwargs</strong> – Additional parameters required to initialize the layer.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>A <a class="reference internal" href="#tension.models.NoFeedbackESN" title="tension.models.NoFeedbackESN"><code class="xref py py-class docutils literal notranslate"><span class="pre">NoFeedbackESN</span></code></a> object initialized with the input weights</p>
 </dd>
 </dl>
@@ -379,7 +379,7 @@ the corresponding weight in the recurrent kernel is not trainable.</p></li>
 <dd><p>Constrained ESN without feedback as described in <a class="reference external" href="https://pubmed.ncbi.nlm.nih.gov/34197732/">Hadjiabadi et al.</a>.</p>
 <p><strong>Note:</strong> The target must have dimension equal to the number of neurons.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>dtdivtau</strong> (<em>float</em>) – dt divided by network dynamic time scale.</p></li>
 <li><p><strong>structural_connectivity</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – <code class="docutils literal notranslate"><span class="pre">self.units</span> <span class="pre">x</span> <span class="pre">self.units</span></code> structural connectivity matrix</p></li>
@@ -402,7 +402,7 @@ has no output weights and therefore the <code class="docutils literal notranslat
 <dd><p>Inherited from <code class="docutils literal notranslate"><span class="pre">tensorflow.keras.layers.Layer.build</span></code>, also calls method that performs the 
 initialization of layer kernals. Typically called implicitly.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>input_shape</strong> (<em>tuple</em>) – Shape of the input tensor.</p>
 </dd>
 </dl>
@@ -413,13 +413,13 @@ initialization of layer kernals. Typically called implicitly.</p>
 <span class="sig-name descname"><span class="pre">call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">states</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tension.constrained.ConstrainedNoFeedbackESN.call" title="Permalink to this definition"></a></dt>
 <dd><p>Implements forward pass of the layer.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>inputs</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – Input tensor of shape <em>(1, input dimensions)</em>.</p></li>
 <li><p><strong>states</strong> (<em>list</em><em>[</em><em>Tensor</em><em>[</em><em>2D float</em><em>]</em><em>]</em>) – List of tensors corresponding to the states of the layer.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
 <li><p><strong>output</strong> (<em>Tensor[2D float]</em>) - <code class="docutils literal notranslate"><span class="pre">1</span> <span class="pre">x</span> <span class="pre">self.output_size</span></code> tensor containing the 
 output of the forward pass.</p></li>
@@ -438,7 +438,7 @@ updated states of the layer.</p></li>
 <p><strong>Note:</strong> <code class="docutils literal notranslate"><span class="pre">p_recurr</span></code> parameter is not supported in this method. <code class="docutils literal notranslate"><span class="pre">units</span></code> parameter
 is inferred from the input weights.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>weights</strong> (<em>tuple</em><em>[</em><em>Tensor</em><em>[</em><em>2D float</em><em>]</em><em>] </em><em>of length 2</em>) – Two 2D Tensors containing the input and recurrent kernels</p></li>
 <li><p><strong>recurrent_nontrainable_boolean_mask</strong> (<em>Tensor</em><em>[</em><em>2D bool</em><em>]</em>) – A 2D boolean array with
@@ -447,7 +447,7 @@ the corresponding weight in the recurrent kernel is not trainable.</p></li>
 <li><p><strong>kwargs</strong> – Additional parameters required to initialize the layer.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>A <a class="reference internal" href="#tension.constrained.ConstrainedNoFeedbackESN" title="tension.constrained.ConstrainedNoFeedbackESN"><code class="xref py py-class docutils literal notranslate"><span class="pre">ConstrainedNoFeedbackESN</span></code></a> object initialized with the input weights</p>
 </dd>
 </dl>
@@ -459,7 +459,7 @@ the corresponding weight in the recurrent kernel is not trainable.</p></li>
 <dd><p>Initializes the states of the layer (called implicitly during layer build). See:
 <a class="reference external" href="https://www.tensorflow.org/api_docs/python/tf/keras/layers/RNN">https://www.tensorflow.org/api_docs/python/tf/keras/layers/RNN</a></p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p><ul class="simple">
 <li><p><strong>a</strong> (<em>Tensor[2D float]</em>) - <code class="docutils literal notranslate"><span class="pre">1</span> <span class="pre">x</span> <span class="pre">self.units</span></code> tensor containing the 
 pre-activation neuron firing rates</p></li>
@@ -479,7 +479,7 @@ the output of each neuron</p></li>
 <dd><p>Initializes the recurrent kernel. Called in the layer object’s <code class="docutils literal notranslate"><span class="pre">build</span></code> and <code class="docutils literal notranslate"><span class="pre">from_weights</span></code>
 methods.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>recurrent_kernel</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – Tensor containing the pre-initialized kernel. 
 If none, the kernel will be randomly initialized. (<em>Default: None</em>)</p>
 </dd>
@@ -500,7 +500,7 @@ be created by subclassing from this class or <code class="docutils literal notra
 initializing the layer. If initializing using <code class="docutils literal notranslate"><span class="pre">from_weights</span></code>, 
 the <code class="docutils literal notranslate"><span class="pre">recurrent_nontrainable_boolean_mask</span></code> is unused by default.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>dt</strong> (<em>float</em>) – Duration of one time step</p></li>
 <li><p><strong>tau_decay</strong> (<em>float</em>) – Synaptic decay time</p></li>
@@ -522,7 +522,7 @@ must be static and therefore the <code class="docutils literal notranslate"><spa
 supported.</p></li>
 </ul>
 </dd>
-<dt class="field-even">States</dt>
+<dt class="field-even">States<span class="colon">:</span></dt>
 <dd class="field-even"><ul class="simple">
 <li><p><strong>t_step</strong> - <code class="docutils literal notranslate"><span class="pre">1</span> <span class="pre">x</span> <span class="pre">1</span></code> tensor that tracks number of time steps</p></li>
 <li><p><strong>v</strong> - <code class="docutils literal notranslate"><span class="pre">1</span> <span class="pre">x</span> <span class="pre">self.units</span></code> tensor containing voltage traces of each neuron</p></li>
@@ -540,13 +540,13 @@ supported.</p></li>
 <span class="sig-name descname"><span class="pre">call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">states</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tension.spiking.SpikingNN.call" title="Permalink to this definition"></a></dt>
 <dd><p>Implements forward pass of the layer.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>inputs</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – Input tensor of shape <em>(1, input dimensions)</em>.</p></li>
 <li><p><strong>states</strong> (<em>list</em><em>[</em><em>Tensor</em><em>[</em><em>2D float</em><em>]</em><em>]</em>) – List of tensors corresponding to the states of the layer.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
 <li><p><strong>output</strong> (<em>Tensor[2D float]</em>) - <code class="docutils literal notranslate"><span class="pre">1</span> <span class="pre">x</span> <span class="pre">self.output_size</span></code> tensor containing the 
 output of the forward pass.</p></li>
@@ -563,10 +563,10 @@ updated states of the layer.</p></li>
 <span class="sig-name descname"><span class="pre">compute_current</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">states</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tension.spiking.SpikingNN.compute_current" title="Permalink to this definition"></a></dt>
 <dd><p>Computes current of each neuron</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>states</strong> (<em>tuple</em><em>[</em><em>Tensor</em><em>[</em><em>2D</em><em>]</em><em>]</em>) – A tuple of tensors containing the layer states</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>(<em>Tensor[2D float]</em>) - <code class="docutils literal notranslate"><span class="pre">1</span> <span class="pre">x</span> <span class="pre">self.units</span></code> tensor of neuron currents</p>
 </dd>
 </dl>
@@ -578,7 +578,7 @@ updated states of the layer.</p></li>
 <dd><p>Initializes the states of the layer (called implicitly during layer build). 
 See: <a class="reference external" href="https://www.tensorflow.org/api_docs/python/tf/keras/layers/RNN">https://www.tensorflow.org/api_docs/python/tf/keras/layers/RNN</a></p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>A list of tensors containing the initial layer states</p>
 </dd>
 </dl>
@@ -590,7 +590,7 @@ See: <a class="reference external" href="https://www.tensorflow.org/api_docs/pyt
 <dd><p>Initializes the feedback kernel. Called in the layer object’s <code class="docutils literal notranslate"><span class="pre">build</span></code> and <code class="docutils literal notranslate"><span class="pre">from_weights</span></code>
 methods.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>feedback_kernel</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – Tensor array containing the pre-initialized kernel. 
 If none, the kernel will be randomly initialized. (<em>Default: None</em>)</p>
 </dd>
@@ -603,7 +603,7 @@ If none, the kernel will be randomly initialized. (<em>Default: None</em>)</p>
 <dd><p>Initializes the output kernel. Called in the layer object’s <code class="docutils literal notranslate"><span class="pre">build</span></code> and <code class="docutils literal notranslate"><span class="pre">from_weights</span></code>
 methods.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>output_kernel</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – Tensor or numpy array containing the pre-initialized kernel. 
 If none, the kernel will be randomly initialized. (<em>Default: None</em>)</p>
 </dd>
@@ -616,7 +616,7 @@ If none, the kernel will be randomly initialized. (<em>Default: None</em>)</p>
 <dd><p>Initializes the recurrent kernel. Called in the layer object’s <code class="docutils literal notranslate"><span class="pre">build</span></code> and <code class="docutils literal notranslate"><span class="pre">from_weights</span></code>
 methods.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>recurrent_kernel</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – Tensor containing the pre-initialized kernel. 
 If none, the kernel will be randomly initialized. (<em>Default: None</em>)</p>
 </dd>
@@ -628,11 +628,11 @@ If none, the kernel will be randomly initialized. (<em>Default: None</em>)</p>
 <span class="sig-name descname"><span class="pre">initialize_voltage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch_size</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tension.spiking.SpikingNN.initialize_voltage" title="Permalink to this definition"></a></dt>
 <dd><p>Initializes voltage trace for each neuron</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>batch_size</strong> (<em>int</em>) – The batch size (<strong>Note:</strong> for potential future batched processing support. 
 Presently, input batch size will always be one.)</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>(<em>Tensor[2D float]</em>) A <code class="docutils literal notranslate"><span class="pre">batch_size</span> <span class="pre">x</span> <span class="pre">self.units</span></code> tensor of initial voltages</p>
 </dd>
 </dl>
@@ -651,14 +651,14 @@ or TensorShapes.</p>
 <span class="sig-name descname"><span class="pre">update_firing_rate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v_mask</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">states</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tension.spiking.SpikingNN.update_firing_rate" title="Permalink to this definition"></a></dt>
 <dd><p>Updates the firing rate of each neuron</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>v_mask</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – <code class="docutils literal notranslate"><span class="pre">1</span> <span class="pre">x</span> <span class="pre">self.units</span></code> zero-one mask where one indicates that the  
 neuron voltage exceeded <code class="docutils literal notranslate"><span class="pre">self.v_peak</span></code></p></li>
 <li><p><strong>states</strong> (<em>tuple</em><em>[</em><em>Tensor</em><em>[</em><em>2D float</em><em>]</em><em>]</em>) – A tuple of tensors containing the layer states</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
 <li><p><strong>h</strong> (<em>Tensor[2D float]</em>) - <code class="docutils literal notranslate"><span class="pre">1</span> <span class="pre">x</span> <span class="pre">self.units</span></code> tensor, updated <code class="docutils literal notranslate"><span class="pre">h</span></code> state</p></li>
 <li><p><strong>hr</strong> (<em>Tensor[2D float]</em>) - <code class="docutils literal notranslate"><span class="pre">1</span> <span class="pre">x</span> <span class="pre">self.units</span></code> tensor, updated <code class="docutils literal notranslate"><span class="pre">hr</span></code> state</p></li>
@@ -675,13 +675,13 @@ neuron voltage exceeded <code class="docutils literal notranslate"><span class="
 <span class="sig-name descname"><span class="pre">update_voltage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">I</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">states</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tension.spiking.SpikingNN.update_voltage" title="Permalink to this definition"></a></dt>
 <dd><p>Updates the voltage of each neuron</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>I</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – <code class="docutils literal notranslate"><span class="pre">1</span> <span class="pre">x</span> <span class="pre">self.units</span></code> tensor of neuron currents</p></li>
 <li><p><strong>states</strong> (<em>tuple</em><em>[</em><em>Tensor</em><em>[</em><em>2D float</em><em>]</em><em>]</em>) – A tuple of tensors containing the layer states</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
 <li><p><strong>v</strong> (<em>Tensor[2D float]</em>) - <code class="docutils literal notranslate"><span class="pre">1</span> <span class="pre">x</span> <span class="pre">self.units</span></code> tensor, updated <code class="docutils literal notranslate"><span class="pre">v</span></code> state</p></li>
 <li><p><strong>u</strong> (<em>Tensor[2D float]</em>) - <code class="docutils literal notranslate"><span class="pre">1</span> <span class="pre">x</span> <span class="pre">self.units</span></code> tensor, updated <code class="docutils literal notranslate"><span class="pre">u</span></code> state</p></li>
@@ -705,10 +705,10 @@ when creating new spiking layers.</p>
 <span class="sig-name descname"><span class="pre">compute_current</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">states</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tension.spiking.OptimizedSpikingNN.compute_current" title="Permalink to this definition"></a></dt>
 <dd><p>Computes current of each neuron</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>states</strong> (<em>tuple</em><em>[</em><em>Tensor</em><em>[</em><em>2D</em><em>]</em><em>]</em>) – A tuple of tensors containing the layer states</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>(<em>Tensor[2D float]</em>) - <code class="docutils literal notranslate"><span class="pre">1</span> <span class="pre">x</span> <span class="pre">self.units</span></code> tensor of neuron currents</p>
 </dd>
 </dl>
@@ -719,14 +719,14 @@ when creating new spiking layers.</p>
 <span class="sig-name descname"><span class="pre">update_firing_rate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v_mask</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">states</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tension.spiking.OptimizedSpikingNN.update_firing_rate" title="Permalink to this definition"></a></dt>
 <dd><p>Updates the firing rate of each neuron</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>v_mask</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – <code class="docutils literal notranslate"><span class="pre">1</span> <span class="pre">x</span> <span class="pre">self.units</span></code> zero-one mask where one indicates that the  
 neuron voltage exceeded <code class="docutils literal notranslate"><span class="pre">self.v_peak</span></code></p></li>
 <li><p><strong>states</strong> (<em>tuple</em><em>[</em><em>Tensor</em><em>[</em><em>2D float</em><em>]</em><em>]</em>) – A tuple of tensors containing the layer states</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
 <li><p><strong>h</strong> (<em>Tensor[2D float]</em>) - <code class="docutils literal notranslate"><span class="pre">1</span> <span class="pre">x</span> <span class="pre">self.units</span></code> tensor, updated <code class="docutils literal notranslate"><span class="pre">h</span></code> state</p></li>
 <li><p><strong>hr</strong> (<em>Tensor[2D float]</em>) - <code class="docutils literal notranslate"><span class="pre">1</span> <span class="pre">x</span> <span class="pre">self.units</span></code> tensor, updated <code class="docutils literal notranslate"><span class="pre">hr</span></code> state</p></li>
@@ -745,7 +745,7 @@ neuron voltage exceeded <code class="docutils literal notranslate"><span class="
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tension.spiking.</span></span><span class="sig-name descname"><span class="pre">LIF</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tension.spiking.LIF" title="Permalink to this definition"></a></dt>
 <dd><p>Leaky integrate and fire neuron</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>tau_mem</strong> (<em>float</em>) – Membrane time constant</p></li>
 <li><p><strong>tau_ref</strong> (<em>float</em>) – Refractory time constant</p></li>
@@ -758,11 +758,11 @@ neuron voltage exceeded <code class="docutils literal notranslate"><span class="
 <span class="sig-name descname"><span class="pre">initialize_voltage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch_size</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tension.spiking.LIF.initialize_voltage" title="Permalink to this definition"></a></dt>
 <dd><p>Initializes voltage trace for each neuron</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>batch_size</strong> (<em>int</em>) – The batch size (<strong>Note:</strong> for potential future batched processing support. 
 Presently, input batch size will always be one.)</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>(<em>Tensor[2D float]</em>) A <code class="docutils literal notranslate"><span class="pre">batch_size</span> <span class="pre">x</span> <span class="pre">self.units</span></code> tensor of initial voltages</p>
 </dd>
 </dl>
@@ -773,13 +773,13 @@ Presently, input batch size will always be one.)</p>
 <span class="sig-name descname"><span class="pre">update_voltage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">I</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">states</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tension.spiking.LIF.update_voltage" title="Permalink to this definition"></a></dt>
 <dd><p>Updates the voltage of each neuron</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>I</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – <code class="docutils literal notranslate"><span class="pre">1</span> <span class="pre">x</span> <span class="pre">self.units</span></code> tensor of neuron currents</p></li>
 <li><p><strong>states</strong> (<em>tuple</em><em>[</em><em>Tensor</em><em>[</em><em>2D float</em><em>]</em><em>]</em>) – A tuple of tensors containing the layer states</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
 <li><p><strong>v</strong> (<em>Tensor[2D float]</em>) - <code class="docutils literal notranslate"><span class="pre">1</span> <span class="pre">x</span> <span class="pre">self.units</span></code> tensor, updated <code class="docutils literal notranslate"><span class="pre">v</span></code> state</p></li>
 <li><p><strong>u</strong> (<em>Tensor[2D float]</em>) - <code class="docutils literal notranslate"><span class="pre">1</span> <span class="pre">x</span> <span class="pre">self.units</span></code> tensor, updated <code class="docutils literal notranslate"><span class="pre">u</span></code> state</p></li>
@@ -798,7 +798,7 @@ one indicates that the neuron voltage exceeded <code class="docutils literal not
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tension.spiking.</span></span><span class="sig-name descname"><span class="pre">Izhikevich</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tension.spiking.Izhikevich" title="Permalink to this definition"></a></dt>
 <dd><p>Implements Izhikevich neuron</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>adapt_time_inv</strong> (<em>float</em>) – Reciprocal of the adaptation time constant</p></li>
 <li><p><strong>resonance_param</strong> (<em>float</em>) – Controls resonance properties of the model</p></li>
@@ -816,11 +816,11 @@ one indicates that the neuron voltage exceeded <code class="docutils literal not
 <span class="sig-name descname"><span class="pre">initialize_voltage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch_size</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tension.spiking.Izhikevich.initialize_voltage" title="Permalink to this definition"></a></dt>
 <dd><p>Initializes voltage trace for each neuron</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>batch_size</strong> (<em>int</em>) – The batch size (<strong>Note:</strong> for potential future batched processing support. 
 Presently, input batch size will always be one.)</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>(<em>Tensor[2D float]</em>) A <code class="docutils literal notranslate"><span class="pre">batch_size</span> <span class="pre">x</span> <span class="pre">self.units</span></code> tensor of initial voltages</p>
 </dd>
 </dl>
@@ -831,13 +831,13 @@ Presently, input batch size will always be one.)</p>
 <span class="sig-name descname"><span class="pre">update_voltage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">I</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">states</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tension.spiking.Izhikevich.update_voltage" title="Permalink to this definition"></a></dt>
 <dd><p>Updates the voltage of each neuron</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>I</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – <code class="docutils literal notranslate"><span class="pre">1</span> <span class="pre">x</span> <span class="pre">self.units</span></code> tensor of neuron currents</p></li>
 <li><p><strong>states</strong> (<em>tuple</em><em>[</em><em>Tensor</em><em>[</em><em>2D float</em><em>]</em><em>]</em>) – A tuple of tensors containing the layer states</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
 <li><p><strong>v</strong> (<em>Tensor[2D float]</em>) - <code class="docutils literal notranslate"><span class="pre">1</span> <span class="pre">x</span> <span class="pre">self.units</span></code> tensor, updated <code class="docutils literal notranslate"><span class="pre">v</span></code> state</p></li>
 <li><p><strong>u</strong> (<em>Tensor[2D float]</em>) - <code class="docutils literal notranslate"><span class="pre">1</span> <span class="pre">x</span> <span class="pre">self.units</span></code> tensor, updated <code class="docutils literal notranslate"><span class="pre">u</span></code> state</p></li>
@@ -860,11 +860,11 @@ one indicates that the neuron voltage exceeded <code class="docutils literal not
 <span class="sig-name descname"><span class="pre">initialize_voltage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch_size</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tension.spiking.Theta.initialize_voltage" title="Permalink to this definition"></a></dt>
 <dd><p>Initializes voltage trace for each neuron</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>batch_size</strong> (<em>int</em>) – The batch size (<strong>Note:</strong> for potential future batched processing support. 
 Presently, input batch size will always be one.)</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>(<em>Tensor[2D float]</em>) A <code class="docutils literal notranslate"><span class="pre">batch_size</span> <span class="pre">x</span> <span class="pre">self.units</span></code> tensor of initial voltages</p>
 </dd>
 </dl>
@@ -875,13 +875,13 @@ Presently, input batch size will always be one.)</p>
 <span class="sig-name descname"><span class="pre">update_voltage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">I</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">states</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tension.spiking.Theta.update_voltage" title="Permalink to this definition"></a></dt>
 <dd><p>Updates the voltage of each neuron</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>I</strong> (<em>Tensor</em><em>[</em><em>2D float</em><em>]</em>) – <code class="docutils literal notranslate"><span class="pre">1</span> <span class="pre">x</span> <span class="pre">self.units</span></code> tensor of neuron currents</p></li>
 <li><p><strong>states</strong> (<em>tuple</em><em>[</em><em>Tensor</em><em>[</em><em>2D float</em><em>]</em><em>]</em>) – A tuple of tensors containing the layer states</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
 <li><p><strong>v</strong> (<em>Tensor[2D float]</em>) - <code class="docutils literal notranslate"><span class="pre">1</span> <span class="pre">x</span> <span class="pre">self.units</span></code> tensor, updated <code class="docutils literal notranslate"><span class="pre">v</span></code> state</p></li>
 <li><p><strong>u</strong> (<em>Tensor[2D float]</em>) - <code class="docutils literal notranslate"><span class="pre">1</span> <span class="pre">x</span> <span class="pre">self.units</span></code> tensor, updated <code class="docutils literal notranslate"><span class="pre">u</span></code> state</p></li>

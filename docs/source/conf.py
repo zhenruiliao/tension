@@ -23,7 +23,7 @@ copyright = '2022, Zhenrui Liao and Lu Bin Liu'
 author = 'Zhenrui Liao and Lu Bin Liu'
 
 # The full version, including alpha/beta/rc tags
-release = '0.1'
+release = '0.2'
 
 
 # -- General configuration ---------------------------------------------------
